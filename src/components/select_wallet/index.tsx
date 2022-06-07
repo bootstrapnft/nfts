@@ -2,18 +2,16 @@ import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useWeb3React } from "@web3-react/core";
 
-import coinbase from "@/assets/images/coinbase-wallet.svg";
-import walletconnect from "@/assets/images/walletconnect.svg";
-import metamaskFox from "@/assets/images/metamask-fox.svg";
-import torus from "@/assets/images/torus.svg";
+import coinbase from "@/assets/icon/coinbase-wallet.svg";
+import walletconnect from "@/assets/icon/walletconnect.svg";
+import metamaskFox from "@/assets/icon/metamask-fox.svg";
 import { connectors } from "@/components/select_wallet/connector";
 import { truncateAddress } from "@/util/address";
 
 const enum WalletType {
-  COINBASE = "COINBASE",
-  WALLETCONNECT = "WALLETCONNECT",
-  METAMASK = "METAMASK",
-  TORUS = "TORUS",
+  COINBASE = "coinbaseWallet",
+  WALLETCONNECT = "walletConnect",
+  INJECTED = "injected",
 }
 
 const SelectWallet = ({ isOpen, onClose }: any) => {
@@ -46,7 +44,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
     const type = getProvider();
     let image = null;
     switch (type) {
-      case WalletType.METAMASK:
+      case WalletType.INJECTED:
         image = metamaskFox;
         break;
       case WalletType.COINBASE:
@@ -54,9 +52,6 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
         break;
       case WalletType.WALLETCONNECT:
         image = walletconnect;
-        break;
-      case WalletType.TORUS:
-        image = torus;
         break;
       default:
         image = "";
@@ -112,8 +107,9 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                                         dark:hover:bg-pink-900 dark:hover:border-pink-800 hover:border-pink-100
                                         mb-2 flex justify-between items-center"
                       onClick={() => {
+                        console.log("connect metamsk");
                         activate(connectors.injected);
-                        setProvider(WalletType.METAMASK);
+                        setProvider(WalletType.INJECTED);
                         closeModal();
                       }}
                     >
@@ -130,6 +126,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                                         dark:hover:border-pink-800 hover:border-pink-100 mb-2 flex justify-between
                                         items-center"
                       onClick={() => {
+                        console.log("connect walletConnect");
                         activate(connectors.walletConnect);
                         setProvider(WalletType.WALLETCONNECT);
                         closeModal();
@@ -152,6 +149,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                                         dark:hover:border-pink-800 hover:border-pink-100 mb-2 flex justify-between
                                         items-center"
                       onClick={() => {
+                        console.log("connect coinbaseWallet");
                         activate(connectors.coinbaseWallet);
                         setProvider(WalletType.COINBASE);
                         closeModal();
@@ -161,26 +159,6 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                         <img className="" alt="WalletConnect" src={coinbase} />
                       </div>
                       Coinbase Wallet
-                    </div>
-                    <div
-                      className="p-3 cursor-pointer opacity-100 break-words min-h-full rounded-lg
-                                        dark:text-gray-50 text-lm-gray-700 border  transition-colors duration-300
-                                        ease-in-out dark:border-gray-600 dark:border-opacity-40 border-transparent
-                                        dark:bg-gray-800 bg-lm-gray-100 hover:bg-pink-50 dark:hover:bg-pink-900
-                                        dark:hover:border-pink-800 hover:border-pink-100 mb-2 flex justify-between
-                                        items-center"
-                      onClick={() => {
-                        activate(connectors.torus, (error) => {
-                          console.log("error", error);
-                        });
-                        setProvider(WalletType.TORUS);
-                        closeModal();
-                      }}
-                    >
-                      <div className="w-8 h-8 flex justify-center">
-                        <img className="" alt="WalletConnect" src={torus} />
-                      </div>
-                      Torus
                     </div>
                   </div>
                   <div className="mt-8 text-center">

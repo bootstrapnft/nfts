@@ -7,6 +7,11 @@ import Home from "@/pages/home";
 import Header from "@/components/header";
 import Create from "@/pages/create";
 import Vault from "@/pages/vault";
+import VaultManager from "@/pages/vault/manager";
+import VaultMint from "./pages/vault/mint";
+import "./App.scss";
+import VaultRedeem from "@/pages/vault/redeem";
+import LoadingProvider from "@/context/loading";
 
 const getLibrary = (provider: any) => {
   const library = new ethers.providers.Web3Provider(provider);
@@ -14,23 +19,34 @@ const getLibrary = (provider: any) => {
   return library;
 };
 
-function App() {
+const App = () => {
   return (
     <Fragment>
       <Suspense fallback={<div>loading...</div>}>
         <Web3ReactProvider getLibrary={getLibrary}>
-          <Header />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/create" element={<Create />} />
-              <Route path="/vault/:address/:type" element={<Vault />} />
-            </Routes>
-          </BrowserRouter>
+          <LoadingProvider>
+            <BrowserRouter>
+              <Header />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/create" element={<Create />} />
+                <Route path="/vault/:address/buy" element={<Vault />} />
+                <Route path="/vault/:address/mint" element={<VaultMint />} />
+                <Route
+                  path="/vault/:address/redeem"
+                  element={<VaultRedeem />}
+                />
+                <Route
+                  path="/vault/:address/manager"
+                  element={<VaultManager />}
+                />
+              </Routes>
+            </BrowserRouter>
+          </LoadingProvider>
         </Web3ReactProvider>
       </Suspense>
     </Fragment>
   );
-}
+};
 
 export default App;
