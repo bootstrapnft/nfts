@@ -14,7 +14,7 @@ const LoadingProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <LoadingContext.Provider value={{ loading, setLoading: updateLoading }}>
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-blue-primary bg-opacity-95">
         {children}
         {loading && (
           <div className="w-full h-screen fixed top-0 bg-black/50 bg-fixed flex items-center justify-center">

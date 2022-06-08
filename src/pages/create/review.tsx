@@ -57,13 +57,15 @@ const Review = ({ address, name, symbol, create }: any) => {
         </div>
         <div className="text-center">
           <button
-            className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12 w-full bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500 hover:to-pink-500 focus:ring-pink-500 mt-8"
+            className="inline-flex items-center justify-center outline-none font-medium rounded-md
+              break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12 w-full
+              bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary mt-8"
             type="button"
             onClick={create}
           >
             Create Vault
           </button>
-          <button className="mt-6 text-white">Edit</button>
+          {/*<button className="mt-6 text-white">Edit</button>*/}
         </div>
       </form>
     </div>

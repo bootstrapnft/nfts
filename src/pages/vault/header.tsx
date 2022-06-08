@@ -26,7 +26,7 @@ const VaultHeader = ({ address }: any) => {
   return (
     <header
       className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 dark:bg-gray-800
-                        bg-gray-50 sticky top-14 sm:top-18 z-10"
+           sticky top-14 sm:top-18 z-10"
     >
       <div className="flex items-center">
         <div className="inline-flex items-center">
@@ -83,18 +83,18 @@ const VaultHeader = ({ address }: any) => {
                     hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
                     border border-pink-500 dark:text-white text-lm-gray-800 hover:bg-pink-500 hover:bg-opacity-10
                     focus:ring-pink-700 bg-pink-500 bg-opacity-10 flex-1"
-          onClick={() => navigator(`/vault/${address}/buy`)}
+          onClick={() => navigator(`/vault/${address}/mint`)}
         >
-          Buy
+          Mint
         </button>
         <button
           className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
                         hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
                         dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50
                         hover:border-pink-500 focus:ring-pink-700 flex-1"
-          onClick={() => navigator(`/vault/${address}/sell`)}
+          onClick={() => navigator(`/vault/${address}/redeem`)}
         >
-          Sell
+          Redeem
         </button>
         <button
           className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word

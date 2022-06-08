@@ -1,12 +1,14 @@
 import { Fragment } from "react";
 import exclamation from "@/assets/icon/exclamation-circle.svg";
 
-const VaultCard = ({ number, image, callback }: any) => {
+const VaultCard = ({ number, image, name, callback }: any) => {
   return (
     <Fragment>
       <div
         className="group relative"
-        onClick={() => callback({ number: number, imageUrl: image })}
+        onClick={() =>
+          callback({ number: number, imageUrl: image, name: name })
+        }
       >
         <div className="p-3 cursor-pointer opacity-100 break-words min-h-full rounded-lg dark:text-gray-50 text-lm-gray-700 border  transition-colors duration-300 ease-in-out dark:border-gray-600 dark:border-opacity-40 border-transparent dark:bg-gray-800 bg-lm-gray-100 hover:bg-pink-50 dark:hover:bg-pink-900 dark:hover:border-pink-800 hover:border-pink-100 flex flex-col">
           <header className="flex">

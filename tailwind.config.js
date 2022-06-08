@@ -28,6 +28,20 @@ module.exports = {
         },
       },
     },
+    colors: {
+      ...colors,
+      blue: {
+        primary: "#10083B",
+      },
+      emerald: {
+        primary: "#00FFAE",
+      },
+      purple: {
+        primary: "#5025FA",
+        second: "#ADB9D8",
+        900: "#312e81",
+      },
+    },
   },
   plugins: [],
 };

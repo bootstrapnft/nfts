@@ -34,7 +34,6 @@ const VaultRedeem = () => {
   }, [allHolding]);
 
   const selectTokenId = (item: any) => {
-    console.log(item);
     let isSelect = false;
     selectRedeemIds.forEach((nft) => {
       if (nft.number === item.number) {
@@ -77,14 +76,21 @@ const VaultRedeem = () => {
       VaultABI,
       library.getSigner()
     );
-    const tx = await contract.redeem(1, [3]);
-    await tx.wait().then((res: any) => {
-      console.log("redeem res:", res);
-      getAllHolding();
-      getBalance();
-      setSelectRedeemIds([]);
+    const ids = selectRedeemIds.map((item) => item.number);
+    console.log("redeem:", ids);
+    try {
+      const tx = await contract.redeem(ids.length, ids);
+      await tx.wait().then((res: any) => {
+        console.log("redeem res:", res);
+        getAllHolding();
+        getBalance();
+        setSelectRedeemIds([]);
+        setLoading(false);
+      });
+    } catch (e) {
+      console.log("redeem error:", e);
       setLoading(false);
-    });
+    }
   };
 
   const getNFTAssetAddress = async () => {
@@ -121,15 +127,9 @@ const VaultRedeem = () => {
 
   return (
     <Fragment>
-      <main className="flex-1 flex relative flex-wrap md:flex-nowrap">
-        <section
-          className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r
-                    dark:border-gray-600 dark:border-opacity-50 border-gray-300 dark:bg-gray-700 bg-gray-100"
-        >
-          <header
-            className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 dark:bg-gray-800
-                        bg-gray-50 sticky top-14 sm:top-18 z-10"
-          >
+      <main className="flex-1 flex relative flex-wrap md:flex-nowrap text-purple-second">
+        <section className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r border-blue-primary">
+          <header className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 sticky top-14 sm:top-18 z-10">
             <div className="flex items-center">
               <div className="inline-flex items-center">
                 <img
@@ -145,7 +145,7 @@ const VaultRedeem = () => {
               </div>
             </div>
           </header>
-          <div className="dark:bg-gray-700 bg-gray-100">
+          <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">
                 {allHolding.length} items
@@ -177,7 +177,7 @@ const VaultRedeem = () => {
             ))}
           </div>
         </section>
-        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-[#6D5F68]">
+        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
           <div className="md:block md:sticky md:top-18 hidden">
             <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
               {selectRedeemIds.length === 0 && (
@@ -212,7 +212,7 @@ const VaultRedeem = () => {
                               <div className="inline-flex items-center">
                                 <img
                                   loading="lazy"
-                                  src={item.image}
+                                  src={item.imageUrl}
                                   className="w-8 h-8 object-cover flex-none rounded-md"
                                   alt="CRYPTOPUNKS"
                                 />
@@ -259,8 +259,8 @@ const VaultRedeem = () => {
                     <button
                       className="inline-flex items-center justify-center outline-none font-medium
                                         rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                        focus:ring-opacity-75 py-4 px-6 text-sm bg-gradient-to-b from-pink-400
-                                        to-pink-500 text-white hover:from-pink-500 hover:to-pink-500
+                                        focus:ring-opacity-75 py-4 px-6 text-sm bg-gradient-to-b from-purple-primary
+                                        to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
                                         focus:ring-pink-500 whitespace-nowrap"
                       onClick={redeem}
                     >

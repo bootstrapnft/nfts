@@ -115,10 +115,12 @@ const VaultMint = () => {
       ERC721ABI,
       library.getSigner()
     );
-    const approve = await erc721Contract.approve(
-      params.address,
-      selectMintIds[0].number
-    );
+    const approve = await erc721Contract
+      .approve(params.address, selectMintIds[0].number)
+      .catch((e: any) => {
+        console.log("approve error:", e);
+        setLoading(false);
+      });
     const approveResult = await approve.wait();
     console.log("approve result:", approveResult);
 
@@ -127,7 +129,12 @@ const VaultMint = () => {
       VaultABI,
       library.getSigner()
     );
-    const tx = await contract.mint([selectMintIds[0].number], [1]);
+    const tx = await contract
+      .mint([selectMintIds[0].number], [1])
+      .catch((e: any) => {
+        console.log("mint error:", e);
+        setLoading(false);
+      });
     await tx.wait().then(
       (res: any) => {
         console.log("tx success:", res);
@@ -135,6 +142,7 @@ const VaultMint = () => {
         getNFTIds();
       },
       (err: any) => {
+        setLoading(false);
         console.log("tx error:", err);
       }
     );
@@ -143,13 +151,13 @@ const VaultMint = () => {
 
   return (
     <Fragment>
-      <main className="flex-1 flex relative flex-wrap md:flex-nowrap">
+      <main className="flex-1 flex relative flex-wrap md:flex-nowrap text-purple-second">
         <section
           className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r
-                    dark:border-gray-600 dark:border-opacity-50 border-gray-300 dark:bg-gray-700 bg-gray-100"
+                    border-blue-primary"
         >
           <VaultHeader address={params?.address} />
-          <div className="dark:bg-gray-700 bg-gray-100">
+          <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">
                 {ownerNFTs.length} items
@@ -169,8 +177,8 @@ const VaultMint = () => {
             </div>
           </div>
           <div
-            className="pb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
-                    3xl:grid-cols-7 sm:gap-4 gap-2 "
+            className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
+                    3xl:grid-cols-7 sm:gap-4 gap-2"
           >
             {ownerNFTs.map((item, index) => (
               <VaultCard
@@ -181,7 +189,7 @@ const VaultMint = () => {
             ))}
           </div>
         </section>
-        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-[#6D5F68]">
+        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
           <div className="md:block md:sticky md:top-18 hidden">
             <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
               {selectMintIds.length === 0 && (
@@ -270,8 +278,8 @@ const VaultMint = () => {
                     <button
                       className="inline-flex items-center justify-center outline-none font-medium
                                         rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                        focus:ring-opacity-75 py-4 px-6 text-sm bg-gradient-to-b from-pink-400
-                                        to-pink-500 text-white hover:from-pink-500 hover:to-pink-500
+                                        focus:ring-opacity-75 py-4 px-6 text-sm bg-gradient-to-b from-purple-primary
+                                        to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
                                         focus:ring-pink-500 whitespace-nowrap"
                       onClick={mint}
                     >

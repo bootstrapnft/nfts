@@ -12,6 +12,8 @@ import VaultMint from "./pages/vault/mint";
 import "./App.scss";
 import VaultRedeem from "@/pages/vault/redeem";
 import LoadingProvider from "@/context/loading";
+import PoolCreate from "@/pages/pool/create";
+import PoolExplore from "@/pages/pool/explore";
 
 const getLibrary = (provider: any) => {
   const library = new ethers.providers.Web3Provider(provider);
@@ -40,6 +42,8 @@ const App = () => {
                   path="/vault/:address/manager"
                   element={<VaultManager />}
                 />
+                <Route path="/pool/create" element={<PoolCreate />} />
+                <Route path="/pool/explore" element={<PoolExplore />} />
               </Routes>
             </BrowserRouter>
           </LoadingProvider>

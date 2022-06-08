@@ -220,7 +220,7 @@ const VaultManager = () => {
 
   return (
     <Fragment>
-      <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12">
+      <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-purple-second">
         <div className="mx-auto my-10 max-w-4xl w-full shadow-xl p-6">
           <header>
             <span className="uppercase text-xs text-pink-800 border-pink-700 border p-1 rounded">
@@ -247,8 +247,8 @@ const VaultManager = () => {
               <button
                 className="inline-flex items-center justify-center outline-none font-medium rounded-md
                             break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-3
-                            bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500
-                            hover:to-pink-500 focus:ring-pink-500"
+                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
+                            hover:to-purple-primary"
                 type="button"
                 onClick={getNFTIds}
               >
@@ -270,8 +270,8 @@ const VaultManager = () => {
               <button
                 className="inline-flex items-center justify-center outline-none font-medium rounded-md
                             break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-3
-                            bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500
-                            hover:to-pink-500 focus:ring-pink-500"
+                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
+                            hover:to-purple-primary"
                 type="button"
                 onClick={publish}
               >
@@ -325,8 +325,8 @@ const VaultManager = () => {
                 <button
                   className="inline-flex items-center justify-center outline-none font-medium rounded-md
                                             break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-2
-                                            bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500
-                                            hover:to-pink-500 focus:ring-pink-500 mt-3 text-sm mt-3"
+                                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
+                                            hover:to-purple-primary mt-3 text-sm mt-3"
                   type="button"
                   onClick={mint}
                 >
@@ -427,8 +427,8 @@ const VaultManager = () => {
                     <button
                       className="inline-flex items-center justify-center outline-none font-medium rounded-md
                                             break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-2
-                                            bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500
-                                            hover:to-pink-500 focus:ring-pink-500 mt-3 text-sm"
+                                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
+                                            hover:to-purple-primary focus:ring-pink-500 mt-3 text-sm"
                       type="button"
                       onClick={updateFeature}
                     >
@@ -503,8 +503,8 @@ const VaultManager = () => {
                   <button
                     className="inline-flex items-center justify-center outline-none font-medium rounded-md
                                             break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-2
-                                            bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500
-                                            hover:to-pink-500 focus:ring-pink-500 mt-3 text-sm mt-16"
+                                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
+                                            hover:to-purple-primary  mt-3 text-sm mt-16"
                     type="button"
                     onClick={updateFees}
                   >

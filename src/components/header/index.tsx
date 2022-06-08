@@ -12,7 +12,7 @@ const Header = () => {
 
   return (
     <div className="sticky top-0 z-30">
-      <header className="border-b-2 bg-white">
+      <header className="bg-blue-primary">
         <div className="px-4 py-2 flex flex-wrap">
           <nav
             className="hide-scroll overflow-x-scroll lg:overflow-x-visible hidden border-r
@@ -24,8 +24,7 @@ const Header = () => {
                 className="inline-flex items-center justify-center outline-none font-medium rounded-md
                   break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5 px-4
                   bg-transparent dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50
-                  hover:border-pink-500 focus:ring-pink-700 hidden lg:inline-flex lg:dark:hover:border-gray-900
-                  lg:hover:bg-transparent lg:focus:ring-0"
+                   hidden lg:inline-flex lg:hover:bg-transparent lg:focus:ring-0 text-purple-primary"
               >
                 Shop
                 <span className="text-center transform rotate-90 ml-2">
@@ -34,16 +33,15 @@ const Header = () => {
               </button>
               <div
                 className="lg:shadow-lg lg:absolute lg:flex lg:flex-col lg:space-y-1.5 lg:top-full lg:-left-1
-                  lg:-right-4 lg:p-2 lg:rounded-lg lg:border-gray-300 lg:bg-gray-50 lg:dark:bg-gray-800 lg:border
+                  lg:-right-4 lg:p-2 lg:rounded-lg lg:border-purple-primary lg:bg-blue-primary lg:dark:bg-gray-800 lg:border
                   lg:dark:border-gray-600 lg:hidden group-hover:inline-flex z-50"
               >
                 <div
                   onClick={() => navigator("/")}
                   className="inline-flex items-center justify-left outline-none font-medium rounded-md break-word
                       hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5 px-4 bg-transparent
-                      border border-pink-500 dark:text-white text-lm-gray-800 hover:bg-pink-500 hover:bg-opacity-10
-                      focus:ring-pink-700 bg-pink-500 bg-opacity-10 text-sm mr-1.5 lg:mr-0
-                      dark:text-white text-gray-900 cursor-pointer"
+                      dark:text-white text-lm-gray-800  hover:text-purple-primary
+                      text-sm mr-1.5 lg:mr-0 dark:text-white cursor-pointer text-purple-second"
                 >
                   Buy
                 </div>
@@ -51,9 +49,8 @@ const Header = () => {
                   className="inline-flex items-center justify-left outline-none font-medium
                                 rounded-md break-word hover:outline focus:outline-none focus:ring-1
                                 focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
-                                text-lm-gray-900 border border-transparent hover:border-opacity-50
-                                hover:border-pink-500 focus:ring-pink-700 text-sm lg:text-base mr-1.5
-                                dark:text-white text-gray-900 cursor-pointer text-left"
+                                text-lm-gray-900 border border-transparent hover:text-purple-primary text-sm lg:text-base mr-1.5
+                                dark:text-white cursor-pointer text-left text-purple-second"
                   onClick={() => navigator("/sell")}
                 >
                   Sell
@@ -63,24 +60,67 @@ const Header = () => {
                                 rounded-md break-word hover:outline focus:outline-none focus:ring-1
                                 focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
                                 text-lm-gray-900 border border-transparent hover:border-opacity-50
-                                hover:border-pink-500 focus:ring-pink-700 text-sm lg:text-base mr-1.5
-                                dark:text-white text-gray-900 cursor-pointer text-left"
+                                hover:text-purple-primary text-sm lg:text-base mr-1.5
+                                dark:text-white cursor-pointer text-left text-purple-second"
                   onClick={() => navigator("/swap")}
                 >
                   Swap
                 </div>
               </div>
             </div>
+
             <div
               className="inline-flex items-center justify-center outline-none font-medium
-                                rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
-                                text-lm-gray-900 border border-transparent hover:border-opacity-50
-                                hover:border-pink-500 focus:ring-pink-700 text-sm lg:text-base mr-1.5
-                                dark:text-white text-gray-900 cursor-pointer"
+              rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
+              py-2.5 px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
+              hover:text-purple-primary text-sm lg:text-base text-purple-second
+              mr-1.5 dark:text-white cursor-pointer"
               onClick={() => navigator("/create")}
             >
               Create
+            </div>
+
+            <div className="relative inline-flex group">
+              <button
+                className="inline-flex items-center justify-center outline-none font-medium rounded-md
+                  break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5 px-4
+                  bg-transparent dark:text-white text-lm-gray-900 border border-transparent
+                  hover:text-purple-primary hidden lg:inline-flex lg:dark:hover:border-gray-900
+                  lg:hover:bg-transparent lg:focus:ring-0 text-purple-second"
+              >
+                Pool
+                <span className="text-center transform rotate-90 ml-2">
+                  <img src={arrowDown} alt="" className="h-5 w-5" />
+                </span>
+              </button>
+              <div
+                className="lg:shadow-lg lg:absolute lg:flex lg:flex-col lg:space-y-1.5 lg:top-full lg:-left-1
+                  lg:-right-4 lg:p-2 lg:rounded-lg lg:border-purple-primary lg:bg-blue-primary lg:dark:bg-gray-800 lg:border
+                  lg:dark:border-gray-600 lg:hidden group-hover:inline-flex z-50"
+              >
+                <div
+                  className="inline-flex items-center justify-left outline-none font-medium
+                                rounded-md break-word hover:outline focus:outline-none focus:ring-1
+                                focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
+                                text-lm-gray-900 border border-transparent hover:border-opacity-50
+                                text-sm lg:text-base mr-1.5 text-purple-second
+                                dark:text-white cursor-pointer text-left"
+                  onClick={() => navigator("/pool/create")}
+                >
+                  Create
+                </div>
+                <div
+                  className="inline-flex items-center justify-left outline-none font-medium
+                                rounded-md break-word hover:outline focus:outline-none focus:ring-1
+                                focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
+                                text-lm-gray-900 border border-transparent hover:border-opacity-50
+                                text-sm lg:text-base mr-1.5 text-purple-second
+                                dark:text-white cursor-pointer text-left"
+                  onClick={() => navigator("/pool/explore")}
+                >
+                  Explore
+                </div>
+              </div>
             </div>
           </nav>
           <aside className="flex order-2 sm:order-3 justify-center md:justify-end flex-wrap ml-auto md:ml-0">
@@ -88,9 +128,9 @@ const Header = () => {
               <button
                 className="inline-flex items-center justify-center outline-none font-medium
                                     rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                    focus:ring-opacity-75 py-2 px-3 text-sm bg-gradient-to-b from-pink-400
-                                    to-pink-500 text-white hover:from-pink-500 hover:to-pink-500 focus:ring-pink-500
-                                    whitespace-nowrap"
+                                    focus:ring-opacity-75 py-2 px-3 text-sm bg-gradient-to-b from-purple-primary
+                                    to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
+                                    focus:ring-purple-primary whitespace-nowrap"
                 onClick={() => setIsOpen(true)}
               >
                 {!active ? "Connect" : truncateAddress(account!)}

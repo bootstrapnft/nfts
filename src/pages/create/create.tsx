@@ -13,7 +13,9 @@ const CreateForm = ({
 
   return (
     <form action="#" autoComplete="off">
-      <h1 className="text-2xl font-bold text-center mb-4">Create NFT Vault</h1>
+      <h1 className="text-2xl font-bold text-center mb-4 text-purple-second">
+        Create NFT Vault
+      </h1>
       <div
         className="p-4 border dark:border-teal-500 border-teal-900 dark:bg-teal-900
                                     bg-teal-200 dark:text-white rounded-md text-sm"
@@ -123,14 +125,12 @@ const CreateForm = ({
       </span>
       <button
         className={`inline-flex items-center justify-center outline-none font-medium
-                                rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                focus:ring-opacity-75 py-6 px-12 w-full bg-gradient-to-b from-pink-400 to-pink-500
-                                text-white hover:from-pink-500 hover:to-pink-500 focus:ring-pink-500
-                                opacity-90 mt-8 ${
-                                  checkInput()
-                                    ? "cursor-pointer"
-                                    : "cursor-not-allowed"
-                                }`}
+            rounded-md break-word hover:outline focus:outline-none focus:ring-1
+            focus:ring-opacity-75 py-6 px-12 w-full bg-gradient-to-b from-purple-primary to-purple-900
+            text-white hover:from-purple-primary hover:purple-primary
+            opacity-90 mt-8 ${
+              checkInput() ? "cursor-pointer" : "cursor-not-allowed"
+            }`}
         type="button"
         onClick={() => {
           changeState();

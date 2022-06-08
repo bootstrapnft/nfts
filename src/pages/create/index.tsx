@@ -19,8 +19,8 @@ const Create = () => {
   const [nftAssetAddress, setNftAssetAddress] = useState("");
   const [vaultName, setVaultName] = useState("");
   const [vaultSymbol, setVaultSymbol] = useState("");
-  const [vaultAddress, setVaultAddress] = useState("");
-  const [state, setState] = useState(State.Create);
+  const [vaultAddress, setVaultAddress] = useState("0x122");
+  const [state, setState] = useState(State.Created);
   const { library, account, active } = useWeb3React();
   const [_, setLoading] = useLoading();
 

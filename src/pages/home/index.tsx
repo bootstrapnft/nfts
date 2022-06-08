@@ -156,13 +156,13 @@ const Home = () => {
 
   return (
     <Fragment>
-      <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-[#6D5F68]">
+      <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-purple-second">
         <section>
           <header>
             <h1 className="font-bold text-3xl mb-2">Buy NFTs</h1>
             <p className="mb-4">Browse the decentralized NFT marketplace.</p>
           </header>
-          <div className="bg-gradient-to-r from-transparent via-pink-500 to-orange-500 h-px mb-4"></div>
+          <div className="bg-gradient-to-r from-transparent to-purple-primary h-px mb-4"></div>
           <div className="flex justify-between items-center sm:items-start space-x-4">
             <h3 className="uppercase mb-4 mt-4 font-bold text-xl inline-block">
               All Collections
