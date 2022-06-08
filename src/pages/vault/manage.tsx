@@ -9,8 +9,9 @@ import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers/lib.esm";
 import { truncateAddress } from "@/util/address";
 import { useLoading } from "@/context/loading";
+import Vault from "@/contract/Vault.json";
 
-const VaultManager = () => {
+const VaultManage = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [_, setLoading] = useLoading();
@@ -19,6 +20,8 @@ const VaultManager = () => {
   const [enableMinting, setEnableMinting] = useState(false);
   const [enableRandomRedeem, setEnableRandomRedeem] = useState(false);
   const [enableTargetRedeem, setEnableTargetRedeem] = useState(false);
+  const [enableRandomSwap, setEnableRandomSwap] = useState(false);
+  const [enableTargetSwap, setEnableTargetSwap] = useState(false);
 
   const [mintFee, setMintFee] = useState("0");
   const [randomRedeemFee, setRandomRedeemFee] = useState("0");
@@ -30,11 +33,13 @@ const VaultManager = () => {
   const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
   const [ownerNFTs, setOwnerNFTs] = useState<any[]>([]);
   const [selectNFTIds, setSelectNFTIds] = useState<number[]>([]);
+  const [isPublish, setIsPublish] = useState(false);
 
   useEffect(() => {
     getFees();
     getNFTAssetAddress();
     getNFTInfo();
+    getPublish();
   }, []);
 
   useEffect(() => {
@@ -79,8 +84,8 @@ const VaultManager = () => {
       enableMinting,
       enableRandomRedeem,
       enableTargetRedeem,
-      false,
-      false
+      enableRandomSwap,
+      enableTargetSwap
     );
     await tx.wait().then((res: any) => {
       console.log("update enable target redeem", res);
@@ -218,14 +223,30 @@ const VaultManager = () => {
     setLoading(false);
   };
 
+  const getPublish = async () => {
+    const contract = new Contract(params.address!, Vault, library.getSigner());
+    const res = await contract.manager();
+    if (0 === Number(res)) {
+      setIsPublish(true);
+      setIsMint(true);
+      console.log(isPublish);
+    }
+  };
+
   return (
     <Fragment>
       <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-purple-second">
         <div className="mx-auto my-10 max-w-4xl w-full shadow-xl p-6">
           <header>
-            <span className="uppercase text-xs text-pink-800 border-pink-700 border p-1 rounded">
-              unpublish
-            </span>
+            {!isPublish ? (
+              <span className="uppercase text-xs text-pink-800 border-pink-700 border p-1 rounded">
+                unpublish
+              </span>
+            ) : (
+              <span className="uppercase text-xs text-emerald-primary border-emerald-primary border p-1 rounded">
+                publish
+              </span>
+            )}
             <h1 className="text-2xl font-bold mt-4">PUNK</h1>
             <div className="flex gap-x-3 text-sm">
               <h3 className="font-bold">CryptoPunks</h3>
@@ -256,7 +277,7 @@ const VaultManager = () => {
               </button>
             </div>
           )}
-          {isMint && (
+          {!isPublish && isMint && (
             <div className="shadow-2xl mt-6 p-3 flex items-center justify-between">
               <div className="max-w-sm">
                 <div className="flex items-center gap-x-2 py-1 px-2 rounded-full text-sm font-bold bg-gray-100 w-44">
@@ -355,7 +376,7 @@ const VaultManager = () => {
                 ))}
               </Tab.List>
               <Tab.Panels className="mt-2">
-                <Tab.Panel className="rounded-xl bg-white p-3">
+                <Tab.Panel className="rounded-xl p-3">
                   <div>
                     <h1 className="font-bold text-xl">Vault Address</h1>
                     <span className="text-sm">{params.address}</span>
@@ -365,15 +386,16 @@ const VaultManager = () => {
                     <div className="mt-2">
                       <button
                         className="inline-flex items-center justify-center outline-none
-                                                font-medium rounded-md break-word hover:outline focus:outline-none
-                                                focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                                                border border-pink-500 dark:text-white text-lm-gray-800
-                                                hover:bg-pink-500 hover:bg-opacity-10 focus:ring-pink-700 mr-2"
+                              font-medium rounded-md break-word hover:outline focus:outline-none
+                              focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+                              border border-purple-primary dark:text-white text-lm-gray-800
+                              hover:bg-purple-primary hover:bg-opacity-10 focus:ring-purple-900 mr-2"
                       >
                         <label className="cursor-pointer inline-flex items-center select-none text-sm w-full">
                           <input
                             type="checkbox"
-                            className="rounded-sm h-4 w-4 text-pink-500 bg-transparent border-pink-500 focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-pink-700 focus:ring-opacity-30"
+                            className="rounded-sm h-4 w-4 text-purple-primary bg-transparent border-purple-primary
+                              focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-purple-900 focus:ring-opacity-30"
                             onChange={(e) => setEnableMinting(e.target.checked)}
                           />
                           <span className="ml-2 overflow-hidden">
@@ -384,15 +406,16 @@ const VaultManager = () => {
 
                       <button
                         className="inline-flex items-center justify-center outline-none
-                                                font-medium rounded-md break-word hover:outline focus:outline-none
-                                                focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                                                border border-pink-500 dark:text-white text-lm-gray-800
-                                                hover:bg-pink-500 hover:bg-opacity-10 focus:ring-pink-700 mr-2"
+                              font-medium rounded-md break-word hover:outline focus:outline-none
+                              focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+                              border border-purple-primary dark:text-white text-lm-gray-800
+                              hover:bg-purple-primary hover:bg-opacity-10 focus:ring-purple-900 mr-2"
                       >
                         <label className="cursor-pointer inline-flex items-center select-none text-sm w-full">
                           <input
                             type="checkbox"
-                            className="rounded-sm h-4 w-4 text-pink-500 bg-transparent border-pink-500 focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-pink-700 focus:ring-opacity-30"
+                            className="rounded-sm h-4 w-4 text-purple-primary bg-transparent border-purple-primary
+                              focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-purple-900 focus:ring-opacity-30"
                             onChange={(e) =>
                               setEnableRandomRedeem(e.target.checked)
                             }
@@ -405,21 +428,66 @@ const VaultManager = () => {
 
                       <button
                         className="inline-flex items-center justify-center outline-none
-                                                font-medium rounded-md break-word hover:outline focus:outline-none
-                                                focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                                                border border-pink-500 dark:text-white text-lm-gray-800
-                                                hover:bg-pink-500 hover:bg-opacity-10 focus:ring-pink-700 mr-2"
+                              font-medium rounded-md break-word hover:outline focus:outline-none
+                              focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+                              border border-purple-primary dark:text-white text-lm-gray-800
+                              hover:bg-purple-primary hover:bg-opacity-10 focus:ring-purple-900 mr-2"
                       >
                         <label className="cursor-pointer inline-flex items-center select-none text-sm w-full">
                           <input
                             type="checkbox"
-                            className="rounded-sm h-4 w-4 text-pink-500 bg-transparent border-pink-500 focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-pink-700 focus:ring-opacity-30"
+                            className="rounded-sm h-4 w-4 text-purple-primary bg-transparent border-purple-primary
+                              focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-purple-900 focus:ring-opacity-30"
                             onChange={(e) =>
                               setEnableTargetRedeem(e.target.checked)
                             }
                           />
                           <span className="ml-2 overflow-hidden">
                             Enable Target Redeems
+                          </span>
+                        </label>
+                      </button>
+
+                      <button
+                        className="inline-flex items-center justify-center outline-none
+                              font-medium rounded-md break-word hover:outline focus:outline-none
+                              focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+                              border border-purple-primary dark:text-white text-lm-gray-800
+                              hover:bg-purple-primary hover:bg-opacity-10 focus:ring-purple-900 mr-2"
+                      >
+                        <label className="cursor-pointer inline-flex items-center select-none text-sm w-full">
+                          <input
+                            type="checkbox"
+                            className="rounded-sm h-4 w-4 text-purple-primary bg-transparent border-purple-primary
+                              focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-purple-900 focus:ring-opacity-300"
+                            onChange={(e) =>
+                              setEnableRandomSwap(e.target.checked)
+                            }
+                          />
+                          <span className="ml-2 overflow-hidden">
+                            Enable Random Swap
+                          </span>
+                        </label>
+                      </button>
+
+                      <button
+                        className="inline-flex items-center justify-center outline-none
+                              font-medium rounded-md break-word hover:outline focus:outline-none
+                              focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+                              border border-purple-primary dark:text-white text-lm-gray-800
+                              hover:bg-purple-primary hover:bg-opacity-10 focus:ring-purple-900 mr-2 mt-2"
+                      >
+                        <label className="cursor-pointer inline-flex items-center select-none text-sm w-full">
+                          <input
+                            type="checkbox"
+                            className="rounded-sm h-4 w-4 text-purple-primary bg-transparent border-purple-primary
+                              focus:ring-offset-0 focus:outline-none focus:ring-1 focus:ring-purple-900 focus:ring-opacity-30"
+                            onChange={(e) =>
+                              setEnableTargetSwap(e.target.checked)
+                            }
+                          />
+                          <span className="ml-2 overflow-hidden">
+                            Enable Target Swap
                           </span>
                         </label>
                       </button>
@@ -436,7 +504,7 @@ const VaultManager = () => {
                     </button>
                   </div>
                 </Tab.Panel>
-                <Tab.Panel className="rounded-xl bg-white p-3">
+                <Tab.Panel className="rounded-xl p-3">
                   <div>
                     <h1 className="font-bold text-xl">Current Fees</h1>
                     <span className="text-sm">
@@ -511,9 +579,7 @@ const VaultManager = () => {
                     Edit Fees
                   </button>
                 </Tab.Panel>
-                <Tab.Panel className="rounded-xl bg-white p-3">
-                  Danger Zone
-                </Tab.Panel>
+                <Tab.Panel className="rounded-xl p-3">Danger Zone</Tab.Panel>
               </Tab.Panels>
             </Tab.Group>
           </div>
@@ -523,4 +589,4 @@ const VaultManager = () => {
   );
 };
 
-export default VaultManager;
+export default VaultManage;

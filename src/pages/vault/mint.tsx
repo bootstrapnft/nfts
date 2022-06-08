@@ -21,9 +21,11 @@ const VaultMint = () => {
   const [assetAddress, setAssetAddress] = useState("");
   const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
   const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
+  const [isManager, setIsManager] = useState(false);
 
   useEffect(() => {
     getNFTAssetAddress();
+    getOwner();
   }, []);
 
   useEffect(() => {
@@ -33,6 +35,27 @@ const VaultMint = () => {
   useEffect(() => {
     getNFTInfo();
   }, [ownerNFTIds]);
+
+  const getOwner = () => {
+    if (active) {
+      const contract = new Contract(
+        params.address!,
+        VaultABI,
+        library.getSigner()
+      );
+      contract
+        .owner()
+        .then((owner: any) => {
+          console.log("get owner result:", owner);
+          if (account === owner) {
+            setIsManager(true);
+          }
+        })
+        .catch((err: any) => {
+          console.log("get owner:", err);
+        });
+    }
+  };
 
   const selectTokenId = (item: any) => {
     console.log(item);
@@ -156,7 +179,7 @@ const VaultMint = () => {
           className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r
                     border-blue-primary"
         >
-          <VaultHeader address={params?.address} />
+          <VaultHeader address={params?.address} isManager />
           <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">

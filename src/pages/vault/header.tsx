@@ -5,7 +5,7 @@ import Vault from "@/contract/Vault.json";
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 
-const VaultHeader = ({ address }: any) => {
+const VaultHeader = ({ address, isManager }: any) => {
   const navigator = useNavigate();
   const { library } = useWeb3React();
   const [vaultName, setVaultName] = useState("");
@@ -104,6 +104,15 @@ const VaultHeader = ({ address }: any) => {
           onClick={() => navigator(`/vault/${address}/swap`)}
         >
           Swap
+        </button>
+        <button
+          className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
+                        hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+                        dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-pink-500
+                        focus:ring-pink-700 flex-1"
+          onClick={() => navigator(`/vault/${address}/manage`)}
+        >
+          Manage
         </button>
         <button
           className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word

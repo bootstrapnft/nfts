@@ -7,7 +7,7 @@ import Home from "@/pages/home";
 import Header from "@/components/header";
 import Create from "@/pages/create";
 import Vault from "@/pages/vault";
-import VaultManager from "@/pages/vault/manager";
+import VaultManager from "@/pages/vault/manage";
 import VaultMint from "./pages/vault/mint";
 import "./App.scss";
 import VaultRedeem from "@/pages/vault/redeem";
@@ -39,7 +39,7 @@ const App = () => {
                   element={<VaultRedeem />}
                 />
                 <Route
-                  path="/vault/:address/manager"
+                  path="/vault/:address/manage"
                   element={<VaultManager />}
                 />
                 <Route path="/pool/create" element={<PoolCreate />} />
