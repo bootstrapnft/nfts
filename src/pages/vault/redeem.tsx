@@ -10,6 +10,7 @@ import ERC721ABI from "@/contract/ERC721.json";
 import close from "@/assets/icon/close.svg";
 import viewGrid from "@/assets/icon/view-grid.svg";
 import miniViewGrid from "@/assets/icon/mini-view-grid.svg";
+import VaultHeader from "@/pages/vault/header";
 
 const VaultRedeem = () => {
   const params = useParams();
@@ -129,22 +130,23 @@ const VaultRedeem = () => {
     <Fragment>
       <main className="flex-1 flex relative flex-wrap md:flex-nowrap text-purple-second">
         <section className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r border-blue-primary">
-          <header className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 sticky top-14 sm:top-18 z-10">
-            <div className="flex items-center">
-              <div className="inline-flex items-center">
-                <img
-                  className="w-10 h-10 bg-cover"
-                  src="https://res.cloudinary.com/nftx/image/fetch/w_150,h_150,f_auto/https://raw.githubusercontent.com/NFTX-project/nftx-assets/main/vaults-v2/0/256x256.png"
-                  alt="PUNK"
-                />
-                <div className="flex-1 ml-2 overflow-hidden">
-                  <h4 className="text-lg font-bold leading-tight">
-                    Redeem Punk
-                  </h4>
-                </div>
-              </div>
-            </div>
-          </header>
+          {/*<header className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 sticky top-14 sm:top-18 z-10">*/}
+          {/*  <div className="flex items-center">*/}
+          {/*    <div className="inline-flex items-center">*/}
+          {/*      <img*/}
+          {/*        className="w-10 h-10 bg-cover"*/}
+          {/*        src="https://res.cloudinary.com/nftx/image/fetch/w_150,h_150,f_auto/https://raw.githubusercontent.com/NFTX-project/nftx-assets/main/vaults-v2/0/256x256.png"*/}
+          {/*        alt="PUNK"*/}
+          {/*      />*/}
+          {/*      <div className="flex-1 ml-2 overflow-hidden">*/}
+          {/*        <h4 className="text-lg font-bold leading-tight">*/}
+          {/*          Redeem Punk*/}
+          {/*        </h4>*/}
+          {/*      </div>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*</header>*/}
+          <VaultHeader address={params?.address} isManager type="redeem" />
           <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">

@@ -48,6 +48,9 @@ const PoolExplore = () => {
       symbolB: "TIDAL",
     },
   ];
+
+  const getPoolList = async () => {};
+
   return (
     <Fragment>
       <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-[#6D5F68]">

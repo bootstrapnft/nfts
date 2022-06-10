@@ -4,7 +4,7 @@ const Review = ({ address, name, symbol, create }: any) => {
   return (
     <div
       className="rounded-md shadow-xl dark:text-white text-lm-gray-700 dark:bg-gray-800 bg-lm-gray-100 border
-            dark:border-gray-700 border-transparent p-6 text-[#6D5F68]"
+            dark:border-gray-700 border-transparent p-6 text-purple-second"
     >
       <form action="#" autoComplete="off">
         <h1 className="text-2xl font-bold text-center mb-4">

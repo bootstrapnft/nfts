@@ -53,7 +53,7 @@ const CreateForm = ({
             className="border text-lg font-mono transition-colors dark:border-gray-600
                            border-lm-gray-300 p-4 pt-8 rounded-sm dark:text-white text-gray-700
                            bg-white dark:bg-black dark:bg-opacity-50 w-full focus:outline-none
-                           focus:border-pink-500 focus:ring-0"
+                           focus:border-purple-primary focus:ring-0"
             defaultValue={nftAssetAddress}
             onChange={(e) => setNftAssetAddress(e.target.value)}
           />
@@ -77,7 +77,7 @@ const CreateForm = ({
             className="   border text-lg font-mono
                                         transition-colors dark:border-gray-600 border-lm-gray-300 p-4 pt-8 rounded-sm
                                         dark:text-white text-gray-700 bg-white dark:bg-black dark:bg-opacity-50 w-full
-                                        focus:outline-none focus:border-pink-500 focus:ring-0"
+                                        focus:outline-none focus:border-purple-primary focus:ring-0"
             defaultValue={vaultName}
             onChange={(e) => setVaultName(e.target.value)}
           />
@@ -104,7 +104,7 @@ const CreateForm = ({
             id="symbol"
             className="uppercase border text-lg font-mono transition-colors dark:border-gray-600
                           border-lm-gray-300 p-4 pt-8 rounded-sm dark:text-white text-gray-700 bg-white
-                          dark:bg-black dark:bg-opacity-50 w-full focus:outline-none focus:border-pink-500 focus:ring-0"
+                          dark:bg-black dark:bg-opacity-50 w-full focus:outline-none focus:border-purple-primary focus:ring-0"
             defaultValue={vaultSymbol}
             onChange={(e) => setVaultSymbol(e.target.value)}
           />

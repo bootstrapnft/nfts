@@ -29,7 +29,7 @@ const Card = ({
         className="flex flex-col transition-all transform hover:-translate-y-1 backface-invisible
                     hover:shadow-2xl rounded-md shadow-xl dark:text-white text-lm-gray-700 dark:bg-gray-800
                     bg-lm-gray-100 border dark:border-gray-700 border-transparent p-3"
-        onClick={() => navigate(`/vault/${address}/mint`)}
+        onClick={() => navigate(`/vault/${address}/redeem`)}
       >
         <div
           className="h-0 w-full rounded-md relative overflow-hidden backface-invisible"

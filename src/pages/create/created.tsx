@@ -51,7 +51,7 @@ const Created = ({ address, name, symbol }: any) => {
                         hover:to-purple-primary mt-8"
             type="button"
             onClick={() => {
-              navigate(`/vault/${address}/manager`);
+              navigate(`/vault/${address}/manage`);
             }}
           >
             Manager your Vault

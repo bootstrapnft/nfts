@@ -80,8 +80,8 @@ const VaultMint = () => {
     );
     await contract.assetAddress().then((res: any) => {
       setAssetAddress(res);
+      console.log("ass:", res);
     });
-    console.log("ass:", assetAddress);
   };
 
   const getNFTIds = async () => {
@@ -179,7 +179,7 @@ const VaultMint = () => {
           className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r
                     border-blue-primary"
         >
-          <VaultHeader address={params?.address} isManager />
+          <VaultHeader address={params?.address} isManager type="mint" />
           <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">

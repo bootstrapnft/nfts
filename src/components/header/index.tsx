@@ -43,7 +43,7 @@ const Header = () => {
                       dark:text-white text-lm-gray-800  hover:text-purple-primary
                       text-sm mr-1.5 lg:mr-0 dark:text-white cursor-pointer text-purple-second"
                 >
-                  Buy
+                  Redeem
                 </div>
                 <div
                   className="inline-flex items-center justify-left outline-none font-medium
@@ -51,9 +51,9 @@ const Header = () => {
                                 focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
                                 text-lm-gray-900 border border-transparent hover:text-purple-primary text-sm lg:text-base mr-1.5
                                 dark:text-white cursor-pointer text-left text-purple-second"
-                  onClick={() => navigator("/sell")}
+                  onClick={() => navigator("/")}
                 >
-                  Sell
+                  Mint
                 </div>
                 <div
                   className="inline-flex items-center justify-left outline-none font-medium
