@@ -26,7 +26,7 @@ const VaultHeader = ({ address, isManager, type }: any) => {
   return (
     <header
       className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 dark:bg-gray-800
-           sticky top-14 sm:top-18 z-10"
+           sticky top-14 sm:top-18 bg-blue-primary z-10"
     >
       <div className="flex items-center">
         <div className="inline-flex items-center">
@@ -107,10 +107,14 @@ const VaultHeader = ({ address, isManager, type }: any) => {
           Mint
         </button>
         <button
-          className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
+          className={`inline-flex items-center justify-center outline-none font-medium rounded-md break-word
                         hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
                         dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-purple-primary
-                        focus:ring-pink-700 flex-1"
+                        focus:ring-pink-700 flex-1 ${
+                          type === "swap"
+                            ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
+                            : ""
+                        }`}
           onClick={() => navigator(`/vault/${address}/swap`)}
         >
           Swap

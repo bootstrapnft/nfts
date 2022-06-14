@@ -15,6 +15,8 @@ import LoadingProvider from "@/context/loading";
 import PoolCreate from "@/pages/pool/create";
 import PoolExplore from "@/pages/pool/explore";
 import Footer from "@/components/footer";
+import PoolManage from "@/pages/pool/manage";
+import VaultSwap from "@/pages/vault/swap";
 
 const getLibrary = (provider: any) => {
   const library = new ethers.providers.Web3Provider(provider);
@@ -43,8 +45,10 @@ const App = () => {
                   path="/vault/:address/manage"
                   element={<VaultManager />}
                 />
+                <Route path="/vault/:address/swap" element={<VaultSwap />} />
                 <Route path="/pool/create" element={<PoolCreate />} />
                 <Route path="/pool/explore" element={<PoolExplore />} />
+                <Route path="/pool/:address/manage" element={<PoolManage />} />
               </Routes>
               <Footer />
             </BrowserRouter>

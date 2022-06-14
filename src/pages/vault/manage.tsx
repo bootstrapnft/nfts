@@ -156,7 +156,7 @@ const VaultManage = () => {
 
     const tokenIds: number[] = [];
     await Promise.all(
-      new Array(18).fill(1).map(async (item, index) => {
+      new Array(58).fill(1).map(async (item, index) => {
         const result = await contract.ownerOf(index);
         if (result === account) {
           tokenIds.push(index);

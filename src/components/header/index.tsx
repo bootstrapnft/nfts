@@ -1,9 +1,10 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import SelectWallet from "@/components/select_wallet";
 import { useWeb3React } from "@web3-react/core";
 import { truncateAddress } from "@/util/address";
 import { useNavigate } from "react-router";
 import arrowDown from "@/assets/icon/arrow-down.svg";
+import logo from "@/assets/logo.svg";
 
 const Header = () => {
   const navigator = useNavigate();
@@ -14,6 +15,9 @@ const Header = () => {
     <div className="sticky top-0 z-30">
       <header className="bg-blue-primary">
         <div className="px-4 py-2 flex flex-wrap">
+          <aside className="flex items-center">
+            <img src={logo} alt="" className="h-8 w-48" />
+          </aside>
           <nav
             className="hide-scroll overflow-x-scroll lg:overflow-x-visible hidden border-r
                         border-gray-100 order-4 flex-none mt-2 w-full lg:w-auto
@@ -88,7 +92,7 @@ const Header = () => {
                   hover:text-purple-primary hidden lg:inline-flex lg:dark:hover:border-gray-900
                   lg:hover:bg-transparent lg:focus:ring-0 text-purple-second"
               >
-                Pool
+                Auction
                 <span className="text-center transform rotate-90 ml-2">
                   <img src={arrowDown} alt="" className="h-5 w-5" />
                 </span>
@@ -98,7 +102,7 @@ const Header = () => {
                   lg:-right-4 lg:p-2 lg:rounded-lg lg:border-purple-primary lg:bg-blue-primary lg:dark:bg-gray-800 lg:border
                   lg:dark:border-gray-600 lg:hidden group-hover:inline-flex z-50"
               >
-                <div
+                <button
                   className="inline-flex items-center justify-left outline-none font-medium
                                 rounded-md break-word hover:outline focus:outline-none focus:ring-1
                                 focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
@@ -106,10 +110,11 @@ const Header = () => {
                                 text-sm lg:text-base mr-1.5 text-purple-second
                                 dark:text-white cursor-pointer text-left"
                   onClick={() => navigator("/pool/create")}
+                  // href="http://124.222.87.17:8080/#/pool/new" target="_blank"
                 >
-                  Create
-                </div>
-                <div
+                  Create Pool
+                </button>
+                <button
                   className="inline-flex items-center justify-left outline-none font-medium
                                 rounded-md break-word hover:outline focus:outline-none focus:ring-1
                                 focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
@@ -117,9 +122,22 @@ const Header = () => {
                                 text-sm lg:text-base mr-1.5 text-purple-second
                                 dark:text-white cursor-pointer text-left"
                   onClick={() => navigator("/pool/explore")}
+                  // href="http://124.222.87.17:8080/#/explore"  target="_blank"
                 >
-                  Explore
-                </div>
+                  Explore Pools
+                </button>
+                <button
+                  className="inline-flex items-center justify-left outline-none font-medium
+                                rounded-md break-word hover:outline focus:outline-none focus:ring-1
+                                focus:ring-opacity-75 py-2.5 px-4 bg-transparent dark:text-white
+                                text-lm-gray-900 border border-transparent hover:border-opacity-50
+                                text-sm lg:text-base mr-1.5 text-purple-second
+                                dark:text-white cursor-pointer text-left"
+                  onClick={() => navigator("/pool/swap")}
+                  // href="http://124.222.87.17:3000/#/swap"  target="_blank"
+                >
+                  Swap
+                </button>
               </div>
             </div>
           </nav>
