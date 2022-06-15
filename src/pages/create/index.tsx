@@ -22,7 +22,7 @@ const Create = () => {
   const [vaultAddress, setVaultAddress] = useState("");
   const [state, setState] = useState(State.Create);
   const { library, account, active } = useWeb3React();
-  const [_, setLoading] = useLoading();
+  const [, setLoading] = useLoading();
 
   const changeState = (status: State) => {
     setState(status);

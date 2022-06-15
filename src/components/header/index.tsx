@@ -1,15 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SelectWallet from "@/components/select_wallet";
 import { useWeb3React } from "@web3-react/core";
 import { truncateAddress } from "@/util/address";
 import { useNavigate } from "react-router";
 import arrowDown from "@/assets/icon/arrow-down.svg";
 import logo from "@/assets/logo.svg";
+import { gql, request } from "graphql-request";
+import rinkeby from "@/config/rinkeby.json";
 
 const Header = () => {
   const navigator = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
   const { account, active } = useWeb3React();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isManager, setIsManager] = useState(false);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+    getIsManager();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  const getIsManager = () => {
+    const query = gql`
+      query {
+        vaults(where: {manager: "${account?.toLowerCase()}"}) {
+          id
+        }
+      }
+    `;
+    request(rinkeby.nftSubgraphUrl, query)
+      .then((data) => {
+        if (data.vaults.length > 0) {
+          setIsManager(true);
+        }
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  };
 
   return (
     <div className="sticky top-0 z-30">
@@ -79,10 +110,23 @@ const Header = () => {
               py-2.5 px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
               hover:text-purple-primary text-sm lg:text-base text-purple-second
               mr-1.5 dark:text-white cursor-pointer"
-              onClick={() => navigator("/create")}
+              onClick={() => navigator("/vault/create")}
             >
-              Create
+              Fractionalize
             </div>
+
+            {isManager && (
+              <div
+                className="inline-flex items-center justify-center outline-none font-medium
+              rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
+              py-2.5 px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
+              hover:text-purple-primary text-sm lg:text-base text-purple-second
+              mr-1.5 dark:text-white cursor-pointer"
+                onClick={() => navigator("/vault/manage")}
+              >
+                Manage
+              </div>
+            )}
 
             <div className="relative inline-flex group">
               <button
@@ -143,14 +187,7 @@ const Header = () => {
           </nav>
           <aside className="flex order-2 sm:order-3 justify-center md:justify-end flex-wrap ml-auto md:ml-0">
             <div className="hidden sm:inline-flex">
-              <button
-                className="inline-flex items-center justify-center outline-none font-medium
-                                    rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                    focus:ring-opacity-75 py-2 px-3 text-sm bg-gradient-to-b from-purple-primary
-                                    to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
-                                    focus:ring-purple-primary whitespace-nowrap"
-                onClick={() => setIsOpen(true)}
-              >
+              <button className="btn-primary" onClick={() => setIsOpen(true)}>
                 {!active ? "Connect" : truncateAddress(account!)}
               </button>
             </div>

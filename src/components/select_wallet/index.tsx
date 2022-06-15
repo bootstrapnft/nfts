@@ -101,11 +101,9 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                   <div>
                     <div
                       className="p-3 cursor-pointer opacity-100 break-words min-h-full
-                                        rounded-lg dark:text-gray-50 text-lm-gray-700 border  transition-colors
-                                        duration-300 ease-in-out dark:border-gray-600 dark:border-opacity-40
-                                        border-transparent dark:bg-gray-800 bg-lm-gray-100 hover:bg-pink-50
-                                        dark:hover:bg-pink-900 dark:hover:border-pink-800 hover:border-pink-100
-                                        mb-2 flex justify-between items-center"
+                              rounded-lg dark:text-gray-50 text-lm-gray-700 border  transition-colors
+                              duration-300 ease-in-out border-transparent  bg-lm-gray-100 hover:bg-purple-primary
+                              hover:bg-opacity-10 mb-2 flex justify-between items-center"
                       onClick={() => {
                         console.log("connect metamsk");
                         activate(connectors.injected);
@@ -119,12 +117,10 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                       MetaMask
                     </div>
                     <div
-                      className="p-3 cursor-pointer opacity-100 break-words min-h-full rounded-lg
-                                        dark:text-gray-50 text-lm-gray-700 border  transition-colors duration-300
-                                        ease-in-out dark:border-gray-600 dark:border-opacity-40 border-transparent
-                                        dark:bg-gray-800 bg-lm-gray-100 hover:bg-pink-50 dark:hover:bg-pink-900
-                                        dark:hover:border-pink-800 hover:border-pink-100 mb-2 flex justify-between
-                                        items-center"
+                      className="p-3 cursor-pointer opacity-100 break-words min-h-full
+                              rounded-lg dark:text-gray-50 text-lm-gray-700 border  transition-colors
+                              duration-300 ease-in-out border-transparent  bg-lm-gray-100 hover:bg-purple-primary
+                              hover:bg-opacity-10 mb-2 flex justify-between items-center"
                       onClick={() => {
                         console.log("connect walletConnect");
                         activate(connectors.walletConnect);
@@ -142,12 +138,10 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                       WalletConnect
                     </div>
                     <div
-                      className="p-3 cursor-pointer opacity-100 break-words min-h-full rounded-lg
-                                        dark:text-gray-50 text-lm-gray-700 border  transition-colors duration-300
-                                        ease-in-out dark:border-gray-600 dark:border-opacity-40 border-transparent
-                                        dark:bg-gray-800 bg-lm-gray-100 hover:bg-pink-50 dark:hover:bg-pink-900
-                                        dark:hover:border-pink-800 hover:border-pink-100 mb-2 flex justify-between
-                                        items-center"
+                      className="p-3 cursor-pointer opacity-100 break-words min-h-full
+                              rounded-lg dark:text-gray-50 text-lm-gray-700 border  transition-colors
+                              duration-300 ease-in-out border-transparent  bg-lm-gray-100 hover:bg-purple-primary
+                               hover:bg-opacity-10 mb-2 flex justify-between items-center"
                       onClick={() => {
                         console.log("connect coinbaseWallet");
                         activate(connectors.coinbaseWallet);
@@ -163,11 +157,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                   </div>
                   <div className="mt-8 text-center">
                     <button
-                      className="inline-flex items-center justify-center outline-none font-medium
-                                                rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                                focus:ring-opacity-75 py-2.5 px-4 bg-gradient-to-b from-pink-400
-                                                to-pink-500 text-white hover:from-pink-500 hover:to-pink-500
-                                                focus:ring-pink-500"
+                      className="btn-primary px-6 py-3"
                       onClick={closeModal}
                     >
                       Close
@@ -196,8 +186,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                     <button
                       type="button"
                       title="Copy to clipboard"
-                      className="ml-auto
-                                            dark:text-white text-gray-900 relative p-1 h-6 w-6 dark:bg-white
+                      className="ml-auto dark:text-white text-gray-900 relative p-1 h-6 w-6 dark:bg-white
                                             bg-gray-900 bg-opacity-10 dark:bg-opacity-10 rounded-full inline-flex
                                             items-center justify-center focus:outline-none focus:ring-0"
                     >
@@ -212,10 +201,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                   </div>
                   <div className="mt-8 text-center space-x-4">
                     <button
-                      className="inline-flex items-center justify-center outline-none
-                                            font-medium rounded-md break-word hover:outline focus:outline-none
-                                            focus:ring-1 focus:ring-opacity-75 py-2.5 px-4 bg-white text-gray-900
-                                            hover:bg-gray-100 focus:ring-gray-300"
+                      className="btn-second py-3 px-6 bg-gray-200 hover:bg-purple-primary hover:text-white"
                       onClick={() => {
                         console.log("connecting to metamask");
                         setChangeWallet(true);
@@ -224,11 +210,7 @@ const SelectWallet = ({ isOpen, onClose }: any) => {
                       Change Wallet
                     </button>
                     <button
-                      className="inline-flex items-center justify-center outline-none
-                                            font-medium rounded-md break-word hover:outline focus:outline-none
-                                            focus:ring-1 focus:ring-opacity-75 py-2.5 px-4 bg-gradient-to-b
-                                            from-pink-400 to-pink-500 text-white hover:from-pink-500 hover:to-pink-500
-                                            focus:ring-pink-500"
+                      className="btn-primary px-6 py-3"
                       onClick={disconnect}
                     >
                       Disconnect

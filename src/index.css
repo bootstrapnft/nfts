@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center outline-none font-medium rounded-md
+    hover:outline focus:outline-none focus:ring-1
+    focus:ring-opacity-75 py-2 px-3 text-sm bg-gradient-to-b from-purple-primary
+    to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
+    focus:ring-purple-primary whitespace-nowrap;
+  }
+  .btn-second {
+    @apply inline-flex items-center justify-center outline-none font-medium rounded-md
+    hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
+    dark:text-white border border-transparent hover:border-opacity-50 hover:border-purple-primary
+    focus:accent-purple-primary flex-1;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",

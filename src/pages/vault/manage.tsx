@@ -14,8 +14,8 @@ import Vault from "@/contract/Vault.json";
 const VaultManage = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const [_, setLoading] = useLoading();
-  const { library, account, active } = useWeb3React();
+  const [, setLoading] = useLoading();
+  const { library, account } = useWeb3React();
   const [tabs] = useState(["General", "Fee", "Danger Zone"]);
   const [enableMinting, setEnableMinting] = useState(false);
   const [enableRandomRedeem, setEnableRandomRedeem] = useState(false);
@@ -40,10 +40,14 @@ const VaultManage = () => {
     getNFTAssetAddress();
     getNFTInfo();
     getPublish();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getNFTInfo();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ownerNFTIds]);
 
   const getNFTAssetAddress = async () => {
@@ -236,7 +240,7 @@ const VaultManage = () => {
   return (
     <Fragment>
       <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-purple-second">
-        <div className="mx-auto my-10 max-w-4xl w-full shadow-xl p-6">
+        <div className="mx-auto my-10 max-w-4xl w-full shadow-xl p-6 bg-blue-primary">
           <header>
             {!isPublish ? (
               <span className="uppercase text-xs text-pink-800 border-pink-700 border p-1 rounded">
@@ -324,7 +328,9 @@ const VaultManage = () => {
                           <h3 className="text-xs dark:text-gray-400 text-gray-500 mb-2 pr-1">
                             #{item.number}{" "}
                           </h3>
-                          <h4 className="ml-auto font-medium text-xs overflow-hidden overflow-ellipsis whitespace-nowrap"></h4>
+                          <h4 className="ml-auto font-medium text-xs overflow-hidden overflow-ellipsis whitespace-nowrap">
+                            {""}
+                          </h4>
                         </header>
                         <div className="flex flex-1">
                           <div className="w-0 h-0 relative pt-full"></div>
@@ -493,10 +499,7 @@ const VaultManage = () => {
                       </button>
                     </div>
                     <button
-                      className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                                            break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-2
-                                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
-                                            hover:to-purple-primary focus:ring-pink-500 mt-3 text-sm"
+                      className="btn-primary mt-6"
                       type="button"
                       onClick={updateFeature}
                     >
@@ -569,10 +572,7 @@ const VaultManage = () => {
                   </div>
 
                   <button
-                    className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                                            break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-2
-                                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
-                                            hover:to-purple-primary  mt-3 text-sm mt-16"
+                    className="btn-primary mt-6"
                     type="button"
                     onClick={updateFees}
                   >

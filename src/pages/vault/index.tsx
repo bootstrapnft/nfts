@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { BigNumber, Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import VaultABI from "@/contract/Vault.json";
@@ -16,8 +16,8 @@ import { useLoading } from "@/context/loading";
 const Vault = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const { library, account, active } = useWeb3React();
-  const [_, setLoading] = useLoading();
+  const { library } = useWeb3React();
+  const [, setLoading] = useLoading();
   const [assetAddress, setAssetAddress] = useState("");
   const [ownerNFTs, setOwnerNFTs] = useState<any[]>([]);
   const [allHolding, setAllHolding] = useState<number[]>([]);
@@ -25,10 +25,12 @@ const Vault = () => {
   useEffect(() => {
     getHoldings().then();
     getNFTAssetAddress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getNFTInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allHolding]);
 
   const getHoldings = async () => {

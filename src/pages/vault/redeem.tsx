@@ -8,14 +8,12 @@ import { useLoading } from "@/context/loading";
 import VaultABI from "@/contract/Vault.json";
 import ERC721ABI from "@/contract/ERC721.json";
 import close from "@/assets/icon/close.svg";
-import viewGrid from "@/assets/icon/view-grid.svg";
-import miniViewGrid from "@/assets/icon/mini-view-grid.svg";
 import VaultHeader from "@/pages/vault/header";
 
 const VaultRedeem = () => {
   const params = useParams();
   const { library, account, active } = useWeb3React();
-  const [_, setLoading] = useLoading();
+  const [, setLoading] = useLoading();
   const [balance, setBalance] = useState("0");
   const [assetAddress, setAssetAddress] = useState("");
   const [allHolding, setAllHolding] = useState<number[]>([]);
@@ -25,13 +23,21 @@ const VaultRedeem = () => {
   >([]);
 
   useEffect(() => {
-    getAllHolding();
-    getBalance();
-    getNFTAssetAddress();
-  }, []);
+    if (active) {
+      getAllHolding();
+      getBalance();
+      getNFTAssetAddress();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, account]);
 
   useEffect(() => {
-    getNFTInfo();
+    if (allHolding.length > 0) {
+      getNFTInfo();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allHolding]);
 
   const selectTokenId = (item: any) => {
@@ -128,41 +134,13 @@ const VaultRedeem = () => {
 
   return (
     <Fragment>
-      <main className="flex-1 flex relative flex-wrap md:flex-nowrap text-purple-second">
-        <section className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r border-blue-primary">
-          {/*<header className="lg:flex justify-between items-center py-2 px-4 sm:px-6 lg:h-16 sticky top-14 sm:top-18 z-10">*/}
-          {/*  <div className="flex items-center">*/}
-          {/*    <div className="inline-flex items-center">*/}
-          {/*      <img*/}
-          {/*        className="w-10 h-10 bg-cover"*/}
-          {/*        src="https://res.cloudinary.com/nftx/image/fetch/w_150,h_150,f_auto/https://raw.githubusercontent.com/NFTX-project/nftx-assets/main/vaults-v2/0/256x256.png"*/}
-          {/*        alt="PUNK"*/}
-          {/*      />*/}
-          {/*      <div className="flex-1 ml-2 overflow-hidden">*/}
-          {/*        <h4 className="text-lg font-bold leading-tight">*/}
-          {/*          Redeem Punk*/}
-          {/*        </h4>*/}
-          {/*      </div>*/}
-          {/*    </div>*/}
-          {/*  </div>*/}
-          {/*</header>*/}
+      <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
+        <section className="relative sm:static pb-12 flex-1 flex flex-col">
           <VaultHeader address={params?.address} isManager type="redeem" />
           <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">
                 {allHolding.length} items
-                <div className="flex space-x-1">
-                  <button className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-1.5 px-2 text-xs bg-transparent border border-pink-500 dark:text-white text-lm-gray-800 hover:bg-pink-500 hover:bg-opacity-10 focus:ring-pink-700">
-                    <span className="text-center">
-                      <img src={viewGrid} alt="" className="h-5 w-5" />
-                    </span>
-                  </button>
-                  <button className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-1.5 px-2 text-xs bg-transparent dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-pink-500 focus:ring-pink-700">
-                    <span className="text-center">
-                      <img src={miniViewGrid} alt="" className="h-5 w-5" />
-                    </span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -174,24 +152,28 @@ const VaultRedeem = () => {
               <VaultCard
                 key={index}
                 {...item}
+                selectList={selectRedeemIds}
                 callback={(item: any) => selectTokenId(item)}
               />
             ))}
           </div>
         </section>
-        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
+        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second bg-blue-primary">
           <div className="md:block md:sticky md:top-18 hidden">
             <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
               {selectRedeemIds.length === 0 && (
                 <div>
                   <h3 className="mb-4 text-xl text-center dark:text-gray-50 text-lm-gray-600">
-                    Select NFTs to mint
+                    Select NFTs to Redeem
                   </h3>
                   <button
-                    className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12 w-full bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800 cursor-not-allowed opacity-90"
+                    className="inline-flex items-center justify-center outline-none font-medium rounded-md
+                      break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6
+                      px-12 w-full bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800
+                      cursor-not-allowed opacity-90"
                     disabled={true}
                   >
-                    Mint NFTs
+                    Redeem NFTs
                   </button>
                 </div>
               )}
@@ -258,14 +240,7 @@ const VaultRedeem = () => {
                     </div>
                   </dl>
                   <div className="text-center">
-                    <button
-                      className="inline-flex items-center justify-center outline-none font-medium
-                                        rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                        focus:ring-opacity-75 py-4 px-6 text-sm bg-gradient-to-b from-purple-primary
-                                        to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
-                                        focus:ring-pink-500 whitespace-nowrap"
-                      onClick={redeem}
-                    >
+                    <button className="btn-primary p-4 px-6" onClick={redeem}>
                       Redeem
                     </button>
                   </div>

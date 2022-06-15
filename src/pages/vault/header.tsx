@@ -1,26 +1,35 @@
-import ethereumNft from "@/assets/icon/ethereum-nft.svg";
 import { useNavigate } from "react-router";
-import { Contract } from "ethers";
-import Vault from "@/contract/Vault.json";
-import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
+import { gql, request } from "graphql-request";
+import rinkeby from "@/config/rinkeby.json";
 
-const VaultHeader = ({ address, isManager, type }: any) => {
+const VaultHeader = ({ address, type }: any) => {
   const navigator = useNavigate();
-  const { library } = useWeb3React();
-  const [vaultName, setVaultName] = useState("");
-  const [vaultSymbol, setVaultSymbol] = useState("");
+  const [token, setToken] = useState<{ [key: string]: any }>({});
 
   useEffect(() => {
-    getInfo();
+    getToken();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getInfo = async () => {
-    const contract = new Contract(address, Vault, library.getSigner());
-    const vaultName = await contract.name();
-    const vaultSymbol = await contract.symbol();
-    setVaultName(vaultName);
-    setVaultSymbol(vaultSymbol);
+  const getToken = async () => {
+    const query = gql`
+        query {
+          vault(id: "${address}") {
+            token {
+              id
+              name
+              symbol
+            }
+          }
+        }
+    `;
+    request(rinkeby.nftSubgraphUrl, query).then((res) => {
+      if (res.vault.token) {
+        setToken(res.vault.token);
+      }
+    });
   };
 
   return (
@@ -36,39 +45,13 @@ const VaultHeader = ({ address, isManager, type }: any) => {
             alt="PUNK"
           />
           <div className="flex-1 ml-2 overflow-hidden">
-            <h4 className="text-lg font-bold leading-tight">{vaultName}</h4>
+            <h4 className="text-lg font-bold leading-tight">{token.name}</h4>
             <p
               className="text-sm dark:text-white text-lm-gray-900 text-opacity:20
                                         dark:text-opacity-80 truncate"
             >
-              {vaultSymbol}
+              {token.symbol}
             </p>
-          </div>
-        </div>
-        <div className="ml-4">
-          <div
-            data-for="vault.header.buy.price"
-            data-tip="All items share the same Buy Now price"
-            className="cursor-help flex justify-between lg:mt-0 rounded-md dark:text-white
-                                        text-lm-gray-700 dark:bg-gray-900 bg-lm-gray-100 border dark:border-gray-800
-                                        border-gray-100 p-2 mr-2"
-          >
-            <div className="text-base flex items-center truncate">
-              <img
-                src={ethereumNft}
-                className="w-5 h-5 -ml-0.5 mr-0.5"
-                alt="ETH"
-              />
-              <span className="font-mono">46.640</span>
-            </div>
-            <div
-              className="hidden place-right type-custom flex-none text-sm"
-              id="vault.header.buy.price"
-              data-id="tooltip"
-              style={{ left: "552px", top: "111px" }}
-            >
-              All items share the same Buy Now price
-            </div>
           </div>
         </div>
         <div className="flex items-center md:hidden ml-auto">
@@ -79,10 +62,7 @@ const VaultHeader = ({ address, isManager, type }: any) => {
       </div>
       <div className="xl:ml-2 mt-2 lg:mt-0 flex-none flex flex-nowrap space-x-2 justify-between">
         <button
-          className={`inline-flex items-center justify-center outline-none font-medium rounded-md break-word
-                        hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                        dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50
-                        hover:border-purple-primary focus:ring-purple-primary flex-1 
+          className={`btn-second 
                         ${
                           type === "redeem"
                             ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
@@ -93,10 +73,7 @@ const VaultHeader = ({ address, isManager, type }: any) => {
           Redeem
         </button>
         <button
-          className={`inline-flex items-center justify-center outline-none font-medium rounded-md break-word
-                        hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                        dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50
-                        hover:border-purple-primary focus:ring-purple-primary flex-1 
+          className={`btn-second
                     ${
                       type === "mint"
                         ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
@@ -107,32 +84,17 @@ const VaultHeader = ({ address, isManager, type }: any) => {
           Mint
         </button>
         <button
-          className={`inline-flex items-center justify-center outline-none font-medium rounded-md break-word
-                        hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                        dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-purple-primary
-                        focus:ring-pink-700 flex-1 ${
-                          type === "swap"
-                            ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
-                            : ""
-                        }`}
+          className={`btn-second ${
+            type === "swap"
+              ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
+              : ""
+          }`}
           onClick={() => navigator(`/vault/${address}/swap`)}
         >
           Swap
         </button>
         <button
-          className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
-                        hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                        dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-purple-primary
-                        focus:ring-pink-700 flex-1"
-          onClick={() => navigator(`/vault/${address}/manage`)}
-        >
-          Manage
-        </button>
-        <button
-          className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
-                        hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-transparent
-                        dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-purple-primary
-                        focus:ring-pink-700 flex-1"
+          className="btn-second"
           onClick={() => navigator(`/vault/${address}/info`)}
         >
           Info

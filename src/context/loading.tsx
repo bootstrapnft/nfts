@@ -17,7 +17,7 @@ const LoadingProvider = ({ children }: { children: ReactNode }) => {
       <div className="min-h-screen bg-blue-primary bg-opacity-95">
         {children}
         {loading && (
-          <div className="w-full h-screen fixed top-0 bg-black/50 bg-fixed flex items-center justify-center">
+          <div className="w-full h-screen fixed top-0 bg-black/50 bg-fixed flex items-center justify-center z-50">
             <img src={loadingIcon} alt="" className="w-12 h-12 animate-spin" />
           </div>
         )}

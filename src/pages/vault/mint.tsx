@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import VaultHeader from "@/pages/vault/header";
-import viewGrid from "@/assets/icon/view-grid.svg";
-import miniViewGrid from "@/assets/icon/mini-view-grid.svg";
+
 import VaultCard from "@/pages/vault/card";
 import close from "@/assets/icon/close.svg";
 import { useParams } from "react-router";
@@ -14,48 +13,37 @@ import { useLoading } from "@/context/loading";
 const VaultMint = () => {
   const params = useParams();
   const { library, account, active } = useWeb3React();
-  const [_, setLoading] = useLoading();
+  const [, setLoading] = useLoading();
+  const [assetAddress, setAssetAddress] = useState("");
+  const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
+  const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
   const [selectMintIds, setSelectMintIds] = useState<{ [key: string]: any }[]>(
     []
   );
-  const [assetAddress, setAssetAddress] = useState("");
-  const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
-  const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
-  const [isManager, setIsManager] = useState(false);
 
   useEffect(() => {
-    getNFTAssetAddress();
-    getOwner();
-  }, []);
+    if (active) {
+      getNFTAssetAddress();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, account]);
 
   useEffect(() => {
-    getNFTIds();
+    if (assetAddress !== "") {
+      getNFTIds();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetAddress]);
 
   useEffect(() => {
-    getNFTInfo();
-  }, [ownerNFTIds]);
-
-  const getOwner = () => {
-    if (active) {
-      const contract = new Contract(
-        params.address!,
-        VaultABI,
-        library.getSigner()
-      );
-      contract
-        .owner()
-        .then((owner: any) => {
-          console.log("get owner result:", owner);
-          if (account === owner) {
-            setIsManager(true);
-          }
-        })
-        .catch((err: any) => {
-          console.log("get owner:", err);
-        });
+    if (ownerNFTs.length > 0) {
+      getNFTInfo();
     }
-  };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownerNFTIds]);
 
   const selectTokenId = (item: any) => {
     console.log(item);
@@ -73,6 +61,9 @@ const VaultMint = () => {
   };
 
   const getNFTAssetAddress = async () => {
+    if (!active) {
+      return;
+    }
     const contract = new Contract(
       params.address!,
       VaultABI,
@@ -80,7 +71,6 @@ const VaultMint = () => {
     );
     await contract.assetAddress().then((res: any) => {
       setAssetAddress(res);
-      console.log("ass:", res);
     });
   };
 
@@ -174,28 +164,13 @@ const VaultMint = () => {
 
   return (
     <Fragment>
-      <main className="flex-1 flex relative flex-wrap md:flex-nowrap text-purple-second">
-        <section
-          className="nft-list border-l relative sm:static pb-12 flex-1 flex flex-col border-r
-                    border-blue-primary"
-        >
+      <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
+        <section className="relative sm:static pb-12 flex-1 flex flex-col">
           <VaultHeader address={params?.address} isManager type="mint" />
           <div className="dark:bg-gray-700">
             <div className="px-3 py-6 sm:px-6">
               <div className="mb-2 text-sm flex items-center justify-between">
                 {ownerNFTs.length} items
-                <div className="flex space-x-1">
-                  <button className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-1.5 px-2 text-xs bg-transparent border border-pink-500 dark:text-white text-lm-gray-800 hover:bg-pink-500 hover:bg-opacity-10 focus:ring-pink-700">
-                    <span className="text-center">
-                      <img src={viewGrid} alt="" className="h-5 w-5" />
-                    </span>
-                  </button>
-                  <button className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-1.5 px-2 text-xs bg-transparent dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50 hover:border-pink-500 focus:ring-pink-700">
-                    <span className="text-center">
-                      <img src={miniViewGrid} alt="" className="h-5 w-5" />
-                    </span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -207,13 +182,17 @@ const VaultMint = () => {
               <VaultCard
                 key={index}
                 {...item}
+                selectList={selectMintIds}
                 callback={(item: any) => selectTokenId(item)}
               />
             ))}
           </div>
         </section>
-        <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
-          <div className="md:block md:sticky md:top-18 hidden">
+        <aside
+          className="flex-none w-full h-max md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second
+            bg-blue-primary mb-20"
+        >
+          <div className="md:block sticky top-18  hidden">
             <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
               {selectMintIds.length === 0 && (
                 <div>
@@ -221,7 +200,9 @@ const VaultMint = () => {
                     Select NFTs to mint
                   </h3>
                   <button
-                    className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12 w-full bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800 cursor-not-allowed opacity-90"
+                    className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
+                      hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12 w-full
+                      bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800 cursor-not-allowed opacity-90"
                     disabled={true}
                   >
                     Mint NFTs
@@ -298,14 +279,7 @@ const VaultMint = () => {
                     </div>
                   </dl>
                   <div className="text-center">
-                    <button
-                      className="inline-flex items-center justify-center outline-none font-medium
-                                        rounded-md break-word hover:outline focus:outline-none focus:ring-1
-                                        focus:ring-opacity-75 py-4 px-6 text-sm bg-gradient-to-b from-purple-primary
-                                        to-purple-900 text-white hover:from-purple-primary hover:to-purple-primary
-                                        focus:ring-pink-500 whitespace-nowrap"
-                      onClick={mint}
-                    >
+                    <button className="btn-primary p-4 px-6" onClick={mint}>
                       Mint NFT
                     </button>
                   </div>

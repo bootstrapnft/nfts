@@ -13,7 +13,7 @@ import DSProxyABI from "@/contract/pool/DSProxy.json";
 import { Interface } from "ethers/lib/utils";
 
 const PoolCreate = () => {
-  const { account, library, active } = useWeb3React();
+  const { account, library } = useWeb3React();
   const [proxyAddress, setProxyAddress] = useState("");
   const [tokensInfo, setTokensInfo] = useState<any[]>([]);
   const [selectTokens, setSelectTokens] = useState<any[]>([]);
@@ -55,6 +55,8 @@ const PoolCreate = () => {
       setTokensBalance(balances);
     });
     getTokensAllowance();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getPrice = async (tokens: any[]) => {

@@ -43,6 +43,7 @@ const Footer = () => {
               <div
                 className="cursor-pointer hover:text-purple-primary"
                 onClick={() => navigator(uri)}
+                key={name}
               >
                 {name}
               </div>
