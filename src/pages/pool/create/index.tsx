@@ -514,8 +514,8 @@ const PoolCreate = () => {
                                         <td className="text-right">
                                             <input
                                                 className="border text-lg font-mono transition-colors w-20 px-2
-                                  border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
-                                  focus:border-purple-primary focus:ring-0 text-center"
+                                                  border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
+                                                  focus:border-purple-primary focus:ring-0 text-center"
                                                 type="number"
                                                 min="1"
                                                 step="1"
@@ -542,8 +542,8 @@ const PoolCreate = () => {
                                         <td className="text-right">
                                             <input
                                                 className="border text-lg font-mono transition-colors w-20 px-2
-                                  border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
-                                  focus:border-purple-primary focus:ring-0 text-center"
+                                                  border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
+                                                  focus:border-purple-primary focus:ring-0 text-center"
                                                 type="number"
                                                 min="1"
                                                 value={
