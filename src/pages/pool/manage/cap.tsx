@@ -1,8 +1,55 @@
-import { useState } from "react";
-import Modal from "@/pages/pool/manage/modal";
+import { useEffect, useState } from "react";
+import Modal from "@/components/modal";
+import { Contract, ethers } from "ethers";
+import rinkeby from "@/config/rinkeby.json";
+import { Interface } from "ethers/lib/utils";
+import { useWeb3React } from "@web3-react/core";
+import BActionABI from "@/contract/pool/BAction.json";
+import DSProxyABI from "@/contract/pool/DSProxy.json";
+import { useLoading } from "@/context/loading";
 
-const ChangeCap = ({ close }: any) => {
-    const [cap, setCap] = useState(100);
+const ChangeCap = ({ proxyAddress, controller, cap, close }: any) => {
+    const [, setLoading] = useLoading();
+    const [caps, setCaps] = useState(cap);
+    const { active, library } = useWeb3React();
+
+    useEffect(() => {
+        return () => {
+            setLoading(false);
+        };
+    }, []);
+
+    const changeCap = async () => {
+        if (!active) {
+            return;
+        }
+        setLoading(true);
+
+        const ifac = new Interface(BActionABI);
+        const data = ifac.encodeFunctionData("setCap", [
+            controller,
+            ethers.utils.parseEther(caps.toString()),
+        ]);
+        setLoading(true);
+        const contract = new Contract(
+            proxyAddress,
+            DSProxyABI,
+            library.getSigner()
+        );
+        const tx = await contract.execute(rinkeby.addresses.bActions, data);
+        await tx
+            .wait()
+            .then((res: any) => {
+                console.log("update cap success", res);
+                setLoading(false);
+                close();
+            })
+            .catch((err: any) => {
+                console.log("update cap err", err);
+                setLoading(false);
+            });
+    };
+
     return (
         <Modal close={close} title="Edit cap" maxW="max-w-lg">
             <div className="mt-4">
@@ -14,7 +61,7 @@ const ChangeCap = ({ close }: any) => {
                         <dd>
                             <input
                                 className="input-second w-2/3 mt-3"
-                                value={cap}
+                                value={caps}
                                 type="number"
                                 min="100"
                                 max="1000000000"
@@ -29,7 +76,7 @@ const ChangeCap = ({ close }: any) => {
                                             val = val - v;
                                         }
                                     }
-                                    setCap(val);
+                                    setCaps(val);
                                 }}
                             />
                         </dd>
@@ -42,7 +89,11 @@ const ChangeCap = ({ close }: any) => {
                     >
                         Cancel
                     </button>
-                    <button className="btn-primary" disabled={true}>
+                    <button
+                        className="btn-primary"
+                        disabled={cap === caps}
+                        onClick={changeCap}
+                    >
                         Confirm
                     </button>
                 </div>

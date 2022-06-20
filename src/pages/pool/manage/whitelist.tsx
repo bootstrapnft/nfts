@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal from "@/pages/pool/manage/modal";
+import Modal from "@/components/modal";
 import { Interface } from "ethers/lib/utils";
 import BActionABI from "@/contract/pool/BAction.json";
 import { Contract } from "ethers";

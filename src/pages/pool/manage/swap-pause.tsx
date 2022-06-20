@@ -1,4 +1,4 @@
-import Modal from "@/pages/pool/manage/modal";
+import Modal from "@/components/modal";
 import { useState } from "react";
 import { Switch } from "@headlessui/react";
 import { Contract } from "ethers";

@@ -17,6 +17,11 @@ import ChangeToken from "@/pages/pool/manage/change-token";
 import ChangeCap from "@/pages/pool/manage/cap";
 import ChangeWhiteList from "@/pages/pool/manage/whitelist";
 import ChangeController from "@/pages/pool/manage/controller";
+import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
+import MulticalABI from "@/contract/pool/Multical.json";
+import { Interface } from "ethers/lib/utils";
+import { set } from "husky";
+import ERC20ABI from "@/contract/ERC20.json";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -27,7 +32,9 @@ const enum InfoBtn {
 
 const PoolManage = () => {
     const params = useParams();
+    const [cap, setCap] = useState(0);
     const { active, account, library } = useWeb3React();
+    const [totalShares, setTotalShares] = useState(0);
     const [pool, setPool] = useState<any>(undefined);
     const [swaps, setSwaps] = useState<any[]>([]);
     const [proxyAddress, setProxyAddress] = useState("");
@@ -48,6 +55,46 @@ const PoolManage = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, account]);
+
+    useEffect(() => {
+        if (pool && active) {
+            getMetaData();
+
+            const newPool = pool;
+            Promise.all(
+                pool.tokens.map(async (token: any) => {
+                    const contract = new Contract(
+                        token.address,
+                        ERC20ABI,
+                        library.getSigner()
+                    );
+                    await contract
+                        .balanceOf(params.address)
+                        .then((res: any) => {
+                            token.balance = ethers.utils.formatEther(
+                                res.toString()
+                            );
+                            console.log(
+                                "balanceOf",
+                                ethers.utils.formatEther(res.toString())
+                            );
+                        })
+                        .catch((err: any) => {
+                            console.log("balanceOf err", err);
+                        });
+                    return token;
+                })
+            )
+                .then((res) => {
+                    newPool.tokens = res;
+                    console.log("balanceOf result:", res);
+                    setPool(newPool);
+                })
+                .catch((err) => {
+                    console.log("get tokens balance err", err);
+                });
+        }
+    }, [pool, active]);
 
     const getInfo = () => {
         const query = gql`
@@ -157,6 +204,81 @@ const PoolManage = () => {
             console.log("proxy", res);
             setProxyAddress(res);
         });
+    };
+
+    const getMetaData = async () => {
+        const [
+            publicSwap,
+            name,
+            decimals,
+            symbol,
+            totalShares,
+            rights,
+            bspCap,
+            crpController,
+            minimumWeightChangeBlockPeriod,
+            addTokenTimeLockInBlocks,
+            { startBlock, endBlock },
+        ] = await multicall(
+            ConfigurableRightsPoolABI,
+            [
+                "isPublicSwap",
+                "name",
+                "decimals",
+                "symbol",
+                "totalSupply",
+                "rights",
+                "bspCap",
+                "getController",
+                "minimumWeightChangeBlockPeriod",
+                "addTokenTimeLockInBlocks",
+                "gradualUpdate",
+            ].map((method) => [pool.controller, method, []])
+        );
+
+        console.log(
+            "ccc",
+            publicSwap,
+            name,
+            decimals,
+            symbol,
+            totalShares,
+            rights,
+            bspCap.toString(),
+            crpController,
+            minimumWeightChangeBlockPeriod,
+            addTokenTimeLockInBlocks,
+            startBlock,
+            endBlock
+        );
+
+        setCap(parseInt(ethers.utils.formatEther(bspCap.toString())));
+        setTotalShares(
+            parseInt(ethers.utils.formatEther(totalShares.toString()))
+        );
+    };
+
+    const multicall = async (abi: any[], calls: any[], options?: any) => {
+        const multi = new Contract(
+            rinkeby.addresses.multicall,
+            MulticalABI,
+            library.getSigner()
+        );
+        const itf = new Interface(abi);
+        try {
+            const [, response] = await multi.aggregate(
+                calls.map((call) => [
+                    call[0].toLowerCase(),
+                    itf.encodeFunctionData(call[1], call[2]),
+                ]),
+                options || {}
+            );
+            return response.map((call: any, i: number) =>
+                itf.decodeFunctionResult(calls[i][1], call)
+            );
+        } catch (e) {
+            return Promise.reject();
+        }
     };
 
     return (
@@ -375,9 +497,14 @@ const PoolManage = () => {
                                                                 %
                                                             </td>
                                                             <td className="text-right px-4">
-                                                                {parseFloat(
-                                                                    token.balance
-                                                                ).toFixed(4)}
+                                                                {token.balance >
+                                                                0
+                                                                    ? parseFloat(
+                                                                          token.balance
+                                                                      ).toFixed(
+                                                                          4
+                                                                      )
+                                                                    : "-"}
                                                             </td>
                                                             <td className="text-right px-4">
                                                                 -
@@ -501,7 +628,10 @@ const PoolManage = () => {
                                         {pool.rights.map(
                                             (item: any, index: number) => {
                                                 return (
-                                                    <dd className="text-lg font-medium">
+                                                    <dd
+                                                        className="text-lg font-medium"
+                                                        key={index}
+                                                    >
                                                         {item}
                                                     </dd>
                                                 );
@@ -672,7 +802,10 @@ const PoolManage = () => {
                                                         index: number
                                                     ) => {
                                                         return (
-                                                            <div className="flex items-center gap-x-2">
+                                                            <div
+                                                                className="flex items-center gap-x-2"
+                                                                key={index}
+                                                            >
                                                                 <Jazzicon
                                                                     diameter={
                                                                         22
@@ -710,7 +843,7 @@ const PoolManage = () => {
                                         <dl>
                                             <dt className="text-sm">Cap</dt>
                                             <dd className="text-2xl font-bold text-white">
-                                                {pool.cap}
+                                                {cap}
                                             </dd>
                                         </dl>
                                         <div>
@@ -802,18 +935,29 @@ const PoolManage = () => {
             )}
             {openChangeTokenWeight && (
                 <ChangeTokenWeight
+                    proxyAddress={proxyAddress}
                     pool={pool}
                     close={() => setOpenChangeTokenWeight(false)}
                 />
             )}
             {openChangeToken && (
                 <ChangeToken
+                    proxyAddress={proxyAddress}
+                    controller={pool.controller}
+                    symbol={pool.symbol}
                     tokens={pool.tokens}
+                    totalShares={totalShares}
+                    totalWeight={pool.totalWeight}
                     close={() => setOpenChangeToken(false)}
                 />
             )}
             {openChangeCap && (
-                <ChangeCap close={() => setOpenChangeCap(false)} />
+                <ChangeCap
+                    proxyAddress={proxyAddress}
+                    controller={pool.controller}
+                    cap={cap}
+                    close={() => setOpenChangeCap(false)}
+                />
             )}
             {openChangeWhitelist && (
                 <ChangeWhiteList

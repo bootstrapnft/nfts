@@ -1,12 +1,28 @@
 import { useEffect, useState } from "react";
-import Modal from "@/pages/pool/manage/modal";
+import Modal from "@/components/modal";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+import { Contract } from "ethers";
+import {
+    bnum,
+    calcSingleInGivenWeightIncrease,
+    scale,
+    toWei,
+} from "@/util/math";
+import { ethers } from "ethers/lib.esm";
+import { Interface } from "ethers/lib/utils";
+import BActionABI from "@/contract/pool/BAction.json";
+import DSProxyABI from "@/contract/pool/DSProxy.json";
+import rinkeby from "@/config/rinkeby.json";
+import { useLoading } from "@/context/loading";
+import { useWeb3React } from "@web3-react/core";
 
-const ChangeTokenWeight = ({ pool, close }: any) => {
+const ChangeTokenWeight = ({ proxyAddress, pool, close }: any) => {
     const divisor = 100 / 25;
     const maxPercentage = 100 - divisor;
-    const [weights, setWeights] = useState<{ [key: string]: any }>({});
+    const [, setLoading] = useLoading();
+    const { active, library } = useWeb3React();
     const [totalWeights, setTotalWeights] = useState(1);
+    const [weights, setWeights] = useState<{ [key: string]: any }>({});
     const [initialPercentages, setInitialPercentages] = useState<{
         [key: string]: any;
     }>({});
@@ -15,7 +31,7 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
         const w: { [key: string]: any } = {};
         pool.tokens.map(
             (token: any) =>
-                (w[token.id] = divisor * parseFloat(token.denormWeight))
+                (w[token.symbol] = divisor * parseFloat(token.denormWeight))
         );
         setWeights(w);
 
@@ -26,7 +42,7 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
         const initialPercentages: { [key: string]: any } = {};
         pool.tokens.map(
             (token: any) =>
-                (initialPercentages[token.id] =
+                (initialPercentages[token.symbol] =
                     parseFloat(token.denormWeight) /
                     parseFloat(pool.totalWeight))
         );
@@ -34,6 +50,64 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const handleUpdate = async () => {
+        console.log("update", pool, weights);
+
+        const tokenWeiAmountIn = calcSingleInGivenWeightIncrease(
+            scale(bnum(pool.tokens[0].balance), pool.tokens[0].decimals),
+            toWei(pool.tokens[0].denormWeight),
+            toWei(weights[pool.tokens[0].symbol])
+        );
+
+        const token = pool.tokens[0];
+        const newWeight = ethers.utils.parseEther(
+            weights[token.symbol].toString()
+        );
+        const tokenAddress = ethers.utils.getAddress(token.address);
+
+        console.log(
+            "res",
+            pool.controller,
+            tokenAddress,
+            newWeight.toString(),
+            tokenWeiAmountIn.toString()
+        );
+
+        const ifac = new Interface(BActionABI);
+        const data = ifac.encodeFunctionData("increaseWeight", [
+            pool.controller,
+            tokenAddress,
+            newWeight,
+            tokenWeiAmountIn,
+        ]);
+        setLoading(true);
+        const contract = new Contract(
+            proxyAddress,
+            DSProxyABI,
+            library.getSigner()
+        );
+        const tx = await contract.execute(rinkeby.addresses.bActions, data);
+        await tx
+            .wait()
+            .then((res: any) => {
+                console.log("update weight success", res);
+                setLoading(false);
+                close();
+            })
+            .catch((err: any) => {
+                console.log("update weight err", err);
+                setLoading(false);
+            });
+
+        console.log(
+            "res",
+            pool.controller,
+            tokenAddress,
+            newWeight,
+            tokenWeiAmountIn
+        );
+    };
 
     return (
         <Modal close={close} title="Edit token weights" maxW="max-w-lg">
@@ -49,7 +123,7 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
                             return (
                                 <div
                                     className="flex text-center py-3 border-b border-purple-primary
-                                border-opacity-60"
+                                        border-opacity-60"
                                     key={index}
                                 >
                                     <div className="flex items-center gap-x-2 w-1/3 pl-3">
@@ -67,14 +141,14 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
                                                   border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
                                                   focus:border-purple-primary focus:ring-0 text-center"
                                             type="number"
-                                            value={weights[token.id] || 0}
+                                            value={weights[token.symbol] || 0}
                                             min="1"
                                             step="1"
                                             onChange={(e: any) => {
                                                 const newWeights: {
                                                     [key: string]: any;
                                                 } = { ...weights };
-                                                newWeights[token.id] =
+                                                newWeights[token.symbol] =
                                                     parseFloat(e.target.value);
                                                 setWeights(newWeights);
                                             }}
@@ -82,11 +156,13 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
                                     </div>
                                     <div className="w-1/3">
                                         {(
-                                            initialPercentages[token.id] * 100
+                                            initialPercentages[token.symbol] *
+                                            100
                                         ).toFixed(2)}{" "}
                                         % →
                                         {(
-                                            (weights[token.id] / totalWeights) *
+                                            (weights[token.symbol] /
+                                                totalWeights) *
                                             100
                                         ).toFixed(2)}
                                     </div>
@@ -102,7 +178,11 @@ const ChangeTokenWeight = ({ pool, close }: any) => {
                     >
                         Cancel
                     </button>
-                    <button className="btn-primary" disabled={true}>
+                    <button
+                        className="btn-primary"
+                        disabled={false}
+                        onClick={handleUpdate}
+                    >
                         Confirm
                     </button>
                 </div>

@@ -19,62 +19,91 @@ import PoolManage from "@/pages/pool/manage";
 import VaultSwap from "@/pages/vault/swap";
 import { connectors } from "@/components/select_wallet/connector";
 import OwnerVault from "@/pages/vault/owner";
+import PoolSwap from "@/pages/pool/swap";
 
 const getLibrary = (provider: any) => {
-  const library = new ethers.providers.Web3Provider(provider);
-  library.pollingInterval = 8000; // frequency provider is polling
-  return library;
+    const library = new ethers.providers.Web3Provider(provider);
+    library.pollingInterval = 8000; // frequency provider is polling
+    return library;
 };
 
 const App = () => {
-  const { activate } = useWeb3React();
-  useEffect(() => {
-    // TODO save account in local storage
-    connectors.injected.isAuthorized().then((isAuthorized: boolean) => {
-      if (isAuthorized) {
-        activate(connectors.injected, undefined, true).catch(() => {
-          console.log("Injected connector not authorized");
+    const { activate } = useWeb3React();
+    useEffect(() => {
+        // TODO save account in local storage
+        connectors.injected.isAuthorized().then((isAuthorized: boolean) => {
+            if (isAuthorized) {
+                activate(connectors.injected, undefined, true).catch(() => {
+                    console.log("Injected connector not authorized");
+                });
+            } else {
+                console.log("Injected connector not authorized 111");
+            }
         });
-      } else {
-        console.log("Injected connector not authorized 111");
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  return (
-    <Fragment>
-      <Suspense fallback={<div>loading...</div>}>
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <LoadingProvider>
-            <BrowserRouter>
-              <Header />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/vault/create" element={<Create />} />
-                <Route path="/vault/:address/buy" element={<Vault />} />
-                <Route path="/vault/:address/mint" element={<VaultMint />} />
-                <Route
-                  path="/vault/:address/redeem"
-                  element={<VaultRedeem />}
-                />
-                <Route
-                  path="/vault/:address/manage"
-                  element={<VaultManager />}
-                />
-                <Route path="/vault/manage" element={<OwnerVault />} />
-                <Route path="/vault/:address/swap" element={<VaultSwap />} />
-                <Route path="/pool/create" element={<PoolCreate />} />
-                <Route path="/pool/explore" element={<PoolExplore />} />
-                <Route path="/pool/:address/manage" element={<PoolManage />} />
-              </Routes>
-              <Footer />
-            </BrowserRouter>
-          </LoadingProvider>
-        </Web3ReactProvider>
-      </Suspense>
-    </Fragment>
-  );
+    return (
+        <Fragment>
+            <Suspense fallback={<div>loading...</div>}>
+                <Web3ReactProvider getLibrary={getLibrary}>
+                    <LoadingProvider>
+                        <BrowserRouter>
+                            <Header />
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route
+                                    path="/vault/create"
+                                    element={<Create />}
+                                />
+                                <Route
+                                    path="/vault/:address/buy"
+                                    element={<Vault />}
+                                />
+                                <Route
+                                    path="/vault/:address/mint"
+                                    element={<VaultMint />}
+                                />
+                                <Route
+                                    path="/vault/:address/redeem"
+                                    element={<VaultRedeem />}
+                                />
+                                <Route
+                                    path="/vault/:address/manage"
+                                    element={<VaultManager />}
+                                />
+                                <Route
+                                    path="/vault/:address/swap"
+                                    element={<VaultSwap />}
+                                />
+                                <Route
+                                    path="/pool/swap"
+                                    element={<PoolSwap />}
+                                />
+                                <Route
+                                    path="/pool/create"
+                                    element={<PoolCreate />}
+                                />
+                                <Route
+                                    path="/vault/manage"
+                                    element={<OwnerVault />}
+                                />
+                                <Route
+                                    path="/pool/explore"
+                                    element={<PoolExplore />}
+                                />
+                                <Route
+                                    path="/pool/:address/manage"
+                                    element={<PoolManage />}
+                                />
+                            </Routes>
+                            <Footer />
+                        </BrowserRouter>
+                    </LoadingProvider>
+                </Web3ReactProvider>
+            </Suspense>
+        </Fragment>
+    );
 };
 
 export default App;
