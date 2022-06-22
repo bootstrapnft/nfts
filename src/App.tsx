@@ -20,6 +20,7 @@ import VaultSwap from "@/pages/vault/swap";
 import { connectors } from "@/components/select_wallet/connector";
 import OwnerVault from "@/pages/vault/owner";
 import PoolSwap from "@/pages/pool/swap";
+import VaultInfo from "@/pages/vault/info";
 
 const getLibrary = (provider: any) => {
     const library = new ethers.providers.Web3Provider(provider);
@@ -75,6 +76,10 @@ const App = () => {
                                 <Route
                                     path="/vault/:address/swap"
                                     element={<VaultSwap />}
+                                />
+                                <Route
+                                    path="/vault/:address/info"
+                                    element={<VaultInfo />}
                                 />
                                 <Route
                                     path="/pool/swap"

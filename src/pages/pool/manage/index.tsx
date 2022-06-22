@@ -71,8 +71,9 @@ const PoolManage = () => {
                     await contract
                         .balanceOf(params.address)
                         .then((res: any) => {
-                            token.balance = ethers.utils.formatEther(
-                                res.toString()
+                            token.balance = ethers.utils.formatUnits(
+                                res.toString(),
+                                token.decimals
                             );
                             console.log(
                                 "balanceOf",
@@ -155,7 +156,7 @@ const PoolManage = () => {
                     : "#7ada6a";
                 return token;
             });
-            console.log(data);
+            console.log("get pool info:", data);
             setPool(data.pool);
         });
     };
@@ -937,6 +938,7 @@ const PoolManage = () => {
                 <ChangeTokenWeight
                     proxyAddress={proxyAddress}
                     pool={pool}
+                    totalShares={totalShares}
                     close={() => setOpenChangeTokenWeight(false)}
                 />
             )}

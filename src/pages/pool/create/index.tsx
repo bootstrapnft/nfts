@@ -13,6 +13,7 @@ import DSProxyABI from "@/contract/pool/DSProxy.json";
 import { Interface } from "ethers/lib/utils";
 import { useLoading } from "@/context/loading";
 import { useNavigate } from "react-router";
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 
 const PoolCreate = () => {
     const [, setLoading] = useLoading();
@@ -71,7 +72,7 @@ const PoolCreate = () => {
                 tokenInfo.map(async (token: any) => {
                     await getBalance(token)
                         .then((balance: any) => {
-                            balances[token.id] = ethers.utils.formatUnits(
+                            balances[token.address] = ethers.utils.formatUnits(
                                 balance,
                                 token.decimals
                             );
@@ -89,12 +90,6 @@ const PoolCreate = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, account]);
-
-    useEffect(() => {
-        checkApprove();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectTokens, tokensAllowance, stepType]);
 
     useEffect(() => {
         clacPercent();
@@ -117,6 +112,16 @@ const PoolCreate = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectTokens]);
+
+    useEffect(() => {
+        console.log("set step:", proxyAddress);
+        if (proxyAddress === "") {
+            setStepType("SetProxy");
+            return;
+        }
+
+        checkApprove();
+    }, [proxyAddress, selectTokens, tokensAllowance]);
 
     const clacPercent = () => {
         console.log("clacPercent");
@@ -188,10 +193,10 @@ const PoolCreate = () => {
         );
         await contract.proxies(account).then((res: any) => {
             console.log("proxy", res);
-            setProxyAddress(res);
-            if (res !== "") {
-                setStepType("Approve");
+            if (res === "0x0000000000000000000000000000000000000000") {
+                return;
             }
+            setProxyAddress(res);
         });
     };
 
@@ -204,7 +209,6 @@ const PoolCreate = () => {
         const tx = await contract.build();
         await tx.wait().then((res: any) => {
             setProxyAddress(res);
-            setStepType("Approve");
             console.log("set up proxy:", res);
         });
     };
@@ -241,17 +245,23 @@ const PoolCreate = () => {
     };
 
     const checkApprove = () => {
-        console.log("checkApprove");
+        console.log("checkApprove", proxyAddress);
+
         if (Object.keys(tokensAllowance).length === 0) {
             return;
         }
         const unApproveToken: any[] = [];
         selectTokens.forEach((token: any) => {
+            if (!tokensAllowance[token.id]) {
+                unApproveToken.push(token);
+            }
             if (!(parseFloat(tokensAllowance[token.id]) > 0)) {
                 unApproveToken.push(token);
             }
         });
-        if (unApproveToken.length === 0 && stepType === "Approve") {
+        if (unApproveToken.length > 0) {
+            setStepType("Approve");
+        } else {
             setStepType("Create");
         }
         setApproveTokens(unApproveToken);
@@ -271,6 +281,7 @@ const PoolCreate = () => {
             .wait()
             .then((res: any) => {
                 console.log("approve:", res);
+                getTokensAllowance();
             })
             .catch((err: any) => {
                 console.log("approve error:", err);
@@ -455,6 +466,15 @@ const PoolCreate = () => {
         return BigNumber.from(res + "").toString();
     };
 
+    const addNewToken = (token: any, balance: any) => {
+        console.log("add new token:", token, balance);
+        tokensInfo.push(token);
+        setTokensInfo([...tokensInfo]);
+        tokensBalance[token.address] = balance;
+        setTokensBalance({ ...tokensBalance });
+        getTokensAllowance();
+    };
+
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 pt-12 pb-28 text-purple-second">
@@ -488,11 +508,20 @@ const PoolCreate = () => {
                                     >
                                         <td className="text-left w-1/2 h-12 pl-4 flex gap-x-3 items-center">
                                             <span>
-                                                <img
-                                                    src={token.logoUrl}
-                                                    className="w-5 h-5"
-                                                    alt=""
-                                                />
+                                                {token.logoUrl ? (
+                                                    <img
+                                                        src={token.logoUrl}
+                                                        className="w-5 h-5"
+                                                        alt=""
+                                                    />
+                                                ) : (
+                                                    <Jazzicon
+                                                        diameter={18}
+                                                        seed={jsNumberForAddress(
+                                                            token.address
+                                                        )}
+                                                    />
+                                                )}
                                             </span>
                                             <span>{token.symbol}</span>
                                             <span
@@ -508,7 +537,7 @@ const PoolCreate = () => {
                                         </td>
                                         <td className="text-right px-4">
                                             {tokensBalance
-                                                ? tokensBalance[token.id]
+                                                ? tokensBalance[token.address]
                                                 : 0.0}
                                         </td>
                                         <td className="text-right">
@@ -558,7 +587,28 @@ const PoolCreate = () => {
                                             />
                                         </td>
                                         <td className="text-right">
-                                            $ {token.price}
+                                            $
+                                            {token.price && token.price > 0 ? (
+                                                token.price
+                                            ) : (
+                                                <input
+                                                    className="border text-lg font-mono transition-colors w-20 px-2
+                                                                border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
+                                                                focus:border-purple-primary focus:ring-0 text-center"
+                                                    type="number"
+                                                    min="0.000000000000001"
+                                                    defaultValue={1}
+                                                    onChange={(e) => {
+                                                        token.price =
+                                                            parseFloat(
+                                                                e.target.value
+                                                            );
+                                                        setTokensInfo([
+                                                            ...tokensInfo,
+                                                        ]);
+                                                    }}
+                                                />
+                                            )}
                                         </td>
                                         <td className="text-right px-4 w-1/5">
                                             ${" "}
@@ -822,6 +872,7 @@ const PoolCreate = () => {
             {showSelectToken && (
                 <SelectToken
                     tokensInfo={tokensInfo}
+                    addNewToken={addNewToken}
                     close={() => setShowSelectToken(false)}
                     selectedToken={handleSelectToken}
                 />

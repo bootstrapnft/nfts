@@ -1,21 +1,91 @@
 import Modal from "@/components/modal";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { useState } from "react";
+import { Contract, ethers } from "ethers";
+import ERC20ABI from "@/contract/ERC20.json";
+import { unknownColors } from "@/util/utils";
+import { useLoading } from "@/context/loading";
+import { useWeb3React } from "@web3-react/core";
 
-const SwapSelectToken = ({ tokensInfo, selectedToken, close }: any) => {
+const SwapSelectToken = ({
+    tokensInfo,
+    selectedToken,
+    addNewToken,
+    close,
+}: any) => {
+    const [, setLoading] = useLoading();
+    const { active, account, library } = useWeb3React();
     const [tokenList, setTokenList] = useState(tokensInfo);
 
     const filter = (name: string) => {
-        console.log("search name: ", name);
+        console.log("swap search name: ", name);
+
         if (name === "") {
             setTokenList(tokensInfo);
             return;
         }
+        console.log(tokenList[0]);
 
+        if (ethers.utils.isAddress(name)) {
+            const list = tokenList.filter(
+                (token: any) =>
+                    token.address.toLowerCase() === name.toLowerCase()
+            );
+            if (list.length > 0) {
+                setTokenList(list);
+                return;
+            }
+
+            getToken(name);
+            return;
+        }
         const tl = tokenList.filter((token: any) =>
             token.name.toLowerCase().includes(name.toLowerCase())
         );
         setTokenList(tl);
+    };
+
+    const getToken = async (address: string) => {
+        if (!active) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const contract = new Contract(
+                address,
+                ERC20ABI,
+                library.getSigner()
+            );
+
+            const name = await contract.name();
+            const symbol = await contract.symbol();
+            const decimals = await contract.decimals();
+            const balance = await contract.balanceOf(account);
+            const color = unknownColors[Math.floor(Math.random() * 10) % 6];
+
+            const token = {
+                address: ethers.utils.getAddress(address),
+                name: name,
+                symbol: symbol,
+                decimals: decimals.toString(),
+                hasIcon: false,
+                id: symbol.toLowerCase(),
+                precision: 3,
+                color: color,
+                logoUrl: "",
+                price: 0,
+            };
+            console.log("token info:", token, name, symbol);
+            addNewToken(
+                token,
+                ethers.utils.formatUnits(balance, decimals.toString())
+            );
+            setLoading(false);
+        } catch (e) {
+            setLoading(false);
+            console.log("get new token info err:", e);
+        }
     };
 
     return (

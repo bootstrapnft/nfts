@@ -1,22 +1,43 @@
-import { BigNumber } from "ethers";
+import BigNumber from "@/util/bignumber";
 
-const BONE = BigNumber.from(10).pow(18);
+const BONE = new BigNumber(10).pow(18);
+const EXIT_FEE = new BigNumber(0);
+const BPOW_PRECISION = BONE.idiv(new BigNumber(10).pow(10));
+
+function btoi(a: BigNumber): BigNumber {
+    return a.idiv(BONE);
+}
+
+function bfloor(a: BigNumber): BigNumber {
+    return btoi(a).times(BONE);
+}
 
 export const calcSingleInGivenWeightIncrease = (
     tokenBalance: BigNumber,
     tokenWeight: BigNumber,
     tokenWeightNew: BigNumber
 ) => {
-    const deltaWeight = tokenWeightNew.sub(tokenWeight);
-    console.log("deltaWeight", deltaWeight.toString());
     console.log(
-        "deltaWeight",
+        "WeightIncrease",
         tokenBalance.toString(),
         tokenWeight.toString(),
         tokenWeightNew.toString()
     );
-    return bmul(tokenBalance, bdiv(deltaWeight, tokenWeight));
+    const deltaWeight = tokenWeightNew.minus(tokenWeight);
+    const tokenBalanceIn = bmul(tokenBalance, bdiv(deltaWeight, tokenWeight));
+    return tokenBalanceIn;
 };
+
+export function calcPoolInGivenWeightDecrease(
+    totalWeight: BigNumber,
+    tokenWeight: BigNumber,
+    tokenWeightNew: BigNumber,
+    poolSupply: BigNumber
+): BigNumber {
+    const deltaWeight = tokenWeight.minus(tokenWeightNew);
+    const poolAmountIn = bmul(poolSupply, bdiv(deltaWeight, totalWeight));
+    return poolAmountIn;
+}
 
 export const calcPoolInGivenTokenRemove = (
     totalWeight: BigNumber,
@@ -26,31 +47,24 @@ export const calcPoolInGivenTokenRemove = (
     return bdiv(bmul(poolSupply, tokenWeight), totalWeight);
 };
 
-export const bmul = (a: BigNumber, b: BigNumber): BigNumber => {
-    const c0 = a.mul(b);
-    const c1 = c0.add(BONE.div(BigNumber.from(2)));
-    const c2 = c1.div(BONE).toBigInt();
-    return BigNumber.from(c2);
-};
+export function bmul(a: BigNumber, b: BigNumber): BigNumber {
+    const c0 = a.times(b);
+    const c1 = c0.plus(BONE.div(new BigNumber(2)));
+    const c2 = c1.idiv(BONE);
+    return c2;
+}
 
-export const bdiv = (a: BigNumber, b: BigNumber): BigNumber => {
-    const c0 = a.mul(BONE);
-    const c1 = c0.add(b.div(BigNumber.from(2)));
-    const c2 = c1.div(b);
-    return BigNumber.from(c2);
-};
-
-export const scale = (input: BigNumber, decimalPlaces: number): BigNumber => {
-    const scalePow = BigNumber.from(decimalPlaces.toString());
-    const scaleMul = BigNumber.from(10).pow(scalePow);
-    return input.mul(scaleMul);
-};
-
-export const toWei = (val: string | BigNumber): BigNumber => {
-    return scale(bnum(val.toString()), 18);
-};
-
-export const bnum = (val: string | number | BigNumber): BigNumber => {
-    const number = typeof val === "string" ? val : val ? val.toString() : "0";
-    return BigNumber.from(number);
-};
+export function bdiv(a: BigNumber, b: BigNumber): BigNumber {
+    const c0 = a.times(BONE);
+    const c1 = c0.plus(b.div(new BigNumber(2)));
+    const c2 = c1.idiv(b);
+    console.log(
+        "c2",
+        a.toString(),
+        b.toString(),
+        c0.toString(),
+        c1.toString(),
+        c2.toString()
+    );
+    return c2;
+}

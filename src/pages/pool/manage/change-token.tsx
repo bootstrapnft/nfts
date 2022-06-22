@@ -11,6 +11,7 @@ import BActionABI from "@/contract/pool/BAction.json";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
 import rinkeby from "@/config/rinkeby.json";
 import { useLoading } from "@/context/loading";
+import { bnum } from "@/util/utils";
 
 const ChangeToken = ({
     totalShares,
@@ -35,9 +36,13 @@ const ChangeToken = ({
     const calcAmount = async (token: any) => {
         setRemoveToken(token);
         const res = calcPoolInGivenTokenRemove(
-            ethers.utils.parseEther(totalWeight.toString()),
-            ethers.utils.parseEther(totalShares.toString()),
-            ethers.utils.parseEther(token.denormWeight.toString())
+            bnum(ethers.utils.parseEther(totalWeight.toString()).toString()),
+            bnum(ethers.utils.parseEther(totalShares.toString()).toString()),
+            bnum(
+                ethers.utils
+                    .parseEther(token.denormWeight.toString())
+                    .toString()
+            )
         );
         setAmount(parseInt(ethers.utils.formatEther(res.toString())));
     };
