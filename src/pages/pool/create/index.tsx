@@ -81,10 +81,13 @@ const PoolCreate = () => {
                             console.log("getBalance err", err);
                         });
                 })
-            ).then(() => {
-                setTokensBalance(balances);
-            });
-            await getTokensAllowance();
+            )
+                .then(() => {
+                    setTokensBalance(balances);
+                })
+                .catch((err) => {
+                    console.log("get balance err:", err);
+                });
             setLoading(false);
         })();
 
@@ -114,7 +117,16 @@ const PoolCreate = () => {
     }, [selectTokens]);
 
     useEffect(() => {
-        console.log("set step:", proxyAddress);
+        (async () => {
+            if (tokensInfo === [] || proxyAddress === "") {
+                return;
+            }
+            await getTokensAllowance();
+        })();
+    }, [tokensInfo, proxyAddress]);
+
+    useEffect(() => {
+        console.log("set step==========:", proxyAddress);
         if (proxyAddress === "") {
             setStepType("SetProxy");
             return;
@@ -214,9 +226,11 @@ const PoolCreate = () => {
     };
 
     const getTokensAllowance = async () => {
+        console.log("get token list allowance:", tokensInfo);
         const tokensAllowance: { [key: string]: any } = {};
-        Promise.all(
-            tokensInfo.map(async (token: any) => {
+        await Promise.all(
+            tokensInfo.map(async (token: any, index: number) => {
+                console.log("allow ==== address", token.address);
                 const contract = new Contract(
                     token.address,
                     ERC20ABI,
@@ -225,31 +239,31 @@ const PoolCreate = () => {
                 await contract
                     .allowance(account, proxyAddress)
                     .then((res: any) => {
+                        console.log("get token allow result:", res);
                         tokensAllowance[token.id] = ethers.utils.formatUnits(
                             res,
                             token.decimals
                         );
                     })
                     .catch((err: any) => {
-                        console.log("tokensAllowance err", err);
+                        console.log(`tokensAllowance err: ${index}:`, err);
                     });
             })
         )
             .then(() => {
-                console.log("tokensAllowance", tokensAllowance);
+                console.log("tokensAllowance result -------", tokensAllowance);
                 setTokensAllowance(tokensAllowance);
             })
             .catch((err) => {
-                console.log("tokensAllowance err", err);
+                console.log("get tokens all allowance err", err);
             });
     };
 
     const checkApprove = () => {
-        console.log("checkApprove", proxyAddress);
-
         if (Object.keys(tokensAllowance).length === 0) {
             return;
         }
+        console.log("checkApprove----", proxyAddress);
         const unApproveToken: any[] = [];
         selectTokens.forEach((token: any) => {
             if (!tokensAllowance[token.id]) {

@@ -21,6 +21,7 @@ import { connectors } from "@/components/select_wallet/connector";
 import OwnerVault from "@/pages/vault/owner";
 import PoolSwap from "@/pages/pool/swap";
 import VaultInfo from "@/pages/vault/info";
+import config from "@/config";
 
 const getLibrary = (provider: any) => {
     const library = new ethers.providers.Web3Provider(provider);
@@ -30,6 +31,7 @@ const getLibrary = (provider: any) => {
 
 const App = () => {
     const { activate } = useWeb3React();
+    console.log("config:", config);
     useEffect(() => {
         // TODO save account in local storage
         connectors.injected.isAuthorized().then((isAuthorized: boolean) => {

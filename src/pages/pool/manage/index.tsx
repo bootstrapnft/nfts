@@ -20,8 +20,8 @@ import ChangeController from "@/pages/pool/manage/controller";
 import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
 import MulticalABI from "@/contract/pool/Multical.json";
 import { Interface } from "ethers/lib/utils";
-import { set } from "husky";
 import ERC20ABI from "@/contract/ERC20.json";
+import GradualWeight from "@/pages/pool/manage/gradual-weight";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -42,11 +42,13 @@ const PoolManage = () => {
     const [openLiquidity, setOpenLiquidity] = useState(false);
     const [openChangeCap, setOpenChangeCap] = useState(false);
     const [openChangeToken, setOpenChangeToken] = useState(false);
+    const [openGradualWeight, setOpenGradualWeight] = useState(false);
     const [openChangeSwapFee, setOpenChangeSwapFee] = useState(false);
     const [openChangeWhitelist, setOpenChangeWhitelist] = useState(false);
     const [openChangePublicSwap, setOpenChangePublicSwap] = useState(false);
     const [openChangeTokenWeight, setOpenChangeTokenWeight] = useState(false);
     const [openChangeController, setOpenChangeController] = useState(false);
+    const [changeWeightBlockNum, setChangeWeightBlockNum] = useState<any>();
 
     useEffect(() => {
         getProxyAddress();
@@ -257,6 +259,7 @@ const PoolManage = () => {
         setTotalShares(
             parseInt(ethers.utils.formatEther(totalShares.toString()))
         );
+        setChangeWeightBlockNum(minimumWeightChangeBlockPeriod);
     };
 
     const multicall = async (abi: any[], calls: any[], options?: any) => {
@@ -775,7 +778,12 @@ const PoolManage = () => {
                                             </dd>
                                         </dl>
                                         <div className="space-x-3">
-                                            <button className="btn-primary">
+                                            <button
+                                                className="btn-primary"
+                                                onClick={() =>
+                                                    setOpenGradualWeight(true)
+                                                }
+                                            >
                                                 Update Gradually
                                             </button>
                                             <button
@@ -940,6 +948,15 @@ const PoolManage = () => {
                     pool={pool}
                     totalShares={totalShares}
                     close={() => setOpenChangeTokenWeight(false)}
+                />
+            )}
+            {openGradualWeight && (
+                <GradualWeight
+                    proxyAddress={proxyAddress}
+                    pool={pool}
+                    changeBlockNum={changeWeightBlockNum}
+                    totalShares={totalShares}
+                    close={() => setOpenGradualWeight(false)}
                 />
             )}
             {openChangeToken && (
