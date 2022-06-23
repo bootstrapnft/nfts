@@ -1,6 +1,6 @@
-import React, { Fragment, Suspense, useEffect } from "react";
+import React, { Fragment, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useWeb3React, Web3ReactProvider } from "@web3-react/core";
+import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
 
 import Home from "@/pages/home";
@@ -17,7 +17,6 @@ import PoolExplore from "@/pages/pool/explore";
 import Footer from "@/components/footer";
 import PoolManage from "@/pages/pool/manage";
 import VaultSwap from "@/pages/vault/swap";
-import { connectors } from "@/components/select_wallet/connector";
 import OwnerVault from "@/pages/vault/owner";
 import PoolSwap from "@/pages/pool/swap";
 import VaultInfo from "@/pages/vault/info";
@@ -30,21 +29,7 @@ const getLibrary = (provider: any) => {
 };
 
 const App = () => {
-    const { activate } = useWeb3React();
     console.log("config:", config);
-    useEffect(() => {
-        // TODO save account in local storage
-        connectors.injected.isAuthorized().then((isAuthorized: boolean) => {
-            if (isAuthorized) {
-                activate(connectors.injected, undefined, true).catch(() => {
-                    console.log("Injected connector not authorized");
-                });
-            } else {
-                console.log("Injected connector not authorized 111");
-            }
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <Fragment>

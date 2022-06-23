@@ -3,6 +3,7 @@ import rinkeByTokens from "@/config/rinkeby_tokens.json";
 
 import aurora from "@/config/aurora.json";
 import auroraTokens from "@/config/aurora_tokens.json";
+import { currentNetwork } from "@/util/network";
 
 const configs = {
     4: {
@@ -15,7 +16,11 @@ const configs = {
     },
 };
 
-const network = 4;
+const sessionNetwork = currentNetwork();
+const network = sessionNetwork.id || 4;
+
+console.log("config:", sessionNetwork);
+// @ts-ignore
 const config = configs[network];
 
 export default config;

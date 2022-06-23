@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import SelectWallet from "@/components/select_wallet";
 import { useWeb3React } from "@web3-react/core";
 import { truncateAddress } from "@/util/address";
@@ -10,12 +10,41 @@ import aurora from "@/assets/icon/aurora.svg";
 import { gql, request } from "graphql-request";
 import rinkeby from "@/config/rinkeby.json";
 import { Menu, Transition } from "@headlessui/react";
+import { changeNetwork, currentNetwork } from "@/util/network";
+import { connectors } from "@/components/select_wallet/connector";
 
 const Header = () => {
     const navigator = useNavigate();
-    const { account, active } = useWeb3React();
+    const { account, active, library, activate } = useWeb3React();
     const [isOpen, setIsOpen] = useState(false);
     const [isManager, setIsManager] = useState(false);
+
+    const sessionNetwork = currentNetwork();
+    const network = sessionNetwork || { id: 4, name: "rinkeby" };
+
+    console.log("header network:", network);
+
+    useEffect(() => {
+        // TODO save account in local storage
+        const type = localStorage.getItem("provider");
+        if (type !== "injected") {
+            return;
+        }
+        connectors.injected.isAuthorized().then((isAuthorized: boolean) => {
+            if (isAuthorized) {
+                activate(connectors.injected, undefined, true).catch((e) => {
+                    console.log("authorized true connector err:", e);
+                });
+            } else {
+                console.log("Injected connector not authorized");
+                activate(connectors.injected, undefined, true).catch((e) => {
+                    console.log("connector err:", e);
+                });
+            }
+        });
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         if (!active) {
@@ -125,10 +154,10 @@ const Header = () => {
                         {isManager && (
                             <div
                                 className="inline-flex items-center justify-center outline-none font-medium
-              rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
-              py-2.5 px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
-              hover:text-purple-primary text-sm lg:text-base text-purple-second
-              mr-1.5 dark:text-white cursor-pointer"
+                                  rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
+                                  py-2.5 px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
+                                  hover:text-purple-primary text-sm lg:text-base text-purple-second
+                                  mr-1.5 dark:text-white cursor-pointer"
                                 onClick={() => navigator("/vault/manage")}
                             >
                                 Manage
@@ -198,14 +227,104 @@ const Header = () => {
                     </nav>
                     <aside className="flex order-2 sm:order-3 justify-center md:justify-end flex-wrap ml-auto md:ml-0">
                         <div className="hidden sm:inline-flex">
-                            {/*<Menu as="div" className="relative inline-block text-left">*/}
-                            {/*  <div className="h-full">*/}
-                            {/*    <Menu.Button className="btn-second mr-2 border border-purple-primary hover:bg-purple-primary*/}
-                            {/*      hover:bg-opacity-30 h-full">*/}
-                            {/*      <img src={ethereum} alt="ethereum" className="h-5 w-5" />*/}
-                            {/*    </Menu.Button>*/}
-                            {/*  </div>*/}
-                            {/*</Menu>*/}
+                            <Menu
+                                as="div"
+                                className="relative inline-block text-left"
+                            >
+                                <div className="h-full">
+                                    <Menu.Button
+                                        className="btn-second mr-2 border border-purple-primary hover:bg-purple-primary
+                                  hover:bg-opacity-30 h-full"
+                                    >
+                                        {network.name === "rinkeby" && (
+                                            <img
+                                                src={ethereum}
+                                                alt="ethereum"
+                                                className="h-5 w-5"
+                                            />
+                                        )}
+                                        {network.name === "aurora" && (
+                                            <img
+                                                src={aurora}
+                                                alt="aurora"
+                                                className="h-5 w-5"
+                                            />
+                                        )}
+                                    </Menu.Button>
+                                </div>
+                                <Transition
+                                    as={Fragment}
+                                    enter="transition ease-out duration-100"
+                                    enterFrom="transform opacity-0 scale-95"
+                                    enterTo="transform opacity-100 scale-100"
+                                    leave="transition ease-in duration-75"
+                                    leaveFrom="transform opacity-100 scale-100"
+                                    leaveTo="transform opacity-0 scale-95"
+                                >
+                                    <Menu.Items
+                                        className="absolute right-0 mt-2 w-32 origin-top-right divide-y
+                                  divide-gray-100 rounded-md bg-gray-200 shadow-lg ring-1 ring-black ring-opacity-5
+                                  focus:outline-none"
+                                    >
+                                        <div className="px-1 py-1">
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        className={`${
+                                                            active
+                                                                ? "bg-purple-primary text-white"
+                                                                : "text-gray-900"
+                                                        } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
+                                                        onClick={() => {
+                                                            changeNetwork(
+                                                                {
+                                                                    id: 4,
+                                                                    name: "rinkeby",
+                                                                },
+                                                                library.provider
+                                                            );
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={ethereum}
+                                                            alt="ethereum"
+                                                            className="h-5 w-5"
+                                                        />
+                                                        <span>Rinkeby</span>
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        className={`${
+                                                            active
+                                                                ? "bg-purple-primary text-white"
+                                                                : "text-gray-900"
+                                                        } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
+                                                        onClick={() => {
+                                                            changeNetwork(
+                                                                {
+                                                                    id: 1313161555,
+                                                                    name: "aurora",
+                                                                },
+                                                                library.provider
+                                                            );
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={aurora}
+                                                            alt="aurora"
+                                                            className="h-5 w-5"
+                                                        />
+                                                        <span>Aurora</span>
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                        </div>
+                                    </Menu.Items>
+                                </Transition>
+                            </Menu>
 
                             <button
                                 className="btn-primary"
