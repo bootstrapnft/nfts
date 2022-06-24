@@ -10,7 +10,7 @@ import VaultABI from "@/contract/Vault.json";
 import close from "@/assets/icon/black-close.svg";
 import circleArrowDown from "@/assets/icon/circle-arrow-down.svg";
 import { gql, request } from "graphql-request";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import { ethers } from "ethers/lib.esm";
 
 const VaultSwap = () => {
@@ -67,7 +67,7 @@ const VaultSwap = () => {
       }
     `;
 
-        request(rinkeby.nftSubgraphUrl, query)
+        request(config.nftSubgraphUrl, query)
             .then((data) => {
                 setAssetAddress(ethers.utils.getAddress(data.vault.asset.id));
                 getMintsNFT(data.vault);
@@ -399,17 +399,17 @@ const VaultSwap = () => {
                                     <img
                                         src={circleArrowDown}
                                         alt=""
-                                        className="h-4 w-4 text-gray-900 transform rotate-90"
+                                        className="h-4 w-4 text-gray-900 transform"
                                     />
                                 </div>
                             </div>
                             <div
                                 className={`w-full text-left rounded-b-lg pt-4 pb-2 border border-t-0 border-gray-600 
-                ${
-                    swapSwitchType === "to"
-                        ? "bg-purple-primary border-purple-primary bg-opacity-60"
-                        : "bg-gray-700"
-                }`}
+                                ${
+                                    swapSwitchType === "to"
+                                        ? "bg-purple-primary border-purple-primary bg-opacity-60"
+                                        : "bg-gray-700"
+                                }`}
                             >
                                 {selectReceiveIds.length === 0 && (
                                     <div

@@ -52,6 +52,22 @@ export function toWei(val: string | BigNumber): BigNumber {
     return scale(bnum(val.toString()), 18).integerValue();
 }
 
+export function calcPoolTokensByRatio(
+    ratio: BigNumber,
+    totalShares: string | BigNumber
+) {
+    if (ratio.isNaN()) {
+        return "0";
+    }
+    // @TODO - fix calcs so no buffer is needed
+    const buffer = bnum(100);
+    return bnum(ratio)
+        .times(toWei(totalShares))
+        .integerValue(BigNumber.ROUND_DOWN)
+        .minus(buffer)
+        .toString();
+}
+
 export function denormalizeBalance(
     amount: BigNumber,
     tokenDecimals: number

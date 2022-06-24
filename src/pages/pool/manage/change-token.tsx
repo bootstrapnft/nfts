@@ -9,7 +9,7 @@ import { calcPoolInGivenTokenRemove } from "@/util/math";
 import { Interface } from "ethers/lib/utils";
 import BActionABI from "@/contract/pool/BAction.json";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import { useLoading } from "@/context/loading";
 import { bnum } from "@/util/utils";
 
@@ -107,7 +107,7 @@ const ChangeToken = ({
             DSProxyABI,
             library.getSigner()
         );
-        const tx = await contract.execute(rinkeby.addresses.bActions, data);
+        const tx = await contract.execute(config.addresses.bActions, data);
         await tx
             .wait()
             .then((res: any) => {

@@ -20,7 +20,6 @@ import VaultSwap from "@/pages/vault/swap";
 import OwnerVault from "@/pages/vault/owner";
 import PoolSwap from "@/pages/pool/swap";
 import VaultInfo from "@/pages/vault/info";
-import config from "@/config";
 
 const getLibrary = (provider: any) => {
     const library = new ethers.providers.Web3Provider(provider);
@@ -29,8 +28,6 @@ const getLibrary = (provider: any) => {
 };
 
 const App = () => {
-    console.log("config:", config);
-
     return (
         <Fragment>
             <Suspense fallback={<div>loading...</div>}>

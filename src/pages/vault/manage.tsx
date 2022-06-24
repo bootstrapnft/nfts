@@ -172,7 +172,7 @@ const VaultManage = () => {
                 console.log(`result: ${index}`, result);
             })
         ).catch((err) => {
-            console.log("get nft id:", err);
+            console.log("get nft id err:", err);
             setLoading(false);
         });
 
@@ -540,7 +540,7 @@ const VaultManage = () => {
                                         </div>
                                         <div className="flex items-center gap-x-2">
                                             <input
-                                                className="w-20 dark:bg-gray-800 bg-white p-2 sm:p-2.5 text-base rounded-md border border-gray-200 dark:border-gray-600 dark:focus:ring-pink-800 focus:ring-pink-100 focus:ring-2 focus:border-pink-500 dark:focus:border-pink-500 focus:outline-none dark:focus:bg-pink-900 dark:focus:color-white dark:hover:border-pink-500 transition duration-300 ease-in-out opacity-100"
+                                                className="w-20 dark:bg-gray-800 bg-white p-2 sm:p-2.5 text-base rounded-md border border-gray-200 dark:border-gray-600 focus:ring-2 focus:outline-none transition duration-300 ease-in-out opacity-100"
                                                 placeholder="1.0"
                                                 value={mintFee}
                                                 onChange={(e) =>
@@ -563,7 +563,7 @@ const VaultManage = () => {
                                         </div>
                                         <div className="flex items-center gap-x-2">
                                             <input
-                                                className="w-20 dark:bg-gray-800 bg-white p-2 sm:p-2.5 text-base rounded-md border border-gray-200 dark:border-gray-600 dark:focus:ring-pink-800 focus:ring-pink-100 focus:ring-2 focus:border-pink-500 dark:focus:border-pink-500 focus:outline-none dark:focus:bg-pink-900 dark:focus:color-white dark:hover:border-pink-500 transition duration-300 ease-in-out opacity-100"
+                                                className="w-20 dark:bg-gray-800 bg-white p-2 sm:p-2.5 text-base rounded-md border border-gray-200 dark:border-gray-600 focus:ring-2 focus:outline-none transition duration-300 ease-in-out opacity-100"
                                                 placeholder="0.0"
                                                 value={randomRedeemFee}
                                                 onChange={(e) =>
@@ -588,7 +588,7 @@ const VaultManage = () => {
                                         </div>
                                         <div className="flex items-center gap-x-2">
                                             <input
-                                                className="w-20 dark:bg-gray-800 bg-white p-2 sm:p-2.5 text-base rounded-md border border-gray-200 dark:border-gray-600 dark:focus:ring-pink-800 focus:ring-pink-100 focus:ring-2 focus:border-pink-500 dark:focus:border-pink-500 focus:outline-none dark:focus:bg-pink-900 dark:focus:color-white dark:hover:border-pink-500 transition duration-300 ease-in-out opacity-100"
+                                                className="w-20 dark:bg-gray-800 bg-white p-2 sm:p-2.5 text-base rounded-md border border-gray-200 focus:ring-2 focus:outline-none transition duration-300 ease-in-out opacity-100"
                                                 placeholder="5.0"
                                                 value={targetRedeemFee}
                                                 onChange={(e) =>

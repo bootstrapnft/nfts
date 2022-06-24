@@ -1,0 +1,29 @@
+{
+    "network": "moonbeam",
+    "chainId": 1287,
+    "defaultPrecision": 2,
+    "rpcUrl": "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+    "wsUrl": "wss://rinkeby.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+    "subgraphUrl": "http://124.222.87.17:8000/subgraphs/name/balancer-labs/balancer-subgraph",
+    "subgraphBackupUrl": "",
+    "nftSubgraphUrl": "http://45.77.30.9:7000/subgraphs/name/nft-fractional",
+    "explorer": "https://testnet.aurorascan.dev/",
+    "exchangeUrl": "https://rinkeby.balancer.exchange",
+    "addresses": {
+        "VaultFactoryAddress": "0x743eA4424e8E41CF384633191bF63a5cad98Cd3F",
+        "bFactory": "0xC0Cb6f1b2bdDEcd33B2FC6Df40288e3c715B5E8b",
+        "crpFactory": "0xC89899d5DFC550A7Bd7732E4a9d142136D488347",
+        "bActions": "0x3cD54405487586A5A6f818248D6BA2255A5Fa178",
+        "dsProxyRegistry": "0xa02998bfB69164bf638506115125059Db4960782",
+        "proxy": "0x3De3766971f8d2281CcDEcA54075bc14Dc13Edfc",
+        "weth": "0x7AF5F0DB222f4638333B9dB72b76F0A3d4DdDE0E",
+        "multicall": "0xC90C43199c0e5F8F04f63fbcc90CE05aF5ffa225",
+        "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        "sorMulticall": "0xBF945Bf1DeaF7C82473523104D13e0651455254e",
+        "exchangeProxy": "0xd9c9C66A9E785D073202a90e6C095b2452c11BA2"
+    },
+    "swapDefaultAddress": {
+        "assetInDefaultAddress": "0xC508ca23fB250623C2c49a9AEAB223DF0C1F1C7e",
+        "assetOutDefaultAddress": "0xE6be704D8692dbB8390FBe5cC6d49C565B002C92"
+    }
+}

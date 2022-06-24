@@ -1,7 +1,7 @@
 import Modal from "@/components/modal";
 import { useState } from "react";
 import { Contract, ethers } from "ethers";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import BActionABI from "@/contract/pool/BAction.json";
 import { useLoading } from "@/context/loading";
 import { useWeb3React } from "@web3-react/core";
@@ -35,7 +35,7 @@ const SwapFee = ({ proxyAddress, controller, fee, close }: any) => {
             DSProxyABI,
             library.getSigner()
         );
-        const tx = await contract.execute(rinkeby.addresses.bActions, data);
+        const tx = await contract.execute(config.addresses.bActions, data);
         await tx
             .wait()
             .then((res: any) => {

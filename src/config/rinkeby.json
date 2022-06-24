@@ -10,6 +10,7 @@
     "explorer": "https://rinkeby.etherscan.io",
     "exchangeUrl": "https://rinkeby.balancer.exchange",
     "addresses": {
+        "VaultFactoryAddress": "0x3De3766971f8d2281CcDEcA54075bc14Dc13Edfc",
         "bFactory": "0x07F8C5aE3C711D63E50792245A6cd1b96cc7Ba7d",
         "crpFactory": "0x7093AF13B4Fc882E4023b9336Cc6097A58eFF9B8",
         "bActions": "0xB8d34E4c4F0C714BDBC5840ad047e32648e16B8F",
@@ -20,6 +21,10 @@
         "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         "sorMulticall": "0xBF945Bf1DeaF7C82473523104D13e0651455254e",
         "exchangeProxy": "0xd9c9C66A9E785D073202a90e6C095b2452c11BA2"
+    },
+    "swapDefaultAddress": {
+        "assetInDefaultAddress": "0x6C97D2dda691c7eeeffCF7FF561D9CC596c94739",
+        "assetOutDefaultAddress": "0xa3FcE8597Ae238f1050c382f1f94Db8c646529A9"
     },
     "connectors": {
         "injected": {

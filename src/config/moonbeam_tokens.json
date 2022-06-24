@@ -1,7 +1,7 @@
 {
     "tokens": {
-        "0xFE88a9e49FDc79215643D8C67778A49b7F5DC5b9": {
-            "address": "0xFE88a9e49FDc79215643D8C67778A49b7F5DC5b9",
+        "0xE6be704D8692dbB8390FBe5cC6d49C565B002C92": {
+            "address": "0xE6be704D8692dbB8390FBe5cC6d49C565B002C92",
             "id": "dai",
             "name": "DAI",
             "symbol": "DAI",
@@ -11,8 +11,8 @@
             "hasIcon": false,
             "logoUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png"
         },
-        "0x48aD58160C681bd75D10DDD1d8395d1765e9B2Dc": {
-            "address": "0x48aD58160C681bd75D10DDD1d8395d1765e9B2Dc",
+        "0xC508ca23fB250623C2c49a9AEAB223DF0C1F1C7e": {
+            "address": "0xC508ca23fB250623C2c49a9AEAB223DF0C1F1C7e",
             "id": "usd-coin",
             "name": "USDC",
             "symbol": "USDC",
@@ -22,8 +22,8 @@
             "hasIcon": false,
             "logoUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
         },
-        "0x0695DA5B80e5D50C6F412c2c398657e2c87a7e27": {
-            "address": "0x0695DA5B80e5D50C6F412c2c398657e2c87a7e27",
+        "0x7AF5F0DB222f4638333B9dB72b76F0A3d4DdDE0E": {
+            "address": "0x7AF5F0DB222f4638333B9dB72b76F0A3d4DdDE0E",
             "id": "weth",
             "name": "Wrapped Ether",
             "symbol": "WETH",

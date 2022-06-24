@@ -1,16 +1,15 @@
 import arrowDown from "@/assets/icon/arrow-down.svg";
-import { useEffect, useMemo, useState } from "react";
-import tokenList from "@/config/tokens.json";
+import { useEffect, useState } from "react";
 import SwapSelectToken from "@/pages/pool/swap/select-token";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
 import { useWeb3React } from "@web3-react/core";
-import rinkebey from "@/config/rinkeby.json";
 import { gql, request } from "graphql-request";
 import { SOR } from "@balancer-labs/sor";
 import { Swap, Pool } from "@balancer-labs/sor/dist/types";
 import { scale } from "@/util/utils";
+import config from "@/config";
 
 import BN from "bignumber.js";
 import Helper from "@/util/help";
@@ -20,8 +19,6 @@ import { useLoading } from "@/context/loading";
 let sor: SOR | undefined = undefined;
 const PoolSwap = () => {
     const ETH_KEY = "ether";
-    const assetInDefaultAddress = "0x6C97D2dda691c7eeeffCF7FF561D9CC596c94739";
-    const assetOutDefaultAddress = "0xa3FcE8597Ae238f1050c382f1f94Db8c646529A9";
     const GAS_PRICE = process.env.APP_GAS_PRICE || "100000000000";
     const MAX_POOLS = 4;
     // const sor = useRef<SOR | undefined>(undefined);
@@ -82,7 +79,7 @@ const PoolSwap = () => {
     useEffect(() => {
         (async () => {
             sor = undefined;
-            const tokens = tokenList.tokens as unknown as {
+            const tokens = config.tokens as unknown as {
                 [key: string]: any;
             };
             const tokenInfo: any[] = [];
@@ -145,7 +142,7 @@ const PoolSwap = () => {
                 console.log("effect asset out address change===========");
                 const address =
                     assetOutAddress === ETH_KEY
-                        ? rinkebey.addresses.weth
+                        ? config.addresses.weth
                         : assetOutAddress;
                 console.log("handle select token address", address);
                 await sor.setCostOutputToken(address);
@@ -171,11 +168,18 @@ const PoolSwap = () => {
             return token;
         });
         setTokenInfoList(temp);
+        console.log("get price info:", temp);
         temp.forEach((token: any) => {
-            if (token.address === assetInDefaultAddress) {
+            if (
+                token.address ===
+                config.swapDefaultAddress.assetInDefaultAddress
+            ) {
                 setSwapFromToken(token);
                 setAssetInAddress(token.address);
-            } else if (token.address === assetOutDefaultAddress) {
+            } else if (
+                token.address ===
+                config.swapDefaultAddress.assetOutDefaultAddress
+            ) {
                 setSwapToToken(token);
                 setAssetOutAddress(token.address);
             }
@@ -205,16 +209,14 @@ const PoolSwap = () => {
     };
 
     const initSor = async () => {
-        const poolsUrl = `${
-            rinkebey.subgraphBackupUrl
-        }?timestamp=${Date.now()}`;
+        const poolsUrl = `${config.subgraphBackupUrl}?timestamp=${Date.now()}`;
         //TODO read from subgraph
         const pools = await getPools({});
         sor = new SOR(
             library,
             new BN(GAS_PRICE),
             MAX_POOLS,
-            rinkebey.chainId,
+            config.chainId,
             poolsUrl
         );
 
@@ -222,9 +224,9 @@ const PoolSwap = () => {
             return { pools };
         };
 
-        console.log("pools==========", pools, rinkebey.addresses.sorMulticall);
-        if (rinkebey.addresses.sorMulticall) {
-            sor.MULTIADDR[rinkebey.chainId] = rinkebey.addresses.sorMulticall;
+        console.log("pools==========", pools, config.addresses.sorMulticall);
+        if (config.addresses.sorMulticall) {
+            sor.MULTIADDR[config.chainId] = config.addresses.sorMulticall;
         }
         console.time(`[SOR] setCostOutputToken: ${assetOutAddress}`);
         await sor.setCostOutputToken(assetOutAddress);
@@ -254,12 +256,10 @@ const PoolSwap = () => {
         }
 
         const inAddress =
-            assetInAddress === ETH_KEY
-                ? rinkebey.addresses.weth
-                : assetInAddress;
+            assetInAddress === ETH_KEY ? config.addresses.weth : assetInAddress;
         const outAddress =
             assetOutAddress === ETH_KEY
-                ? rinkebey.addresses.weth
+                ? config.addresses.weth
                 : assetOutAddress;
 
         if (assetInAddress === assetOutAddress) {
@@ -309,7 +309,7 @@ const PoolSwap = () => {
         );
         setSwaps(tradeSwaps);
         const assetOutAmountRaw = scale(tradeAmount, -assetOutDecimals);
-        const assetOutPrecision = rinkebey.defaultPrecision;
+        const assetOutPrecision = config.defaultPrecision;
         console.log(
             "assetOutAmountRaw===",
             assetOutAmountRaw.toFixed(assetOutPrecision, BN.ROUND_DOWN)
@@ -339,12 +339,10 @@ const PoolSwap = () => {
         }
 
         const inAddress =
-            assetInAddress === ETH_KEY
-                ? rinkebey.addresses.weth
-                : assetInAddress;
+            assetInAddress === ETH_KEY ? config.addresses.weth : assetInAddress;
         const outAddress =
             assetOutAddress === ETH_KEY
-                ? rinkebey.addresses.weth
+                ? config.addresses.weth
                 : assetOutAddress;
 
         if (assetInAddress === assetOutAddress) {
@@ -384,7 +382,7 @@ const PoolSwap = () => {
         );
         setSwaps(tradeSwaps);
         const assetInAmountRaw = scale(tradeAmount, -assetInDecimals);
-        const assetInPrecision = rinkebey.defaultPrecision;
+        const assetInPrecision = config.defaultPrecision;
         setSwapFromAmount(
             assetInAmountRaw.toFixed(assetInPrecision, BN.ROUND_UP)
         );
@@ -408,10 +406,10 @@ const PoolSwap = () => {
     };
 
     function isWrapPair(assetIn: string, assetOut: string): boolean {
-        if (assetIn === ETH_KEY && assetOut === rinkebey.addresses.weth) {
+        if (assetIn === ETH_KEY && assetOut === config.addresses.weth) {
             return true;
         }
-        if (assetOut === ETH_KEY && assetIn === rinkebey.addresses.weth) {
+        if (assetOut === ETH_KEY && assetIn === config.addresses.weth) {
             return true;
         }
         return false;
@@ -467,7 +465,7 @@ const PoolSwap = () => {
         `;
         // commit('GET_POOLS_REQUEST');
         try {
-            const res = await request(rinkebey.subgraphUrl, query);
+            const res = await request(config.subgraphUrl, query);
             const pools = res.pools.map((pool: any) => formatPool(pool));
             return pools;
         } catch (e) {
@@ -586,7 +584,7 @@ const PoolSwap = () => {
     };
 
     const getApprove = async () => {
-        const exchangeProxyAddress = rinkebey.addresses.exchangeProxy;
+        const exchangeProxyAddress = config.addresses.exchangeProxy;
         const contract = new Contract(
             assetInAddress,
             ERC20ABI,
@@ -610,7 +608,7 @@ const PoolSwap = () => {
 
     const approve = async () => {
         setLoading(true);
-        const exchangeProxyAddress = rinkebey.addresses.exchangeProxy;
+        const exchangeProxyAddress = config.addresses.exchangeProxy;
         const contract = new Contract(
             assetInAddress,
             ERC20ABI,
@@ -715,7 +713,7 @@ const PoolSwap = () => {
                                         <img
                                             src={arrowDown}
                                             alt="arrow down"
-                                            className="w-5 h-5 transform rotate-90"
+                                            className="w-5 h-5 transform"
                                         />
                                     </div>
                                 ) : (
@@ -844,7 +842,7 @@ const PoolSwap = () => {
                                         <img
                                             src={arrowDown}
                                             alt="arrow down"
-                                            className="w-5 h-5 transform rotate-90"
+                                            className="w-5 h-5 transform"
                                         />
                                     </div>
                                 ) : (
@@ -932,7 +930,7 @@ const PoolSwap = () => {
                                     <img
                                         src={arrowDown}
                                         alt="arrow down"
-                                        className="w-5 h-5 transform rotate-90 cursor-pointer"
+                                        className="w-5 h-5 transform cursor-pointer"
                                     />
                                 </div>
                             </div>

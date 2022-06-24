@@ -8,7 +8,7 @@ import { Interface } from "ethers/lib/utils";
 import BActionABI from "@/contract/pool/BAction.json";
 import { Contract } from "ethers";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import { toWei } from "@/util/utils";
 
 const GradualWeight = ({ changeBlockNum, proxyAddress, pool, close }: any) => {
@@ -108,7 +108,7 @@ const GradualWeight = ({ changeBlockNum, proxyAddress, pool, close }: any) => {
                 DSProxyABI,
                 library.getSigner()
             );
-            const tx = await contract.execute(rinkeby.addresses.bActions, data);
+            const tx = await contract.execute(config.addresses.bActions, data);
 
             await tx
                 .wait()

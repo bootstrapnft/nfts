@@ -1,5 +1,5 @@
 import { gql, request } from "graphql-request";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 
@@ -38,7 +38,7 @@ const VaultInfo = () => {
                 }
             }
         `;
-        request(rinkeby.nftSubgraphUrl, query)
+        request(config.nftSubgraphUrl, query)
             .then(async (data) => {
                 if (data.vault) {
                     const vault = data.vault;

@@ -33,6 +33,17 @@ const networks: any = {
         },
         blockExplorerUrls: ["https://testnet.aurorascan.dev/"],
     },
+    1287: {
+        chainId: "0x507",
+        chainName: "moonbase-alphanet",
+        rpcUrls: ["https://rpc.api.moonbase.moonbeam.network"],
+        nativeCurrency: {
+            name: "DEV",
+            symbol: "DEV",
+            decimals: 18,
+        },
+        blockExplorerUrls: ["https://moonbase.moonscan.io/"],
+    },
 };
 
 export const changeNetwork = async (network: Network, provider: any) => {

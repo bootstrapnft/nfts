@@ -10,12 +10,11 @@ import { ethers } from "ethers/lib.esm";
 import { Interface } from "ethers/lib/utils";
 import BActionABI from "@/contract/pool/BAction.json";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import { useLoading } from "@/context/loading";
 import { useWeb3React } from "@web3-react/core";
 import { bnum, scale, toWei } from "@/util/utils";
 import BigNumber from "@/util/bignumber";
-import rinkebey from "@/config/rinkeby.json";
 import ERC20ABI from "@/contract/ERC20.json";
 
 const ChangeTokenWeight = ({ totalShares, proxyAddress, pool, close }: any) => {
@@ -124,7 +123,7 @@ const ChangeTokenWeight = ({ totalShares, proxyAddress, pool, close }: any) => {
                 DSProxyABI,
                 library.getSigner()
             );
-            const tx = await contract.execute(rinkeby.addresses.bActions, data);
+            const tx = await contract.execute(config.addresses.bActions, data);
 
             await tx
                 .wait()
@@ -193,7 +192,7 @@ const ChangeTokenWeight = ({ totalShares, proxyAddress, pool, close }: any) => {
                 DSProxyABI,
                 library.getSigner()
             );
-            const tx = await contract.execute(rinkeby.addresses.bActions, data);
+            const tx = await contract.execute(config.addresses.bActions, data);
 
             await tx
                 .wait()

@@ -7,7 +7,7 @@ import Liquidity from "@/pages/pool/manage/liquidity";
 import Tokens from "@/config/tokens.json";
 import { Contract, ethers } from "ethers";
 import { useParams } from "react-router";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
 import { useWeb3React } from "@web3-react/core";
 import SwapFee from "@/pages/pool/manage/swap-fee";
@@ -199,7 +199,7 @@ const PoolManage = () => {
             return;
         }
         const contract = new Contract(
-            rinkeby.addresses.dsProxyRegistry,
+            config.addresses.dsProxyRegistry,
             DSProxyRegistryABI,
             library.getSigner()
         );
@@ -264,7 +264,7 @@ const PoolManage = () => {
 
     const multicall = async (abi: any[], calls: any[], options?: any) => {
         const multi = new Contract(
-            rinkeby.addresses.multicall,
+            config.addresses.multicall,
             MulticalABI,
             library.getSigner()
         );
@@ -321,10 +321,7 @@ const PoolManage = () => {
                         </div>
                         <div className="flex gap-x-2">
                             <button
-                                className="inline-flex items-center justify-center outline-none font-medium
-                                rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
-                                p-2 bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
-                                hover:to-purple-primary focus:ring-pink-500 text-sm"
+                                className="btn-primary"
                                 onClick={() => setOpenLiquidity(true)}
                             >
                                 Add liquidity
@@ -333,7 +330,7 @@ const PoolManage = () => {
                                 className="inline-flex items-center justify-center outline-none font-medium
                                 rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
                                 p-2 bg-gradient-to-b hover:from-purple-primary border border-purple-primary text-purple-primary
-                                hover:to-purple-primary focus:ring-pink-500 text-sm hover:text-purple-second"
+                                hover:to-purple-primary text-sm hover:text-purple-second"
                             >
                                 Remove liquidity
                             </button>
@@ -922,6 +919,9 @@ const PoolManage = () => {
             </main>
             {openLiquidity && (
                 <Liquidity
+                    poolInfo={pool}
+                    proxyAddress={proxyAddress}
+                    totalShares={totalShares}
                     tokens={pool.tokens}
                     close={() => setOpenLiquidity(false)}
                 />

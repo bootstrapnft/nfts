@@ -10,6 +10,7 @@
     "explorer": "https://testnet.aurorascan.dev/",
     "exchangeUrl": "https://rinkeby.balancer.exchange",
     "addresses": {
+        "VaultFactoryAddress": "0xB757Bd6b4430d8Cd2Ed678A4d86E8e6b2E6ebd1d",
         "bFactory": "0xB0479e200244346AAc22ffa82aD7DE10dcF928A7",
         "crpFactory": "0x609a34a4c5358E23226535149D29A751B2B464FE",
         "bActions": "0x0BA3629dB81993A7d96f8fBEC7e8FCea25f76D4e",
@@ -20,6 +21,10 @@
         "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         "sorMulticall": "0xBF945Bf1DeaF7C82473523104D13e0651455254e",
         "exchangeProxy": "0xd9c9C66A9E785D073202a90e6C095b2452c11BA2"
+    },
+    "swapDefaultAddress": {
+        "assetInDefaultAddress": "0x48aD58160C681bd75D10DDD1d8395d1765e9B2Dc",
+        "assetOutDefaultAddress": "0xFE88a9e49FDc79215643D8C67778A49b7F5DC5b9"
     },
     "connectors": {
         "injected": {

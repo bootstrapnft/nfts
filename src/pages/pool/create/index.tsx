@@ -2,8 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import arrowLeft from "@/assets/icon/arrow-down.svg";
 import close from "@/assets/icon/close.svg";
 import SelectToken from "@/pages/pool/create/select-token";
-import tokenList from "@/config/tokens.json";
-import rinkeby from "@/config/rinkeby.json";
+import config from "@/config";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
@@ -57,7 +56,7 @@ const PoolCreate = () => {
         (async () => {
             console.log("SelectToken1");
             setLoading(true);
-            const tokens = tokenList.tokens as unknown as {
+            const tokens = config.tokens as unknown as {
                 [key: string]: any;
             };
             const tokenInfo: any[] = [];
@@ -199,7 +198,7 @@ const PoolCreate = () => {
             return;
         }
         const contract = new Contract(
-            rinkeby.addresses.dsProxyRegistry,
+            config.addresses.dsProxyRegistry,
             DSProxyRegistryABI,
             library.getSigner()
         );
@@ -213,20 +212,31 @@ const PoolCreate = () => {
     };
 
     const setupProxy = async () => {
-        const contract = new Contract(
-            rinkeby.addresses.dsProxyRegistry,
-            DSProxyRegistryABI,
-            library.getSigner()
-        );
-        const tx = await contract.build();
-        await tx.wait().then((res: any) => {
-            setProxyAddress(res);
-            console.log("set up proxy:", res);
-        });
+        try {
+            setLoading(true);
+            const contract = new Contract(
+                config.addresses.dsProxyRegistry,
+                DSProxyRegistryABI,
+                library.getSigner()
+            );
+            const tx = await contract.build();
+            await tx.wait().then((res: any) => {
+                // setProxyAddress(res);
+                getProxyAddress();
+                setLoading(false);
+                console.log("set up proxy:", res);
+            });
+        } catch (e) {
+            console.log("setup proxy err:", e);
+            setLoading(false);
+        }
     };
 
     const getTokensAllowance = async () => {
-        console.log("get token list allowance:", tokensInfo);
+        console.log("get token list allowance:", tokensInfo, proxyAddress);
+        if (!proxyAddress) {
+            return;
+        }
         const tokensAllowance: { [key: string]: any } = {};
         await Promise.all(
             tokensInfo.map(async (token: any, index: number) => {
@@ -282,24 +292,32 @@ const PoolCreate = () => {
     };
 
     const approve = async (token: any) => {
-        const contract = new Contract(
-            token.address,
-            ERC20ABI,
-            library.getSigner()
-        );
-        const tx = await contract.approve(
-            proxyAddress,
-            ethers.constants.MaxUint256
-        );
-        await tx
-            .wait()
-            .then((res: any) => {
-                console.log("approve:", res);
-                getTokensAllowance();
-            })
-            .catch((err: any) => {
-                console.log("approve error:", err);
-            });
+        setLoading(true);
+        try {
+            const contract = new Contract(
+                token.address,
+                ERC20ABI,
+                library.getSigner()
+            );
+            const tx = await contract.approve(
+                proxyAddress,
+                ethers.constants.MaxUint256
+            );
+            await tx
+                .wait()
+                .then((res: any) => {
+                    console.log("approve:", res);
+                    getTokensAllowance();
+                    setLoading(false);
+                })
+                .catch((err: any) => {
+                    setLoading(false);
+                    console.log("approve error:", err);
+                });
+        } catch (e) {
+            console.log("approve err:", e);
+            setLoading(false);
+        }
     };
 
     const clacAmount = (token: any) => {
@@ -378,8 +396,8 @@ const PoolCreate = () => {
             swapFee: swapFee,
         };
 
-        const crpFactory = rinkeby.addresses.crpFactory;
-        const bFactory = rinkeby.addresses.bFactory;
+        const crpFactory = config.addresses.crpFactory;
+        const bFactory = config.addresses.bFactory;
         const ifac = new Interface(BActionABI);
         console.log("ifac", [
             crpFactory,
@@ -397,25 +415,30 @@ const PoolCreate = () => {
         ]);
 
         setLoading(true);
-        console.log("proxy address", proxyAddress, rinkeby.addresses.bActions);
-        const contract = new Contract(
-            proxyAddress,
-            DSProxyABI,
-            library.getSigner()
-        );
-        const tx = await contract.execute(rinkeby.addresses.bActions, data);
-
-        await tx
-            .wait()
-            .then((res: any) => {
-                setLoading(false);
-                navgator("/pool/explore");
-                console.log("createPool:", res);
-            })
-            .catch((err: any) => {
-                setLoading(false);
-                console.log("createPool error:", err);
-            });
+        console.log("proxy address", proxyAddress, config.addresses.bActions);
+        try {
+            const contract = new Contract(
+                proxyAddress,
+                DSProxyABI,
+                library.getSigner()
+            );
+            const tx = await contract.execute(config.addresses.bActions, data);
+            console.log("tx:", tx);
+            await tx
+                .wait()
+                .then((res: any) => {
+                    setLoading(false);
+                    navgator("/pool/explore");
+                    console.log("createPool:", res);
+                })
+                .catch((err: any) => {
+                    setLoading(false);
+                    console.log("createPool error:", err);
+                });
+        } catch (e) {
+            console.log("create pool err:", e);
+            setLoading(false);
+        }
     };
 
     const getPercentage = (token: any) => {
