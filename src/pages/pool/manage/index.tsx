@@ -21,6 +21,7 @@ import MulticalABI from "@/contract/pool/Multical.json";
 import { Interface } from "ethers/lib/utils";
 import ERC20ABI from "@/contract/ERC20.json";
 import GradualWeight from "@/pages/pool/manage/gradual-weight";
+import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -39,6 +40,7 @@ const PoolManage = () => {
     const [proxyAddress, setProxyAddress] = useState("");
     const [infoBtn, setInfoBtn] = useState<InfoBtn>(InfoBtn.Balance);
     const [openLiquidity, setOpenLiquidity] = useState(false);
+    const [openRemoveLiquidity, setOpenRemoveLiquidity] = useState(false);
     const [openChangeCap, setOpenChangeCap] = useState(false);
     const [openChangeToken, setOpenChangeToken] = useState(false);
     const [openGradualWeight, setOpenGradualWeight] = useState(false);
@@ -330,6 +332,7 @@ const PoolManage = () => {
                                 rounded-md break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
                                 p-2 bg-gradient-to-b hover:from-purple-primary border border-purple-primary text-purple-primary
                                 hover:to-purple-primary text-sm hover:text-purple-second"
+                                onClick={() => setOpenRemoveLiquidity(true)}
                             >
                                 Remove liquidity
                             </button>
@@ -923,6 +926,15 @@ const PoolManage = () => {
                     totalShares={totalShares}
                     tokens={pool.tokens}
                     close={() => setOpenLiquidity(false)}
+                />
+            )}
+            {openRemoveLiquidity && (
+                <RemoveLiquidity
+                    poolInfo={pool}
+                    proxyAddress={proxyAddress}
+                    totalShares={totalShares}
+                    tokens={pool.tokens}
+                    close={() => setOpenRemoveLiquidity(false)}
                 />
             )}
             {openChangePublicSwap && (

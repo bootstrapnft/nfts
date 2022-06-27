@@ -68,6 +68,30 @@ export function calcPoolOutGivenSingleIn(
     return poolAmountOut;
 }
 
+export function calcSingleOutGivenPoolIn(
+    tokenBalanceOut: BigNumber,
+    tokenWeightOut: BigNumber,
+    poolSupply: BigNumber,
+    totalWeight: BigNumber,
+    poolAmountIn: BigNumber,
+    swapFee: BigNumber
+): BigNumber {
+    const normalizedWeight = bdiv(tokenWeightOut, totalWeight);
+    const poolAmountInAfterExitFee = bmul(poolAmountIn, BONE.minus(EXIT_FEE));
+    const newPoolSupply = poolSupply.minus(poolAmountInAfterExitFee);
+    const poolRatio = bdiv(newPoolSupply, poolSupply);
+
+    const tokenOutRatio = bpow(poolRatio, bdiv(BONE, normalizedWeight));
+    const newTokenBalanceOut = bmul(tokenOutRatio, tokenBalanceOut);
+
+    const tokenAmountOutBeforeSwapFee =
+        tokenBalanceOut.minus(newTokenBalanceOut);
+
+    const zaz = bmul(BONE.minus(normalizedWeight), swapFee);
+    const tokenAmountOut = bmul(tokenAmountOutBeforeSwapFee, BONE.minus(zaz));
+    return tokenAmountOut;
+}
+
 function bpow(base: BigNumber, exp: BigNumber): BigNumber {
     const whole = bfloor(exp);
     const remain = exp.minus(whole);
