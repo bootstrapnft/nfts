@@ -44,6 +44,17 @@ const networks: any = {
         },
         blockExplorerUrls: ["https://moonbase.moonscan.io/"],
     },
+    81: {
+        chainId: "0x51",
+        chainName: "sbibuya-alphanet",
+        rpcUrls: ["https://evm.shibuya.astar.network"],
+        nativeCurrency: {
+            name: "SBY",
+            symbol: "SBY",
+            decimals: 18,
+        },
+        blockExplorerUrls: ["https://blockscout.com/shibuya"],
+    },
 };
 
 export const changeNetwork = async (network: Network, provider: any) => {

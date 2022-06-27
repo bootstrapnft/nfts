@@ -4,7 +4,6 @@ import rinkby from "@/config/rinkeby.json";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { truncateAddress } from "@/util/address";
 import Liquidity from "@/pages/pool/manage/liquidity";
-import Tokens from "@/config/tokens.json";
 import { Contract, ethers } from "ethers";
 import { useParams } from "react-router";
 import config from "@/config";
@@ -148,7 +147,7 @@ const PoolManage = () => {
       }
     `;
         request(rinkby.subgraphUrl, query).then((data) => {
-            const tokenInfo = Tokens.tokens as unknown as {
+            const tokenInfo = config.tokens as unknown as {
                 [key: string]: any;
             };
             data.pool.tokens.map((token: any) => {

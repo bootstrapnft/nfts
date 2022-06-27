@@ -7,6 +7,9 @@ import auroraTokens from "@/config/aurora_tokens.json";
 import moonbeam from "@/config/moonbeam.json";
 import moonbeamTokens from "@/config/moonbeam_tokens.json";
 
+import sbibuya from "@/config/sbibuya.json";
+import sbibuyaTokens from "@/config/sbibuya_tokens.json";
+
 import { currentNetwork } from "@/util/network";
 
 const configs = {
@@ -21,6 +24,10 @@ const configs = {
     1287: {
         ...moonbeam,
         ...moonbeamTokens,
+    },
+    81: {
+        ...sbibuya,
+        ...sbibuyaTokens,
     },
 };
 

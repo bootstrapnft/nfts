@@ -1,0 +1,54 @@
+{
+    "network": "sbibuya",
+    "chainId": 81,
+    "defaultPrecision": 2,
+    "rpcUrl": "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+    "wsUrl": "wss://rinkeby.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+    "subgraphUrl": "http://124.222.87.17:8000/subgraphs/name/balancer-labs/balancer-subgraph",
+    "subgraphBackupUrl": "",
+    "nftSubgraphUrl": "http://45.77.30.9:7000/subgraphs/name/nft-fractional",
+    "explorer": "https://testnet.aurorascan.dev/",
+    "exchangeUrl": "https://rinkeby.balancer.exchange",
+    "addresses": {
+        "VaultFactoryAddress": "0xB757Bd6b4430d8Cd2Ed678A4d86E8e6b2E6ebd1d",
+        "bFactory": "0x7F397893f190fa34BcFeDA7F19E72Df75f753114",
+        "crpFactory": "0xf43045c6A98DA0E018678F110C8d20c726d37062",
+        "bActions": "0x13B62b4084d7eba0B59D933FcAfB25C0ff88E275",
+        "dsProxyRegistry": "0xA6692456189428F3Ab691E30BF432E378f7ca003",
+        "proxy": "0x0e58D6634877626189eE3326cf06B7E1CA469dc6",
+        "weth": "0x0695DA5B80e5D50C6F412c2c398657e2c87a7e27",
+        "multicall": "0xC90C43199c0e5F8F04f63fbcc90CE05aF5ffa225",
+        "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        "sorMulticall": "0xBF945Bf1DeaF7C82473523104D13e0651455254e",
+        "exchangeProxy": "0xd9c9C66A9E785D073202a90e6C095b2452c11BA2"
+    },
+    "swapDefaultAddress": {
+        "assetInDefaultAddress": "0x0457Ad7b48d98E3CD463B9F9d14EfED56332268D",
+        "assetOutDefaultAddress": "0xdEDba5Fb4f998B533FFCBEbA5f2c053624fe51E8"
+    },
+    "connectors": {
+        "injected": {
+            "id": "injected",
+            "name": "MetaMask"
+        },
+        "walletconnect": {
+            "id": "walletconnect",
+            "name": "WalletConnect",
+            "options": {
+                "rpc": {
+                    "4": "https://eth-rinkeby.alchemyapi.io/v2/C467LJc7Aa761LLxlcxXvhIG9HzDTtKw"
+                }
+            }
+        },
+        "walletlink": {
+            "id": "walletlink",
+            "name": "Coinbase",
+            "options": {
+                "appName": "Pool management - Balancer",
+                "darkMode": true,
+                "chainId": 4,
+                "ethJsonrpcUrl": "https://eth-rinkeby.alchemyapi.io/v2/C467LJc7Aa761LLxlcxXvhIG9HzDTtKw"
+            }
+        }
+    }
+}

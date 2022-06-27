@@ -1,18 +1,15 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import SelectWallet from "@/components/select_wallet";
 import { useWeb3React } from "@web3-react/core";
-import { truncateAddress } from "@/util/address";
 import { useNavigate } from "react-router";
 import arrowDown from "@/assets/icon/arrow-down.svg";
 import logo from "@/assets/logo.svg";
-import ethereum from "@/assets/icon/ethereum.svg";
-import aurora from "@/assets/icon/aurora.svg";
-import moonbeam from "@/assets/icon/moonbeam.png";
 import { gql, request } from "graphql-request";
-import { Menu, Transition } from "@headlessui/react";
-import { changeNetwork, currentNetwork } from "@/util/network";
 import { connectors } from "@/components/select_wallet/connector";
 import config from "@/config";
+import { truncateAddress } from "@/util/address";
+import { currentNetwork } from "@/util/network";
+import SwitchNetwork from "@/components/header/switch-network";
 
 const Header = () => {
     const navigator = useNavigate();
@@ -211,149 +208,13 @@ const Header = () => {
                         </div>
                     </nav>
                     <aside className="flex order-2 sm:order-3 justify-center md:justify-end flex-wrap ml-auto md:ml-0">
-                        <div className="hidden sm:inline-flex">
-                            <Menu
-                                as="div"
-                                className="relative inline-block text-left"
-                            >
-                                <div className="h-full">
-                                    <Menu.Button
-                                        className="btn-second mr-2 border border-purple-primary hover:bg-purple-primary
-                                            hover:bg-opacity-30 h-full"
-                                    >
-                                        {network.name === "rinkeby" && (
-                                            <img
-                                                src={ethereum}
-                                                alt="ethereum"
-                                                className="h-5 w-5"
-                                            />
-                                        )}
-                                        {network.name === "aurora" && (
-                                            <img
-                                                src={aurora}
-                                                alt="aurora"
-                                                className="h-5 w-5"
-                                            />
-                                        )}
-                                        {network.name === "moonbeam" && (
-                                            <img
-                                                src={moonbeam}
-                                                alt="moonbeam"
-                                                className="h-5 w-5"
-                                            />
-                                        )}
-                                    </Menu.Button>
-                                </div>
-                                <Transition
-                                    as={Fragment}
-                                    enter="transition ease-out duration-100"
-                                    enterFrom="transform opacity-0 scale-95"
-                                    enterTo="transform opacity-100 scale-100"
-                                    leave="transition ease-in duration-75"
-                                    leaveFrom="transform opacity-100 scale-100"
-                                    leaveTo="transform opacity-0 scale-95"
-                                >
-                                    <Menu.Items
-                                        className="absolute right-0 mt-2 w-32 origin-top-right divide-y
-                                          divide-gray-100 rounded-md bg-blue-primary shadow-lg ring-1 ring-black ring-opacity-5
-                                          focus:outline-none border border-purple-primary"
-                                    >
-                                        <div className="px-1 py-1">
-                                            <Menu.Item>
-                                                {({ active }) => (
-                                                    <button
-                                                        className={`${
-                                                            active
-                                                                ? "bg-purple-primary text-white"
-                                                                : "text-purple-second"
-                                                        } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
-                                                        onClick={() => {
-                                                            changeNetwork(
-                                                                {
-                                                                    id: 4,
-                                                                    name: "rinkeby",
-                                                                },
-                                                                library.provider
-                                                            );
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src={ethereum}
-                                                            alt="ethereum"
-                                                            className="h-5 w-5"
-                                                        />
-                                                        <span>Rinkeby</span>
-                                                    </button>
-                                                )}
-                                            </Menu.Item>
-                                            <Menu.Item>
-                                                {({ active }) => (
-                                                    <button
-                                                        className={`${
-                                                            active
-                                                                ? "bg-purple-primary text-white"
-                                                                : "text-purple-second"
-                                                        } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
-                                                        onClick={() => {
-                                                            changeNetwork(
-                                                                {
-                                                                    id: 1313161555,
-                                                                    name: "aurora",
-                                                                },
-                                                                library.provider
-                                                            );
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src={aurora}
-                                                            alt="aurora"
-                                                            className="h-5 w-5"
-                                                        />
-                                                        <span>Aurora</span>
-                                                    </button>
-                                                )}
-                                            </Menu.Item>
-                                            <Menu.Item>
-                                                {({ active }) => (
-                                                    <button
-                                                        className={`${
-                                                            active
-                                                                ? "bg-purple-primary text-white"
-                                                                : "text-purple-second"
-                                                        } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
-                                                        onClick={() => {
-                                                            changeNetwork(
-                                                                {
-                                                                    id: 1287,
-                                                                    name: "moonbeam",
-                                                                },
-                                                                library.provider
-                                                            );
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src={moonbeam}
-                                                            alt="moonbeam"
-                                                            className="h-5 w-5"
-                                                        />
-                                                        <span>moonbeam</span>
-                                                    </button>
-                                                )}
-                                            </Menu.Item>
-                                        </div>
-                                    </Menu.Items>
-                                </Transition>
-                            </Menu>
-
-                            <button
-                                className="btn-primary"
-                                onClick={() => setIsOpen(true)}
-                            >
-                                {!active
-                                    ? "Connect"
-                                    : truncateAddress(account!)}
-                            </button>
-                        </div>
+                        <SwitchNetwork />
+                        <button
+                            className="btn-primary"
+                            onClick={() => setIsOpen(true)}
+                        >
+                            {!active ? "Connect" : truncateAddress(account!)}
+                        </button>
                     </aside>
                 </div>
                 {showTips && (

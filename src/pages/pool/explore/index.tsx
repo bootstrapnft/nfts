@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useState } from "react";
 import { gql, request } from "graphql-request";
 import rinkby from "@/config/rinkeby.json";
-import Tokens from "@/config/tokens.json";
 import { truncateAddress } from "@/util/address";
 import Pie from "@/components/pie";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router";
+import config from "@/config";
 
 const PoolExplore = () => {
     const navigate = useNavigate();
@@ -110,7 +110,7 @@ const PoolExplore = () => {
 
         request(rinkby.subgraphUrl, query).then((data) => {
             if (data.pools) {
-                const tokenInfo = Tokens.tokens as unknown as {
+                const tokenInfo = config.tokens as unknown as {
                     [key: string]: any;
                 };
                 data.pools.map((pool: any) => {
