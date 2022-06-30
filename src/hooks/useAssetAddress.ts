@@ -4,21 +4,24 @@ import VaultABI from "@/contract/Vault.json";
 import { useWeb3React } from "@web3-react/core";
 
 const useAssetAddress = (contractAddress: string): { address: string } => {
-  const { library } = useWeb3React();
-  const [address, setAddress] = useState("");
-  useEffect(() => {
-    (async () => {
-      const contract = new Contract(
-        contractAddress,
-        VaultABI,
-        library.getSigner()
-      );
-      const res = await contract.assetAddress();
-      setAddress(res);
-    })();
-  }, []);
+    const { active, library } = useWeb3React();
+    const [address, setAddress] = useState("");
+    useEffect(() => {
+        if (!active) {
+            return;
+        }
+        (async () => {
+            const contract = new Contract(
+                contractAddress,
+                VaultABI,
+                library.getSigner()
+            );
+            const res = await contract.assetAddress();
+            setAddress(res);
+        })();
+    }, [active]);
 
-  return { address };
+    return { address };
 };
 
 export default useAssetAddress;

@@ -9,25 +9,19 @@ import VaultABI from "@/contract/Vault.json";
 import { useWeb3React } from "@web3-react/core";
 import ERC721ABI from "@/contract/ERC721.json";
 import { useLoading } from "@/context/loading";
+import useAssetAddress from "@/hooks/useAssetAddress";
+import { toast } from "react-toastify";
 
 const VaultMint = () => {
     const params = useParams();
     const { library, account, active } = useWeb3React();
     const [, setLoading] = useLoading();
-    const [assetAddress, setAssetAddress] = useState("");
+    const { address: assetAddress } = useAssetAddress(params.address!);
     const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
     const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
     const [selectMintIds, setSelectMintIds] = useState<
         { [key: string]: any }[]
     >([]);
-
-    useEffect(() => {
-        if (active) {
-            getNFTAssetAddress();
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [active, account]);
 
     useEffect(() => {
         if (assetAddress !== "") {
@@ -58,21 +52,6 @@ const VaultMint = () => {
         if (!isSelect) {
             setSelectMintIds([...selectMintIds, item]);
         }
-    };
-
-    const getNFTAssetAddress = async () => {
-        if (!active) {
-            return;
-        }
-        const contract = new Contract(
-            params.address!,
-            VaultABI,
-            library.getSigner()
-        );
-        await contract.assetAddress().then((res: any) => {
-            setAssetAddress(res);
-            console.log("asset address:", res);
-        });
     };
 
     const getNFTIds = async () => {
@@ -132,44 +111,56 @@ const VaultMint = () => {
         if (!selectMintIds) {
             return;
         }
-        setLoading(true);
-        const erc721Contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-        const approve = await erc721Contract
-            .approve(params.address, selectMintIds[0].number)
-            .catch((e: any) => {
-                console.log("approve error:", e);
-                setLoading(false);
-            });
-        const approveResult = await approve.wait();
-        console.log("approve result:", approveResult);
+        try {
+            setLoading(true);
+            const erc721Contract = new Contract(
+                assetAddress,
+                ERC721ABI,
+                library.getSigner()
+            );
+            const approve = await erc721Contract
+                .approve(params.address, selectMintIds[0].number)
+                .catch((e: any) => {
+                    console.log("approve error:", e);
+                    setLoading(false);
+                });
+            const approveResult = await approve.wait();
+            console.log("approve result:", approveResult);
+            toast.success(`Approve ${selectMintIds[0].number} success!`, {});
 
-        const contract = new Contract(
-            params.address!,
-            VaultABI,
-            library.getSigner()
-        );
-        const tx = await contract
-            .mint([selectMintIds[0].number], [1])
-            .catch((e: any) => {
-                console.log("mint error:", e);
-                setLoading(false);
-            });
-        await tx.wait().then(
-            (res: any) => {
-                console.log("tx success:", res);
-                setSelectMintIds([]);
-                getNFTIds();
-            },
-            (err: any) => {
-                setLoading(false);
-                console.log("tx error:", err);
-            }
-        );
-        setLoading(false);
+            const contract = new Contract(
+                params.address!,
+                VaultABI,
+                library.getSigner()
+            );
+            const tx = await contract
+                .mint([selectMintIds[0].number], [1])
+                .catch((e: any) => {
+                    console.log("mint error:", e);
+                    setLoading(false);
+                });
+            await tx.wait().then(
+                (res: any) => {
+                    console.log("tx success:", res);
+                    setSelectMintIds([]);
+                    getNFTIds();
+                    toast.success(
+                        `Mint #${selectMintIds[0].number} success!`,
+                        {}
+                    );
+                },
+                (err: any) => {
+                    setLoading(false);
+                    toast.error(`Mint #${selectMintIds[0].number} error!`, {});
+                    console.log("tx error:", err);
+                }
+            );
+            setLoading(false);
+        } catch (e) {
+            setLoading(false);
+            toast.error(`Mint #${selectMintIds[0].number} error!`, {});
+            console.log("mint exception:", e);
+        }
     };
 
     return (

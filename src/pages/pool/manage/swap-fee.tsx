@@ -7,6 +7,7 @@ import { useLoading } from "@/context/loading";
 import { useWeb3React } from "@web3-react/core";
 import { Interface } from "ethers/lib/utils";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
+import { toast } from "react-toastify";
 
 const SwapFee = ({ proxyAddress, controller, fee, close }: any) => {
     const [, setLoading] = useLoading();
@@ -35,18 +36,25 @@ const SwapFee = ({ proxyAddress, controller, fee, close }: any) => {
             DSProxyABI,
             library.getSigner()
         );
-        const tx = await contract.execute(config.addresses.bActions, data);
-        await tx
-            .wait()
-            .then((res: any) => {
-                console.log("update swap fee success", res);
-                setLoading(false);
-                close();
-            })
-            .catch((err: any) => {
-                console.log("update swap fee err", err);
-                setLoading(false);
-            });
+        try {
+            const tx = await contract.execute(config.addresses.bActions, data);
+            await tx
+                .wait()
+                .then((res: any) => {
+                    console.log("update swap fee success", res);
+                    setLoading(false);
+                    toast.success("Update swap fee success");
+                    close();
+                })
+                .catch((err: any) => {
+                    console.log("update swap fee err", err);
+                    setLoading(false);
+                });
+        } catch (e) {
+            console.log("update swap fee err", e);
+            setLoading(false);
+            toast.error("Update swap fee failed");
+        }
     };
 
     return (

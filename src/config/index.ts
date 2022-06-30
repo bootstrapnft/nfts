@@ -1,3 +1,6 @@
+import ropsten from "@/config/ropsten.json";
+import ropstenTokens from "@/config/ropsten_tokens.json";
+
 import rinkeby from "@/config/rinkeby.json";
 import rinkeByTokens from "@/config/rinkeby_tokens.json";
 
@@ -13,6 +16,10 @@ import sbibuyaTokens from "@/config/sbibuya_tokens.json";
 import { currentNetwork } from "@/util/network";
 
 const configs = {
+    3: {
+        ...ropsten,
+        ...ropstenTokens,
+    },
     4: {
         ...rinkeby,
         ...rinkeByTokens,

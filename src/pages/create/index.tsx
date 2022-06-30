@@ -7,6 +7,7 @@ import VaultFactory from "@/contract/VaultFactory.json";
 import { Contract, ethers } from "ethers";
 import Created from "@/pages/create/created";
 import { useLoading } from "@/context/loading";
+import { toast } from "react-toastify";
 
 const enum State {
     Create,
@@ -53,10 +54,12 @@ const Create = () => {
                 }
                 changeState(State.Created);
                 setLoading(false);
+                toast.success("Vault created successfully!");
             });
         } catch (e) {
             console.log("create vault err:", e);
             setLoading(false);
+            toast.error("Create vault failed!");
         }
     };
 
@@ -83,16 +86,6 @@ const Create = () => {
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12">
                 <div className="mx-auto my-10 max-w-lg w-full">
-                    {!active && (
-                        <button
-                            className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                  break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12
-                  w-full bg-gradient-to-b from-pink-400 to-pink-500 text-white hover:from-pink-500 hover:to-pink-500
-                  whitespace-nowrap "
-                        >
-                            Connect
-                        </button>
-                    )}
                     {active && (
                         <div
                             className="rounded-md shadow-xl dark:text-white text-lm-gray-700 dark:bg-gray-800

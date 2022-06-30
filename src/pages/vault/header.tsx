@@ -67,7 +67,7 @@ const VaultHeader = ({ address, type }: any) => {
                     className={`btn-second 
                         ${
                             type === "redeem"
-                                ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
+                                ? "bg-purple-primary text-white hover:bg-purple-hover"
                                 : ""
                         }`}
                     onClick={() => navigator(`/vault/${address}/redeem`)}
@@ -78,7 +78,7 @@ const VaultHeader = ({ address, type }: any) => {
                     className={`btn-second
                     ${
                         type === "mint"
-                            ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
+                            ? "bg-purple-primary text-white hover:bg-purple-hover"
                             : ""
                     }`}
                     onClick={() => navigator(`/vault/${address}/mint`)}
@@ -88,7 +88,7 @@ const VaultHeader = ({ address, type }: any) => {
                 <button
                     className={`btn-second ${
                         type === "swap"
-                            ? "bg-gradient-to-b from-purple-primary to-purple-900 hover:from-purple-primary hover:to-purple-primary"
+                            ? "bg-purple-primary text-white hover:bg-purple-hover"
                             : ""
                     }`}
                     onClick={() => navigator(`/vault/${address}/swap`)}
@@ -96,7 +96,11 @@ const VaultHeader = ({ address, type }: any) => {
                     Swap
                 </button>
                 <button
-                    className="btn-second"
+                    className={`btn-second ${
+                        type === "info"
+                            ? "bg-purple-primary text-white hover:bg-purple-hover"
+                            : ""
+                    }`}
                     onClick={() => navigator(`/vault/${address}/info`)}
                 >
                     Info

@@ -7,6 +7,7 @@ import { useWeb3React } from "@web3-react/core";
 import BActionABI from "@/contract/pool/BAction.json";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
 import { useLoading } from "@/context/loading";
+import { toast } from "react-toastify";
 
 const ChangeCap = ({ proxyAddress, controller, cap, close }: any) => {
     const [, setLoading] = useLoading();
@@ -36,18 +37,26 @@ const ChangeCap = ({ proxyAddress, controller, cap, close }: any) => {
             DSProxyABI,
             library.getSigner()
         );
-        const tx = await contract.execute(config.addresses.bActions, data);
-        await tx
-            .wait()
-            .then((res: any) => {
-                console.log("update cap success", res);
-                setLoading(false);
-                close();
-            })
-            .catch((err: any) => {
-                console.log("update cap err", err);
-                setLoading(false);
-            });
+        try {
+            const tx = await contract.execute(config.addresses.bActions, data);
+            await tx
+                .wait()
+                .then((res: any) => {
+                    console.log("update cap success", res);
+                    setLoading(false);
+                    close();
+                    toast.success("Update cap success");
+                })
+                .catch((err: any) => {
+                    console.log("update cap err", err);
+                    setLoading(false);
+                    toast.error("Update cap failed");
+                });
+        } catch (e) {
+            console.log("update cap err", e);
+            setLoading(false);
+            toast.error("Update cap failed");
+        }
     };
 
     return (

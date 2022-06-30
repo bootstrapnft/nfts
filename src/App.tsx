@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense } from "react";
+import React, { Fragment, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
@@ -20,6 +20,7 @@ import VaultSwap from "@/pages/vault/swap";
 import OwnerVault from "@/pages/vault/owner";
 import PoolSwap from "@/pages/pool/swap";
 import VaultInfo from "@/pages/vault/info";
+import { ToastContainer } from "react-toastify";
 
 const getLibrary = (provider: any) => {
     const library = new ethers.providers.Web3Provider(provider);
@@ -30,6 +31,7 @@ const getLibrary = (provider: any) => {
 const App = () => {
     return (
         <Fragment>
+            <ToastContainer position="top-center" theme="dark" />
             <Suspense fallback={<div>loading...</div>}>
                 <Web3ReactProvider getLibrary={getLibrary}>
                     <LoadingProvider>

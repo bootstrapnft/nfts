@@ -10,6 +10,7 @@ import { Contract } from "ethers";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
 import config from "@/config";
 import { toWei } from "@/util/utils";
+import { toast } from "react-toastify";
 
 const GradualWeight = ({ changeBlockNum, proxyAddress, pool, close }: any) => {
     const BLOCK_BUFFER = 100;
@@ -115,15 +116,18 @@ const GradualWeight = ({ changeBlockNum, proxyAddress, pool, close }: any) => {
                 .then((res: any) => {
                     console.log("update weight success", res);
                     setLoading(false);
+                    toast.success("Update weight successfully");
                     close();
                 })
                 .catch((err: any) => {
                     console.log("update weight err", err);
                     setLoading(false);
+                    toast.error("Update weight failed");
                 });
         } catch (e) {
             setLoading(false);
             console.log("increase weight err:", e);
+            toast.error("Update weight failed");
         }
     };
 

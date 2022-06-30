@@ -19,6 +19,7 @@ import config from "@/config";
 import DSProxyABI from "@/contract/pool/DSProxy.json";
 import { useLoading } from "@/context/loading";
 import { calcPoolOutGivenSingleIn } from "@/util/math";
+import { toast } from "react-toastify";
 
 const Liquidity = ({
     proxyAddress,
@@ -250,8 +251,9 @@ const Liquidity = ({
                 .wait()
                 .then((res: any) => {
                     setLoading(false);
-                    close();
                     console.log("add liquidity:", res);
+                    toast.success("Successfully added liquidity");
+                    close();
                 })
                 .catch((err: any) => {
                     setLoading(false);
@@ -260,12 +262,13 @@ const Liquidity = ({
         } catch (e) {
             console.log("add liquidity err:", e);
             setLoading(false);
+            toast.error("Error adding liquidity");
         }
     };
 
     const handeSingleAsset = async (params: any) => {
         console.log(
-            "asdlkajsdf----",
+            "handeSingleAsset params:",
             params,
             params.tokenAmountIn,
             params.minPoolAmountOut
@@ -292,8 +295,9 @@ const Liquidity = ({
                 .wait()
                 .then((res: any) => {
                     setLoading(false);
-                    close();
                     console.log("add liquidity:", res);
+                    toast.success("Successfully added liquidity");
+                    close();
                 })
                 .catch((err: any) => {
                     setLoading(false);
@@ -302,6 +306,7 @@ const Liquidity = ({
         } catch (e) {
             console.log("add liquidity err:", e);
             setLoading(false);
+            toast.error("Error adding liquidity");
         }
     };
 

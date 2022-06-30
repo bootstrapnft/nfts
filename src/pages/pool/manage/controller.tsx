@@ -7,6 +7,7 @@ import DSProxyABI from "@/contract/pool/DSProxy.json";
 import config from "@/config";
 import { useLoading } from "@/context/loading";
 import { useWeb3React } from "@web3-react/core";
+import { toast } from "react-toastify";
 
 const ChangeController = ({ proxyAddress, controller, close }: any) => {
     const [, setLoading] = useLoading();
@@ -36,11 +37,13 @@ const ChangeController = ({ proxyAddress, controller, close }: any) => {
             .then((res: any) => {
                 console.log("update controller success", res);
                 setLoading(false);
+                toast.success("update controller success");
                 close();
             })
             .catch((err: any) => {
                 console.log("update controller err", err);
                 setLoading(false);
+                toast.error("update controller failed");
             });
     };
 

@@ -16,6 +16,7 @@ import {
 } from "@/util/utils";
 import { calcSingleOutGivenPoolIn } from "@/util/math";
 import { BigNumber } from "bignumber.js";
+import { toast } from "react-toastify";
 
 const RemoveLiquidity = ({
     proxyAddress,
@@ -156,8 +157,9 @@ const RemoveLiquidity = ({
                 .wait()
                 .then((res: any) => {
                     setLoading(false);
-                    close();
                     console.log("remove liquidity:", res);
+                    close();
+                    toast.success("Successfully removed liquidity");
                 })
                 .catch((err: any) => {
                     setLoading(false);
@@ -166,6 +168,7 @@ const RemoveLiquidity = ({
         } catch (e) {
             console.log("remove liquidity err:", e);
             setLoading(false);
+            toast.error("Error removing liquidity");
         }
     };
 
@@ -192,8 +195,9 @@ const RemoveLiquidity = ({
                 .wait()
                 .then((res: any) => {
                     setLoading(false);
-                    close();
                     console.log("remove liquidity:", res);
+                    close();
+                    toast.success("Successfully removed liquidity");
                 })
                 .catch((err: any) => {
                     setLoading(false);
@@ -202,6 +206,7 @@ const RemoveLiquidity = ({
         } catch (e) {
             console.log("remove liquidity err:", e);
             setLoading(false);
+            toast.error("Error removing liquidity");
         }
     };
 

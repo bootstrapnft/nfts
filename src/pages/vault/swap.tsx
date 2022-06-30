@@ -12,6 +12,7 @@ import circleArrowDown from "@/assets/icon/circle-arrow-down.svg";
 import { gql, request } from "graphql-request";
 import config from "@/config";
 import { ethers } from "ethers/lib.esm";
+import { toast } from "react-toastify";
 
 const VaultSwap = () => {
     const params = useParams();
@@ -203,36 +204,51 @@ const VaultSwap = () => {
             ERC721ABI,
             library.getSigner()
         );
-        const approve = await erc721Contract
-            .approve(params.address, selectFromIds[0].number)
-            .catch((e: any) => {
-                console.log("approve error:", e);
-                setLoading(false);
-            });
-        await approve.wait();
+        try {
+            const approve = await erc721Contract
+                .approve(params.address, selectFromIds[0].number)
+                .catch((e: any) => {
+                    console.log("approve error:", e);
+                    setLoading(false);
+                });
+            await approve.wait();
+            toast.success(`Approve #${selectFromIds[0].number} success`);
 
-        const contract = new Contract(
-            params.address!,
-            VaultABI,
-            library.getSigner()
-        );
-        const fromIds = selectFromIds.map((item) => item.number);
-        const receiveIds = selectReceiveIds.map((item) => item.number);
-        const tx = await contract.swap(fromIds, [fromIds.length], receiveIds);
-        await tx
-            .wait()
-            .then((res: any) => {
-                setLoading(false);
-                setSwapSwitchType("from");
-                setSelectFromIds([]);
-                setSelectReceiveIds([]);
-                getNFTIds();
-                console.log("swap", res);
-            })
-            .catch((err: any) => {
-                setLoading(false);
-                console.log("swap err", err);
-            });
+            const contract = new Contract(
+                params.address!,
+                VaultABI,
+                library.getSigner()
+            );
+            const fromIds = selectFromIds.map((item) => item.number);
+            const receiveIds = selectReceiveIds.map((item) => item.number);
+            const tx = await contract.swap(
+                fromIds,
+                [fromIds.length],
+                receiveIds
+            );
+            await tx
+                .wait()
+                .then((res: any) => {
+                    setLoading(false);
+                    setSwapSwitchType("from");
+                    setSelectFromIds([]);
+                    setSelectReceiveIds([]);
+                    getNFTIds();
+                    console.log("swap", res);
+                    toast.success(
+                        `Swap from ${fromIds} to ${receiveIds} success`
+                    );
+                })
+                .catch((err: any) => {
+                    setLoading(false);
+                    toast.error(`Swap from ${fromIds} to ${receiveIds} error`);
+                    console.log("swap err", err);
+                });
+        } catch (e) {
+            console.log("swap error:", e);
+            setLoading(false);
+            toast.error(`Swap error`);
+        }
     };
 
     return (

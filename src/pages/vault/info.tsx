@@ -2,6 +2,7 @@ import { gql, request } from "graphql-request";
 import config from "@/config";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
+import VaultHeader from "@/pages/vault/header";
 
 const VaultInfo = () => {
     const params = useParams();
@@ -63,6 +64,7 @@ const VaultInfo = () => {
 
     return (
         <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-purple-second">
+            <VaultHeader address={params?.address} isManager type="info" />
             <div className="my-10 mx-20 max-w-lg w-full">
                 <h1 className="font-bold text-2xl mb-10">Vault Detail</h1>
                 <div>

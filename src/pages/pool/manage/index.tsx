@@ -22,6 +22,7 @@ import { Interface } from "ethers/lib/utils";
 import ERC20ABI from "@/contract/ERC20.json";
 import GradualWeight from "@/pages/pool/manage/gradual-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
+import BigNumber from "bignumber.js";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -37,6 +38,7 @@ const PoolManage = () => {
     const [totalShares, setTotalShares] = useState(0);
     const [pool, setPool] = useState<any>(undefined);
     const [swaps, setSwaps] = useState<any[]>([]);
+    const [poolBalance, setPoolBalance] = useState("0");
     const [proxyAddress, setProxyAddress] = useState("");
     const [infoBtn, setInfoBtn] = useState<InfoBtn>(InfoBtn.Balance);
     const [openLiquidity, setOpenLiquidity] = useState(false);
@@ -55,6 +57,7 @@ const PoolManage = () => {
         getProxyAddress();
         getInfo();
         getSwap();
+        getPoolMetrics();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, account]);
@@ -62,8 +65,8 @@ const PoolManage = () => {
     useEffect(() => {
         if (pool && active) {
             getMetaData();
+            getPoolBalance();
 
-            const newPool = pool;
             Promise.all(
                 pool.tokens.map(async (token: any) => {
                     const contract = new Contract(
@@ -78,10 +81,6 @@ const PoolManage = () => {
                                 res.toString(),
                                 token.decimals
                             );
-                            console.log(
-                                "balanceOf",
-                                ethers.utils.formatEther(res.toString())
-                            );
                         })
                         .catch((err: any) => {
                             console.log("balanceOf err", err);
@@ -90,9 +89,9 @@ const PoolManage = () => {
                 })
             )
                 .then((res) => {
-                    newPool.tokens = res;
+                    pool.tokens = res;
                     console.log("balanceOf result:", res);
-                    setPool(newPool);
+                    // setPool(pool);
                 })
                 .catch((err) => {
                     console.log("get tokens balance err", err);
@@ -286,6 +285,79 @@ const PoolManage = () => {
         }
     };
 
+    const getPoolBalance = async () => {
+        const contract = new Contract(
+            pool.controller,
+            ERC20ABI,
+            library.getSigner()
+        );
+        contract.balanceOf(account).then((res: any) => {
+            console.log("get pool balance of:", ethers.utils.formatEther(res));
+            setPoolBalance(ethers.utils.formatEther(res));
+        });
+    };
+
+    const getPoolLiquidity = (pool: any, prices: any) => {
+        let sumWeight = new BigNumber(0);
+        let sumValue = new BigNumber(0);
+        for (const token of pool.tokens) {
+            const price = prices[token.address];
+            if (!price) {
+                continue;
+            }
+            const balanceNumber = new BigNumber(token.balance);
+            const value = balanceNumber.times(price);
+            sumValue = sumValue.plus(value);
+            sumWeight = sumWeight.plus(token.weightPercent / 100);
+        }
+        if (sumWeight.gt(0)) {
+            return sumValue.div(sumWeight).toString();
+        } else {
+            return pool.liquidity;
+        }
+    };
+
+    const getPoolMetrics = () => {
+        const day = 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        const today = now - (now % day);
+        let query = "";
+        for (let i = 0; i < 31; i++) {
+            const timestamp = today - i * day;
+            query +=
+                `metrics_${timestamp}:swaps(first: 1, orderBy: timestamp, orderDirection: desc,
+             where: {poolAddress: "${params.address}", timestamp_gt: ${
+                    timestamp / 1000
+                }, timestamp_lt: ${(timestamp + day) / 1000} }) {
+                poolTotalSwapVolume
+                poolTotalSwapFee
+                poolLiquidity 
+             }` + "\n";
+        }
+        console.log("query sql:", query);
+        const querySql = gql`
+            query {
+                ${query}
+            }
+        `;
+        request(rinkby.subgraphUrl, querySql).then((data) => {
+            console.log("metrics query data:", data);
+        });
+    };
+
+    const normalizeMetrics = (rawMetrics: any) => {
+        const keys = Object.keys(rawMetrics);
+        const metrics: any = {};
+        for (let i = 0; i < keys.length; i++) {
+            if (rawMetrics[keys[i]].length) {
+                metrics[keys[i]] = rawMetrics[keys[i]][0];
+            } else {
+                metrics[keys[i]] = metrics[keys[i - 1]];
+            }
+        }
+        return metrics;
+    };
+
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 2xl:pb-28 py-12 text-purple-second">
@@ -301,11 +373,34 @@ const PoolManage = () => {
                 <section>
                     <header className="flex justify-between items-center">
                         <div className="flex gap-x-2 items-center">
-                            <img
-                                src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png"
-                                alt=""
-                                className="h-8 w-8"
-                            />
+                            <div className="flex justify-end sm:justify-start -space-x-3.5">
+                                {pool &&
+                                    pool.tokens.map((token: any) => {
+                                        const logoUrl =
+                                            config.tokens[
+                                                ethers.utils.getAddress(
+                                                    token.address
+                                                )
+                                            ].logoUrl;
+                                        return logoUrl ? (
+                                            <img
+                                                src={logoUrl}
+                                                alt={token.symbol}
+                                                className="w-8 h-8 rounded-full bg-slate-100 ring-2 ring-white"
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            <div>
+                                                <Jazzicon
+                                                    diameter={34}
+                                                    seed={jsNumberForAddress(
+                                                        token.address
+                                                    )}
+                                                />
+                                            </div>
+                                        );
+                                    })}
+                            </div>
                             <div>
                                 <div className="flex gap-x-2">
                                     {pool && (
@@ -313,7 +408,7 @@ const PoolManage = () => {
                                             {pool.name} ({pool.symbol})
                                         </h3>
                                     )}
-                                    <span className="inline-block border border-emerald-primary rounded-full text-xs px-2">
+                                    <span className="inline-block border border-emerald-primary rounded-full text-[12px] px-2">
                                         smart pool
                                     </span>
                                 </div>
@@ -350,12 +445,21 @@ const PoolManage = () => {
                         </div>
 
                         <div className="bg-blue-primary rounded-lg h-32 w-1/5 flex justify-center items-center flex-col">
-                            <h1 className="font-bold text-2xl">$134.2M</h1>
+                            <h1 className="font-bold text-2xl">
+                                {pool && pool.swapFee * 100}%
+                            </h1>
                             <h3>Swap fee</h3>
                         </div>
 
                         <div className="bg-blue-primary rounded-lg h-32 w-1/5 flex justify-center items-center flex-col">
-                            <h1 className="font-bold text-2xl">$134.2M</h1>
+                            <h1 className="font-bold text-2xl">
+                                {(
+                                    (1 / totalShares) *
+                                    parseFloat(poolBalance) *
+                                    100
+                                ).toFixed(2)}
+                                %
+                            </h1>
                             <h3>My pool share</h3>
                         </div>
                     </div>

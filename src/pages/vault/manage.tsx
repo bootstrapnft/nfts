@@ -10,6 +10,7 @@ import { ethers } from "ethers/lib.esm";
 import { truncateAddress } from "@/util/address";
 import { useLoading } from "@/context/loading";
 import Vault from "@/contract/Vault.json";
+import { toast } from "react-toastify";
 
 const VaultManage = () => {
     const params = useParams();
@@ -84,17 +85,24 @@ const VaultManage = () => {
             VaultABI,
             library.getSigner()
         );
-        const tx = await contract.setVaultFeatures(
-            enableMinting,
-            enableRandomRedeem,
-            enableTargetRedeem,
-            enableRandomSwap,
-            enableTargetSwap
-        );
-        await tx.wait().then((res: any) => {
-            console.log("update enable target redeem", res);
-        });
-        setLoading(false);
+        try {
+            const tx = await contract.setVaultFeatures(
+                enableMinting,
+                enableRandomRedeem,
+                enableTargetRedeem,
+                enableRandomSwap,
+                enableTargetSwap
+            );
+            await tx.wait().then((res: any) => {
+                setLoading(false);
+                console.log("update enable target redeem", res);
+                toast.success("Update Features success");
+            });
+        } catch (e) {
+            console.log(e);
+            setLoading(false);
+            toast.error("Update Features error");
+        }
     };
 
     const updateFees = async () => {
@@ -105,17 +113,24 @@ const VaultManage = () => {
             library.getSigner()
         );
         console.log(mintFee, randomRedeemFee, targetRedeemFee);
-        const tx = await contract.setFees(
-            ethers.utils.parseEther(mintFee).div(100).toString(),
-            ethers.utils.parseEther(randomRedeemFee).div(100).toString(),
-            ethers.utils.parseEther(targetRedeemFee).div(100).toString(),
-            ethers.utils.parseEther(targetRedeemFee).div(100).toString(),
-            ethers.utils.parseEther(targetRedeemFee).div(100).toString()
-        );
-        await tx.wait().then((res: any) => {
-            console.log("update fees:", res);
-        });
-        setLoading(false);
+        try {
+            const tx = await contract.setFees(
+                ethers.utils.parseEther(mintFee).div(100).toString(),
+                ethers.utils.parseEther(randomRedeemFee).div(100).toString(),
+                ethers.utils.parseEther(targetRedeemFee).div(100).toString(),
+                ethers.utils.parseEther(targetRedeemFee).div(100).toString(),
+                ethers.utils.parseEther(targetRedeemFee).div(100).toString()
+            );
+            await tx.wait().then((res: any) => {
+                console.log("update fees:", res);
+                setLoading(false);
+                toast.success("Update Fees success");
+            });
+        } catch (e) {
+            console.log(e);
+            setLoading(false);
+            toast.error("Update Fees error");
+        }
     };
 
     const mint = async () => {
@@ -128,30 +143,39 @@ const VaultManage = () => {
             ERC721ABI,
             library.getSigner()
         );
-        const approve = await erc721Contract.approve(
-            params.address,
-            selectNFTIds[0]
-        );
-        const approveResult = await approve.wait();
-        console.log("approve result:", approveResult);
+        try {
+            const approve = await erc721Contract.approve(
+                params.address,
+                selectNFTIds[0]
+            );
+            const approveResult = await approve.wait();
+            console.log("approve result:", approveResult);
+            toast.success(`Approve ${selectNFTIds[0]} success`);
 
-        const contract = new Contract(
-            params.address!,
-            VaultABI,
-            library.getSigner()
-        );
-        const tx = await contract.mint(selectNFTIds, [1]);
-        await tx.wait().then(
-            (res: any) => {
-                console.log("tx success:", res);
-                setIsMint(true);
-                setShowDeposit(false);
-            },
-            (err: any) => {
-                console.log("tx error:", err);
-            }
-        );
-        setLoading(false);
+            const contract = new Contract(
+                params.address!,
+                VaultABI,
+                library.getSigner()
+            );
+            const tx = await contract.mint(selectNFTIds, [1]);
+            await tx.wait().then(
+                (res: any) => {
+                    console.log("tx success:", res);
+                    setIsMint(true);
+                    setShowDeposit(false);
+                    toast.success(`Vault mint ${selectNFTIds[0]} success`);
+                },
+                (err: any) => {
+                    console.log("tx error:", err);
+                    toast.error(`Vault mint ${selectNFTIds[0]} error`);
+                }
+            );
+            setLoading(false);
+        } catch (e) {
+            console.log("error:", e);
+            toast.error(`Vault mint ${selectNFTIds[0]} error`);
+            setLoading(false);
+        }
     };
 
     const getNFTIds = async () => {
@@ -192,12 +216,19 @@ const VaultManage = () => {
             VaultABI,
             library.getSigner()
         );
-        const tx = await contract.finalizeVault();
-        tx.wait().then((res: any) => {
-            console.log("publish success:", res);
-            navigate("/");
-        });
-        setLoading(false);
+        try {
+            const tx = await contract.finalizeVault();
+            tx.wait().then((res: any) => {
+                console.log("publish success:", res);
+                toast.success(`Vault publish success`);
+                setLoading(false);
+                navigate("/");
+            });
+        } catch (e) {
+            console.log("publish error:", e);
+            setLoading(false);
+            toast.error(`Vault publish error`);
+        }
     };
 
     const selectNFTId = (id: number) => {

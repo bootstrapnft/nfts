@@ -13,6 +13,7 @@ import { Interface } from "ethers/lib/utils";
 import { useLoading } from "@/context/loading";
 import { useNavigate } from "react-router";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+import { toast } from "react-toastify";
 
 const PoolCreate = () => {
     const [, setLoading] = useLoading();
@@ -225,10 +226,12 @@ const PoolCreate = () => {
                 getProxyAddress();
                 setLoading(false);
                 console.log("set up proxy:", res);
+                toast.success("Setup proxy success");
             });
         } catch (e) {
             console.log("setup proxy err:", e);
             setLoading(false);
+            toast.error("Setup proxy failed");
         }
     };
 
@@ -309,6 +312,7 @@ const PoolCreate = () => {
                     console.log("approve:", res);
                     getTokensAllowance();
                     setLoading(false);
+                    toast.success(`Approve ${token.symbol} success`);
                 })
                 .catch((err: any) => {
                     setLoading(false);
@@ -317,6 +321,7 @@ const PoolCreate = () => {
         } catch (e) {
             console.log("approve err:", e);
             setLoading(false);
+            toast.error(`Approve ${token.symbol} failed`);
         }
     };
 
@@ -428,6 +433,7 @@ const PoolCreate = () => {
                 .wait()
                 .then((res: any) => {
                     setLoading(false);
+                    toast.success(`Create smart pool success`);
                     navgator("/pool/explore");
                     console.log("createPool:", res);
                 })
@@ -438,6 +444,7 @@ const PoolCreate = () => {
         } catch (e) {
             console.log("create pool err:", e);
             setLoading(false);
+            toast.error(`Create smart pool failed`);
         }
     };
 
