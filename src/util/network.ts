@@ -11,19 +11,6 @@ export const currentNetwork = (): Network => {
 };
 
 const networks: any = {
-    3: {
-        chainId: "0x3",
-        chainName: "Ropsten Test Network",
-        rpcUrls: [
-            "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-        ],
-        nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-            decimals: 18,
-        },
-        blockExplorerUrls: ["https://ropsten.etherscan.io"],
-    },
     4: {
         chainId: "0x4",
         chainName: "Rinkeby Test Network",

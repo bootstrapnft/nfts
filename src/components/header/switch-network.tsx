@@ -15,8 +15,6 @@ const SwitchNetwork = () => {
 
     const chainImage = (chainId: number) => {
         switch (chainId) {
-            case 3:
-                return ethereum;
             case 4:
                 return ethereum;
             case 1313161555:
@@ -168,33 +166,6 @@ const SwitchNetwork = () => {
                                                 className="h-5 w-5"
                                             />
                                             <span>sbibuya</span>
-                                        </button>
-                                    )}
-                                </Menu.Item>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <button
-                                            className={`${
-                                                active
-                                                    ? "bg-purple-primary text-white"
-                                                    : "text-purple-second"
-                                            } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
-                                            onClick={() => {
-                                                changeNetwork(
-                                                    {
-                                                        id: 3,
-                                                        name: "ropsten",
-                                                    },
-                                                    library.provider
-                                                );
-                                            }}
-                                        >
-                                            <img
-                                                src={ethereum}
-                                                alt="ethereum"
-                                                className="h-5 w-5"
-                                            />
-                                            <span>ropsten</span>
                                         </button>
                                     )}
                                 </Menu.Item>

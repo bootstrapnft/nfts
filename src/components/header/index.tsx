@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import SelectWallet from "@/components/select_wallet";
 import { useWeb3React } from "@web3-react/core";
 import { useNavigate } from "react-router";
