@@ -1,24 +1,57 @@
-import { useState } from "react";
 import Modal from "@/components/modal";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+import { useEffect, useState } from "react";
 import { Contract, ethers } from "ethers";
-import { useWeb3React } from "@web3-react/core";
 import ERC20ABI from "@/contract/ERC20.json";
 import { unknownColors } from "@/util/utils";
 import { useLoading } from "@/context/loading";
+import { useWeb3React } from "@web3-react/core";
+import { getPublicVaults } from "@/util/vault";
 
 const SelectToken = ({
     tokensInfo,
     selectedToken,
-    close,
     addNewToken,
+    close,
 }: any) => {
     const [, setLoading] = useLoading();
     const { active, account, library } = useWeb3React();
     const [tokenList, setTokenList] = useState(tokensInfo);
 
+    console.log("component/select-token.tsx: tokenList: ", tokensInfo);
+
+    // useEffect(() => {
+    //     setLoading(true);
+    //     getPublicVaults()
+    //         .then((vaults) => {
+    //             const tokens = vaults.map(vault => {
+    //                 console.log("vault: ", vault);
+    //                 const token = vault.token;
+    //                 return {
+    //                     address: token.id,
+    //                     color: "#422940",
+    //                     decimals: 18,
+    //                     hasIcon: false,
+    //                     id: token.symbol.toLowerCase(),
+    //                     logoUrl: "",
+    //                     name: token.name,
+    //                     precision: 3,
+    //                     price: 0,
+    //                     symbol: token.symbol,
+    //                 }
+    //             });
+    //             setTokenList([...tokenList, ...tokens]);
+    //             setLoading(false);
+    //         })
+    //         .catch((err) => {
+    //             setLoading(false);
+    //         });
+    //
+    //
+    // }, []);
+
     const filter = (name: string) => {
-        console.log("search name: ", name);
+        console.log("swap search name: ", name);
 
         if (name === "") {
             setTokenList(tokensInfo);
@@ -39,7 +72,6 @@ const SelectToken = ({
             getToken(name);
             return;
         }
-
         const tl = tokenList.filter((token: any) =>
             token.name.toLowerCase().includes(name.toLowerCase())
         );
@@ -75,7 +107,7 @@ const SelectToken = ({
                 precision: 3,
                 color: color,
                 logoUrl: "",
-                price: 0,
+                price: 1500,
             };
             console.log("token info:", token, name, symbol);
             addNewToken(

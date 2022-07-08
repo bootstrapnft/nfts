@@ -6,8 +6,6 @@ import VaultHeader from "@/pages/vault/header";
 
 const VaultInfo = () => {
     const params = useParams();
-    const [name, setName] = useState("");
-    const [symbol, setSymbol] = useState("");
     const [vaultId, setVaultId] = useState("");
     const [holdingItem, setHoldingItem] = useState("");
     const [vaultAddress, setVaultAddress] = useState("");
@@ -46,8 +44,6 @@ const VaultInfo = () => {
                 if (data.vault) {
                     const vault = data.vault;
                     console.log("vault info :", data);
-                    setName(vault.token.name);
-                    setSymbol(vault.token.symbol);
                     setToken(vault.token);
                     setVaultId(vault.vaultId);
                     setVaultAddress(vault.id);

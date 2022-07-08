@@ -1,6 +1,6 @@
 import arrowDown from "@/assets/icon/arrow-down.svg";
 import { useEffect, useState } from "react";
-import SwapSelectToken from "@/pages/pool/swap/select-token";
+import SelectToken from "@/pages/pool/component/select-token";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
@@ -15,6 +15,7 @@ import BN from "bignumber.js";
 import Helper from "@/util/help";
 import Swapper from "@/util/swapper";
 import { useLoading } from "@/context/loading";
+import { getPublicVaults } from "@/util/vault";
 
 let sor: SOR | undefined = undefined;
 const PoolSwap = () => {
@@ -86,6 +87,27 @@ const PoolSwap = () => {
             Object.keys(tokens).forEach((key) => {
                 tokenInfo.push(tokens[key] as any);
             });
+            await getPublicVaults()
+                .then((vaults) => {
+                    vaults.map((vault) => {
+                        console.log("vault: ", vault);
+                        const token = vault.token;
+                        const temp = {
+                            address: token.id,
+                            color: "#422940",
+                            decimals: 18,
+                            hasIcon: false,
+                            id: token.symbol.toLowerCase(),
+                            logoUrl: "",
+                            name: token.name,
+                            precision: 3,
+                            price: 0,
+                            symbol: token.symbol,
+                        };
+                        tokenInfo.push(temp);
+                    });
+                })
+                .catch((err) => {});
             console.log("tokenInfo", tokenInfo);
             await getPrice(tokenInfo);
             setTimeout(() => {
@@ -967,7 +989,7 @@ const PoolSwap = () => {
             </section>
 
             {showSelectToken && (
-                <SwapSelectToken
+                <SelectToken
                     tokensInfo={tokenInfoList}
                     addNewToken={addNewToken}
                     close={() => setShowSelectToken(false)}

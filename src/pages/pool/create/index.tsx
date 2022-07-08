@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import arrowLeft from "@/assets/icon/arrow-down.svg";
 import close from "@/assets/icon/close.svg";
-import SelectToken from "@/pages/pool/create/select-token";
+import SelectToken from "@/pages/pool/component/select-token";
 import config from "@/config";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, Contract, ethers } from "ethers";
@@ -14,6 +14,7 @@ import { useLoading } from "@/context/loading";
 import { useNavigate } from "react-router";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { toast } from "react-toastify";
+import { getPublicVaults } from "@/util/vault";
 
 const PoolCreate = () => {
     const [, setLoading] = useLoading();
@@ -64,6 +65,28 @@ const PoolCreate = () => {
             Object.keys(tokens).forEach((key) => {
                 tokenInfo.push(tokens[key] as any);
             });
+            await getPublicVaults()
+                .then((vaults) => {
+                    vaults.map((vault) => {
+                        console.log("vault: ", vault);
+                        const token = vault.token;
+                        const temp = {
+                            address: token.id,
+                            color: "#422940",
+                            decimals: 18,
+                            hasIcon: false,
+                            id: token.symbol.toLowerCase(),
+                            logoUrl: "",
+                            name: token.name,
+                            precision: 3,
+                            price: 0,
+                            symbol: token.symbol,
+                        };
+                        tokenInfo.push(temp);
+                    });
+                })
+                .catch((err) => {});
+
             await getPrice(tokenInfo);
             await getProxyAddress();
 
