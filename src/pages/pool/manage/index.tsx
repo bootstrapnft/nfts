@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
 import { gql, request } from "graphql-request";
-import rinkby from "@/config/rinkeby.json";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { truncateAddress } from "@/util/address";
 import Liquidity from "@/pages/pool/manage/liquidity";
@@ -147,7 +146,7 @@ const PoolManage = () => {
         }
       }
     `;
-        request(rinkby.subgraphUrl, query).then((data) => {
+        request(config.subgraphUrl, query).then((data) => {
             const tokenInfo = config.tokens as unknown as {
                 [key: string]: any;
             };
@@ -188,7 +187,7 @@ const PoolManage = () => {
       }
     `;
 
-        request(rinkby.subgraphUrl, query).then((data) => {
+        request(config.subgraphUrl, query).then((data) => {
             console.log(data);
             setSwaps(data.swaps);
         });
@@ -340,7 +339,7 @@ const PoolManage = () => {
                 ${query}
             }
         `;
-        request(rinkby.subgraphUrl, querySql).then((data) => {
+        request(config.subgraphUrl, querySql).then((data) => {
             console.log("metrics query data:", data);
         });
     };
@@ -381,7 +380,7 @@ const PoolManage = () => {
                                                 ethers.utils.getAddress(
                                                     token.address
                                                 )
-                                            ].logoUrl;
+                                            ]?.logoUrl;
                                         return logoUrl ? (
                                             <img
                                                 src={logoUrl}

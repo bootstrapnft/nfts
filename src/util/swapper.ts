@@ -5,7 +5,7 @@ import { Swap } from "@balancer-labs/sor/dist/types";
 
 import ExchangeProxyABI from "@/contract/ExchangeProxy.json";
 
-import config from "@/config/rinkeby.json";
+import config from "@/config";
 
 const ETH_KEY = "ether";
 

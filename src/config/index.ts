@@ -7,6 +7,9 @@ import auroraTokens from "@/config/aurora_tokens.json";
 import moonbeam from "@/config/moonbeam.json";
 import moonbeamTokens from "@/config/moonbeam_tokens.json";
 
+import mumbai from "@/config/mumbai.json";
+import mumbaiTokens from "@/config/mumbai_tokens.json";
+
 import sbibuya from "@/config/sbibuya.json";
 import sbibuyaTokens from "@/config/sbibuya_tokens.json";
 
@@ -28,6 +31,10 @@ const configs = {
     81: {
         ...sbibuya,
         ...sbibuyaTokens,
+    },
+    80001: {
+        ...mumbai,
+        ...mumbaiTokens,
     },
 };
 

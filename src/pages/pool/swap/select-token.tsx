@@ -74,7 +74,7 @@ const SwapSelectToken = ({
                 precision: 3,
                 color: color,
                 logoUrl: "",
-                price: 0,
+                price: 1500,
             };
             console.log("token info:", token, name, symbol);
             addNewToken(

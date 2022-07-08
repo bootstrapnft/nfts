@@ -4,6 +4,7 @@ import ethereum from "@/assets/icon/ethereum.svg";
 import aurora from "@/assets/icon/aurora.svg";
 import moonbeam from "@/assets/icon/moonbeam.png";
 import sbibuya from "@/assets/icon/astar.png";
+import mumbai from "@/assets/icon/mumbai.svg";
 import { changeNetwork, currentNetwork } from "@/util/network";
 import { useWeb3React } from "@web3-react/core";
 
@@ -23,6 +24,8 @@ const SwitchNetwork = () => {
                 return moonbeam;
             case 81:
                 return sbibuya;
+            case 80001:
+                return mumbai;
             default:
                 return ethereum;
         }
@@ -115,6 +118,60 @@ const SwitchNetwork = () => {
                                         </button>
                                     )}
                                 </Menu.Item>
+                                {/*<Menu.Item>*/}
+                                {/*    {({ active }) => (*/}
+                                {/*        <button*/}
+                                {/*            className={`${*/}
+                                {/*                active*/}
+                                {/*                    ? "bg-purple-primary text-white"*/}
+                                {/*                    : "text-purple-second"*/}
+                                {/*            } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}*/}
+                                {/*            onClick={() => {*/}
+                                {/*                changeNetwork(*/}
+                                {/*                    {*/}
+                                {/*                        id: 1287,*/}
+                                {/*                        name: "moonbeam",*/}
+                                {/*                    },*/}
+                                {/*                    library.provider*/}
+                                {/*                );*/}
+                                {/*            }}*/}
+                                {/*        >*/}
+                                {/*            <img*/}
+                                {/*                src={moonbeam}*/}
+                                {/*                alt="moonbeam"*/}
+                                {/*                className="h-5 w-5"*/}
+                                {/*            />*/}
+                                {/*            <span>moonbeam</span>*/}
+                                {/*        </button>*/}
+                                {/*    )}*/}
+                                {/*</Menu.Item>*/}
+                                {/*<Menu.Item>*/}
+                                {/*    {({ active }) => (*/}
+                                {/*        <button*/}
+                                {/*            className={`${*/}
+                                {/*                active*/}
+                                {/*                    ? "bg-purple-primary text-white"*/}
+                                {/*                    : "text-purple-second"*/}
+                                {/*            } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}*/}
+                                {/*            onClick={() => {*/}
+                                {/*                changeNetwork(*/}
+                                {/*                    {*/}
+                                {/*                        id: 81,*/}
+                                {/*                        name: "sbibuya",*/}
+                                {/*                    },*/}
+                                {/*                    library.provider*/}
+                                {/*                );*/}
+                                {/*            }}*/}
+                                {/*        >*/}
+                                {/*            <img*/}
+                                {/*                src={sbibuya}*/}
+                                {/*                alt="sbibuya"*/}
+                                {/*                className="h-5 w-5"*/}
+                                {/*            />*/}
+                                {/*            <span>sbibuya</span>*/}
+                                {/*        </button>*/}
+                                {/*    )}*/}
+                                {/*</Menu.Item>*/}
                                 <Menu.Item>
                                     {({ active }) => (
                                         <button
@@ -126,46 +183,19 @@ const SwitchNetwork = () => {
                                             onClick={() => {
                                                 changeNetwork(
                                                     {
-                                                        id: 1287,
-                                                        name: "moonbeam",
+                                                        id: 80001,
+                                                        name: "mumbai",
                                                     },
                                                     library.provider
                                                 );
                                             }}
                                         >
                                             <img
-                                                src={moonbeam}
-                                                alt="moonbeam"
+                                                src={mumbai}
+                                                alt="mumbai"
                                                 className="h-5 w-5"
                                             />
-                                            <span>moonbeam</span>
-                                        </button>
-                                    )}
-                                </Menu.Item>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <button
-                                            className={`${
-                                                active
-                                                    ? "bg-purple-primary text-white"
-                                                    : "text-purple-second"
-                                            } group flex w-full items-center justify-between rounded-md px-5 py-2 text-sm`}
-                                            onClick={() => {
-                                                changeNetwork(
-                                                    {
-                                                        id: 81,
-                                                        name: "sbibuya",
-                                                    },
-                                                    library.provider
-                                                );
-                                            }}
-                                        >
-                                            <img
-                                                src={sbibuya}
-                                                alt="sbibuya"
-                                                className="h-5 w-5"
-                                            />
-                                            <span>sbibuya</span>
+                                            <span>mumbai</span>
                                         </button>
                                     )}
                                 </Menu.Item>

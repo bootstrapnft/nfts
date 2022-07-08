@@ -271,8 +271,16 @@ const PoolSwap = () => {
             return;
         }
 
+        console.log(
+            "in amount change",
+            inAddress,
+            outAddress,
+            sor?.hasDataForPair(inAddress, outAddress)
+        );
+        console.log("in amount change", sor);
         if (!sor || !sor.hasDataForPair(inAddress, outAddress)) {
             // swapsLoading.value = true;
+            console.log("back sor");
             return;
         }
 
@@ -463,7 +471,6 @@ const PoolSwap = () => {
                 }
             }
         `;
-        // commit('GET_POOLS_REQUEST');
         try {
             const res = await request(config.subgraphUrl, query);
             const pools = res.pools.map((pool: any) => formatPool(pool));

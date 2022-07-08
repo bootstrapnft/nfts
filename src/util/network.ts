@@ -55,6 +55,17 @@ const networks: any = {
         },
         blockExplorerUrls: ["https://blockscout.com/shibuya"],
     },
+    80001: {
+        chainId: "0x13881",
+        chainName: "Mumbai Testnet",
+        rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+        nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+            decimals: 18,
+        },
+        blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+    },
 };
 
 export const changeNetwork = async (network: Network, provider: any) => {

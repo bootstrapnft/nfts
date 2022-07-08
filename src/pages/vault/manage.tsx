@@ -11,12 +11,14 @@ import { truncateAddress } from "@/util/address";
 import { useLoading } from "@/context/loading";
 import Vault from "@/contract/Vault.json";
 import { toast } from "react-toastify";
+import useAssetAddress from "@/hooks/useAssetAddress";
 
 const VaultManage = () => {
     const params = useParams();
     const navigate = useNavigate();
     const [, setLoading] = useLoading();
     const { library, account } = useWeb3React();
+    const { address: assetAddress } = useAssetAddress(params.address!);
     const [tabs] = useState(["General", "Fee", "Danger Zone"]);
     const [enableMinting, setEnableMinting] = useState(false);
     const [enableRandomRedeem, setEnableRandomRedeem] = useState(false);
@@ -28,7 +30,6 @@ const VaultManage = () => {
     const [randomRedeemFee, setRandomRedeemFee] = useState("0");
     const [targetRedeemFee, setTargetRedeemFee] = useState("0");
 
-    const [assetAddress, setAssetAddress] = useState("");
     const [showDeposit, setShowDeposit] = useState(false);
     const [isMint, setIsMint] = useState(false);
     const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
@@ -38,29 +39,25 @@ const VaultManage = () => {
 
     useEffect(() => {
         getFees();
-        getNFTAssetAddress();
-        getNFTInfo();
         getPublish();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        getNFTInfo();
+        // TODO Get whether there is mint NFT
+
+        console.log("assetAddress", assetAddress);
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ownerNFTIds]);
+    }, [assetAddress]);
 
-    const getNFTAssetAddress = async () => {
-        const contract = new Contract(
-            params.address!,
-            VaultABI,
-            library.getSigner()
-        );
-        await contract.assetAddress().then((res: any) => {
-            setAssetAddress(res);
-        });
-    };
+    useEffect(() => {
+        setTimeout(() => {
+            getNFTInfo();
+        }, 1000);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ownerNFTIds]);
 
     const getFees = async () => {
         const contract = new Contract(
@@ -255,11 +252,16 @@ const VaultManage = () => {
             ownerNFTIds.map(async (item, index) => {
                 const url = await contract.tokenURI(item);
                 const res = await fetch(url);
-                await res.json().then((res: any) => {
-                    console.log("res:", res);
-                    res.number = item;
-                    ownerNFTs.push(res);
-                });
+                await res
+                    .json()
+                    .then((res: any) => {
+                        console.log("res:", res);
+                        res.number = item;
+                        ownerNFTs.push(res);
+                    })
+                    .catch((err) => {
+                        console.log("get nft info err:", item, err);
+                    });
             })
         );
         setOwnerNFTs(ownerNFTs);
@@ -407,16 +409,15 @@ const VaultManage = () => {
                                 })}
                             </div>
                             <div className="text-center">
-                                <button
-                                    className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                                            break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 p-2
-                                            bg-gradient-to-b from-purple-primary to-purple-900 text-white hover:from-purple-primary
-                                            hover:to-purple-primary mt-3 text-sm mt-3"
-                                    type="button"
-                                    onClick={mint}
-                                >
-                                    Mint NFTs
-                                </button>
+                                {ownerNFTs.length > 0 && (
+                                    <button
+                                        className="btn-primary"
+                                        type="button"
+                                        onClick={mint}
+                                    >
+                                        Mint NFTs
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
