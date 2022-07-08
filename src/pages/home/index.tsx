@@ -6,6 +6,7 @@ import { gql, request } from "graphql-request";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import ERC721ABI from "@/contract/ERC721.json";
+import { getPublicVaults } from "@/util/vault";
 
 const Home = () => {
     const { active, library } = useWeb3React();
@@ -22,40 +23,10 @@ const Home = () => {
             return;
         }
         setLoading(true);
-        const query = gql`
-            query {
-                vaults(
-                    where: { isFinalized: true }
-                    orderBy: "totalMints"
-                    orderDirection: "desc"
-                ) {
-                    id
-                    vaultId
-                    token {
-                        id
-                        name
-                        symbol
-                    }
-                    asset {
-                        id
-                        name
-                        symbol
-                    }
-                    mints {
-                        id
-                        date
-                        nftIds
-                    }
-                }
-            }
-        `;
-        request(config.nftSubgraphUrl, query)
-            .then(async (data) => {
-                if (data.vaults) {
-                    console.log("data", data);
-                    await getNftInfo(data.vaults);
-                    setLoading(false);
-                }
+        getPublicVaults()
+            .then(async (vaults) => {
+                await getNftInfo(vaults);
+                setLoading(false);
             })
             .catch((err) => {
                 setLoading(false);
@@ -72,11 +43,18 @@ const Home = () => {
                     library.getSigner()
                 );
                 try {
-                    const url = await contract.tokenURI(
-                        item.mints[0].nftIds[0]
-                    );
+                    let url = await contract.tokenURI(item.mints[0].nftIds[0]);
+                    if (url.startsWith("ipfs://")) {
+                        url = url.replace("ipfs://", "https://ipfs.io/ipfs/");
+                    }
                     const res = await fetch(url);
                     const result = await res.json();
+                    if (result.image.startsWith("ipfs://")) {
+                        result.image = result.image.replace(
+                            "ipfs://",
+                            "https://ipfs.io/ipfs/"
+                        );
+                    }
                     item.image = result.image;
                     item.symbolImage = result.image;
                 } catch (e) {

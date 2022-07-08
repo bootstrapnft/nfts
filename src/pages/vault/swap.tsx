@@ -13,6 +13,7 @@ import { gql, request } from "graphql-request";
 import config from "@/config";
 import { ethers } from "ethers/lib.esm";
 import { toast } from "react-toastify";
+import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
 
 const VaultSwap = () => {
     const params = useParams();
@@ -29,6 +30,7 @@ const VaultSwap = () => {
     const [selectReceiveIds, setSelectReceiveIds] = useState<
         { [key: string]: any }[]
     >([]);
+    const [token, setToken] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
         getVaultInfo();
@@ -38,11 +40,22 @@ const VaultSwap = () => {
 
     useEffect(() => {
         getNFTIds();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [assetAddress]);
 
     useEffect(() => {
-        getNFTInfo();
+        if (ownerNFTIds.length > 0) {
+            setLoading(true);
+            getNFTInfo(assetAddress, ownerNFTIds)
+                .then((res) => {
+                    setLoading(false);
+                    setOwnerNFTs(res);
+                })
+                .catch((err) => {
+                    setLoading(false);
+                });
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ownerNFTIds]);
 
@@ -78,6 +91,31 @@ const VaultSwap = () => {
             });
     };
 
+    useEffect(() => {
+        getToken();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getToken = async () => {
+        const query = gql`
+            query {
+                vault(id: "${params.address}") {
+                    token {
+                        id
+                        name
+                        symbol
+                    }
+                }
+            }
+        `;
+        request(config.nftSubgraphUrl, query).then((res) => {
+            if (res.vault.token) {
+                setToken(res.vault.token);
+            }
+        });
+    };
+
     const selectTokenId = (item: any) => {
         console.log(item);
         let isSelect = false;
@@ -109,60 +147,19 @@ const VaultSwap = () => {
     };
 
     const getNFTIds = async () => {
-        if (assetAddress === "") {
+        if (assetAddress === "" || !account) {
             return;
         }
         setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-
-        const tokenIds: number[] = [];
-        await Promise.all(
-            new Array(58).fill(1).map(async (item, index) => {
-                const result = await contract.ownerOf(index);
-                if (result === account) {
-                    tokenIds.push(index);
-                }
-            })
-        ).catch((err) => {
-            setLoading(false);
-        });
-
-        setOwnerNFTIds(
-            tokenIds.sort((a, b) => {
-                return a - b;
-            })
-        );
-        setLoading(false);
-    };
-
-    const getNFTInfo = async () => {
-        if (ownerNFTIds.length === 0) {
-            return;
-        }
         setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-
-        const ownerNFTs: any[] = [];
-        await Promise.all(
-            ownerNFTIds.map(async (item, index) => {
-                const url = await contract.tokenURI(item);
-                const res = await fetch(url);
-                await res.json().then((res: any) => {
-                    res.number = item;
-                    ownerNFTs.push(res);
-                });
+        getOwnerNFTIds(assetAddress, account)
+            .then((res) => {
+                setLoading(false);
+                setOwnerNFTIds(res);
             })
-        );
-        setOwnerNFTs(ownerNFTs);
-        setLoading(false);
+            .catch((err) => {
+                setLoading(false);
+            });
     };
 
     const getMintsNFT = async (vault: any) => {
@@ -172,13 +169,22 @@ const VaultSwap = () => {
         await Promise.all(
             mints.map(async (item, index) => {
                 try {
-                    const url = await contract.tokenURI(item.nftIds[0]);
+                    let url = await contract.tokenURI(item.nftIds[0]);
+                    if (url.startsWith("ipfs://")) {
+                        url = url.replace("ipfs://", "https://ipfs.io/ipfs/");
+                    }
                     const res = await fetch(url);
                     await res.json().then((res: any) => {
                         item.number = item.nftIds[0];
                         item.name = res.name;
                         item.desc = res.description;
                         item.image = res.image;
+                        if (res.image.startsWith("ipfs://")) {
+                            item.image = res.image.replace(
+                                "ipfs://",
+                                "https://ipfs.io/ipfs/"
+                            );
+                        }
                     });
                 } catch (err) {
                     console.log("get mints nft err:", err);
@@ -256,9 +262,12 @@ const VaultSwap = () => {
             <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
                 <section className="relative sm:static pb-12 flex-1 flex flex-col border-blue-primary">
                     <VaultHeader
-                        address={params?.address}
+                        token={token}
                         isManager
                         type="swap"
+                        symbolImage={
+                            ownerNFTs.length > 0 ? ownerNFTs[0].image : ""
+                        }
                     />
                     <div className="dark:bg-gray-700">
                         <div className="px-3 py-6 sm:px-6">

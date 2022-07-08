@@ -4,9 +4,9 @@
     "defaultPrecision": 2,
     "rpcUrl": "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
     "wsUrl": "wss://rinkeby.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-    "subgraphUrl": "http://45.77.30.9:28000/subgraphs/name/balancer-labs/balancer-subgraph",
+    "subgraphUrl": "http://158.247.224.97:28000/subgraphs/name/balancer-labs/balancer-subgraph",
     "subgraphBackupUrl": "",
-    "nftSubgraphUrl": "http://45.77.30.9:18000/subgraphs/name/nft-fractional",
+    "nftSubgraphUrl": "http://158.247.224.97:18000/subgraphs/name/nft-fractional",
     "explorer": "https://testnet.aurorascan.dev/",
     "exchangeUrl": "https://rinkeby.balancer.exchange",
     "addresses": {

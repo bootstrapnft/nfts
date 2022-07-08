@@ -12,6 +12,9 @@ import { useLoading } from "@/context/loading";
 import Vault from "@/contract/Vault.json";
 import { toast } from "react-toastify";
 import useAssetAddress from "@/hooks/useAssetAddress";
+import { getNFTInfo } from "@/util/nfts";
+import { gql, request } from "graphql-request";
+import config from "@/config";
 
 const VaultManage = () => {
     const params = useParams();
@@ -36,6 +39,7 @@ const VaultManage = () => {
     const [ownerNFTs, setOwnerNFTs] = useState<any[]>([]);
     const [selectNFTIds, setSelectNFTIds] = useState<number[]>([]);
     const [isPublish, setIsPublish] = useState(false);
+    const [token, setToken] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
         getFees();
@@ -53,11 +57,45 @@ const VaultManage = () => {
     }, [assetAddress]);
 
     useEffect(() => {
-        setTimeout(() => {
-            getNFTInfo();
-        }, 1000);
+        if (ownerNFTIds) {
+            setLoading(true);
+            getNFTInfo(assetAddress, ownerNFTIds)
+                .then((res) => {
+                    setLoading(false);
+                    setOwnerNFTs(res);
+                })
+                .catch((err) => {
+                    setLoading(false);
+                });
+        }
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ownerNFTIds]);
+
+    useEffect(() => {
+        getToken();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getToken = async () => {
+        const query = gql`
+            query {
+                vault(id: "${params.address}") {
+                    token {
+                        id
+                        name
+                        symbol
+                    }
+                }
+            }
+        `;
+        request(config.nftSubgraphUrl, query).then((res) => {
+            if (res.vault.token) {
+                setToken(res.vault.token);
+            }
+        });
+    };
 
     const getFees = async () => {
         const contract = new Contract(
@@ -239,35 +277,6 @@ const VaultManage = () => {
         }
     };
 
-    const getNFTInfo = async () => {
-        setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-
-        const ownerNFTs: any[] = [];
-        await Promise.all(
-            ownerNFTIds.map(async (item, index) => {
-                const url = await contract.tokenURI(item);
-                const res = await fetch(url);
-                await res
-                    .json()
-                    .then((res: any) => {
-                        console.log("res:", res);
-                        res.number = item;
-                        ownerNFTs.push(res);
-                    })
-                    .catch((err) => {
-                        console.log("get nft info err:", item, err);
-                    });
-            })
-        );
-        setOwnerNFTs(ownerNFTs);
-        setLoading(false);
-    };
-
     const getPublish = async () => {
         const contract = new Contract(
             params.address!,
@@ -296,9 +305,11 @@ const VaultManage = () => {
                                 publish
                             </span>
                         )}
-                        <h1 className="text-2xl font-bold mt-4">PUNK</h1>
+                        <h1 className="text-2xl font-bold mt-4">
+                            {token.symbol}
+                        </h1>
                         <div className="flex gap-x-3 text-sm">
-                            <h3 className="font-bold">CryptoPunks</h3>
+                            <h3 className="font-bold">{token.name}</h3>
                             <span>{truncateAddress(params.address!)}</span>
                         </div>
                     </header>

@@ -6,16 +6,18 @@ import { BigNumber, Contract, ethers } from "ethers";
 import VaultCard from "@/pages/vault/card";
 import { useLoading } from "@/context/loading";
 import VaultABI from "@/contract/Vault.json";
-import ERC721ABI from "@/contract/ERC721.json";
 import close from "@/assets/icon/close.svg";
 import VaultHeader from "@/pages/vault/header";
 import useAssetAddress from "@/hooks/useAssetAddress";
 import { toast } from "react-toastify";
+import { getNFTInfo } from "@/util/nfts";
+import { gql, request } from "graphql-request";
+import config from "@/config";
 
 const VaultRedeem = () => {
     const params = useParams();
-    const { library, account, active } = useWeb3React();
     const [, setLoading] = useLoading();
+    const { library, account, active } = useWeb3React();
     const [balance, setBalance] = useState("0");
     const { address: assetAddress } = useAssetAddress(params.address!);
     const [allHolding, setAllHolding] = useState<number[]>([]);
@@ -23,6 +25,7 @@ const VaultRedeem = () => {
     const [selectRedeemIds, setSelectRedeemIds] = useState<
         { [key: string]: any }[]
     >([]);
+    const [token, setToken] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
         if (active) {
@@ -35,11 +38,44 @@ const VaultRedeem = () => {
 
     useEffect(() => {
         if (allHolding.length > 0 && assetAddress) {
-            getNFTInfo();
+            setLoading(true);
+            getNFTInfo(assetAddress, allHolding)
+                .then((res) => {
+                    setLoading(false);
+                    setOwnerNFTs(res);
+                })
+                .catch((err) => {
+                    setLoading(false);
+                });
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [allHolding, assetAddress]);
+
+    useEffect(() => {
+        getToken();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getToken = async () => {
+        const query = gql`
+            query {
+                vault(id: "${params.address}") {
+                    token {
+                        id
+                        name
+                        symbol
+                    }
+                }
+            }
+        `;
+        request(config.nftSubgraphUrl, query).then((res) => {
+            if (res.vault.token) {
+                setToken(res.vault.token);
+            }
+        });
+    };
 
     const selectTokenId = (item: any) => {
         let isSelect = false;
@@ -103,28 +139,11 @@ const VaultRedeem = () => {
         }
     };
 
-    const getNFTInfo = async () => {
-        setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
+    const removeRedeemIds = (item: any) => {
+        const newSelectRedeemIds = selectRedeemIds.filter(
+            (nft) => nft.number !== item.number
         );
-
-        const ownerNFTs: any[] = [];
-        await Promise.all(
-            allHolding.map(async (item, index) => {
-                const url = await contract.tokenURI(item);
-                const res = await fetch(url);
-                await res.json().then((res: any) => {
-                    console.log("res:", res);
-                    res.number = item;
-                    ownerNFTs.push(res);
-                });
-            })
-        );
-        setOwnerNFTs(ownerNFTs);
-        setLoading(false);
+        setSelectRedeemIds(newSelectRedeemIds);
     };
 
     return (
@@ -132,9 +151,12 @@ const VaultRedeem = () => {
             <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
                 <section className="relative sm:static pb-12 flex-1 flex flex-col">
                     <VaultHeader
-                        address={params?.address}
+                        token={token}
                         isManager
                         type="redeem"
+                        symbolImage={
+                            ownerNFTs.length > 0 ? ownerNFTs[0].image : ""
+                        }
                     />
                     <div className="dark:bg-gray-700">
                         <div className="px-3 py-6 sm:px-6">
@@ -167,9 +189,9 @@ const VaultRedeem = () => {
                                     </h3>
                                     <button
                                         className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                      break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6
-                      px-12 w-full bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800
-                      cursor-not-allowed opacity-90"
+                                              break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6
+                                              px-12 w-full bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800
+                                              cursor-not-allowed opacity-90"
                                         disabled={true}
                                     >
                                         Redeem NFTs
@@ -227,6 +249,11 @@ const VaultRedeem = () => {
                                                                     src={close}
                                                                     alt=""
                                                                     className="h-4 w-4 dark:text-gray-500 dark:hover:text-gray-200 text-lm-gray-600 hover-text-lm-gray-300"
+                                                                    onClick={() =>
+                                                                        removeRedeemIds(
+                                                                            item
+                                                                        )
+                                                                    }
                                                                 />
                                                             </button>
                                                         </div>

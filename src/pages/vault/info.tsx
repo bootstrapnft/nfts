@@ -13,6 +13,7 @@ const VaultInfo = () => {
     const [vaultAddress, setVaultAddress] = useState("");
     const [assetAddress, setAssetAddress] = useState("");
     const [totalHoldings, setTotalHoldings] = useState("0");
+    const [token, setToken] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
         getInfo();
@@ -25,6 +26,7 @@ const VaultInfo = () => {
                     id
                     vaultId
                     token {
+                        id
                         name
                         symbol
                     }
@@ -46,6 +48,7 @@ const VaultInfo = () => {
                     console.log("vault info :", data);
                     setName(vault.token.name);
                     setSymbol(vault.token.symbol);
+                    setToken(vault.token);
                     setVaultId(vault.vaultId);
                     setVaultAddress(vault.id);
                     setAssetAddress(vault.asset.id);
@@ -64,7 +67,7 @@ const VaultInfo = () => {
 
     return (
         <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12 text-purple-second">
-            <VaultHeader address={params?.address} isManager type="info" />
+            <VaultHeader token={token} isManager type="info" symbolImage={""} />
             <div className="my-10 mx-20 max-w-lg w-full">
                 <h1 className="font-bold text-2xl mb-10">Vault Detail</h1>
                 <div>

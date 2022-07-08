@@ -1,36 +1,7 @@
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
-import { gql, request } from "graphql-request";
-import config from "@/config";
 
-const VaultHeader = ({ address, type }: any) => {
+const VaultHeader = ({ token, type, symbolImage }: any) => {
     const navigator = useNavigate();
-    const [token, setToken] = useState<{ [key: string]: any }>({});
-
-    useEffect(() => {
-        getToken();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const getToken = async () => {
-        const query = gql`
-        query {
-          vault(id: "${address}") {
-            token {
-              id
-              name
-              symbol
-            }
-          }
-        }
-    `;
-        request(config.nftSubgraphUrl, query).then((res) => {
-            if (res.vault.token) {
-                setToken(res.vault.token);
-            }
-        });
-    };
 
     return (
         <header
@@ -40,9 +11,9 @@ const VaultHeader = ({ address, type }: any) => {
             <div className="flex items-center">
                 <div className="inline-flex items-center">
                     <img
-                        className="w-10 h-10 bg-cover"
-                        src="https://res.cloudinary.com/nftx/image/fetch/w_150,h_150,f_auto/https://raw.githubusercontent.com/NFTX-project/nftx-assets/main/vaults-v2/0/256x256.png"
-                        alt="PUNK"
+                        className="w-10 h-10 bg-cover rounded-full"
+                        src={symbolImage || "/images/cover.png"}
+                        alt={token.name}
                     />
                     <div className="flex-1 ml-2 overflow-hidden">
                         <h4 className="text-lg font-bold leading-tight">
@@ -70,7 +41,7 @@ const VaultHeader = ({ address, type }: any) => {
                                 ? "bg-purple-primary text-white hover:bg-purple-hover"
                                 : ""
                         }`}
-                    onClick={() => navigator(`/vault/${address}/redeem`)}
+                    onClick={() => navigator(`/vault/${token.id}/redeem`)}
                 >
                     Redeem
                 </button>
@@ -81,7 +52,7 @@ const VaultHeader = ({ address, type }: any) => {
                             ? "bg-purple-primary text-white hover:bg-purple-hover"
                             : ""
                     }`}
-                    onClick={() => navigator(`/vault/${address}/mint`)}
+                    onClick={() => navigator(`/vault/${token.id}/mint`)}
                 >
                     Mint
                 </button>
@@ -91,7 +62,7 @@ const VaultHeader = ({ address, type }: any) => {
                             ? "bg-purple-primary text-white hover:bg-purple-hover"
                             : ""
                     }`}
-                    onClick={() => navigator(`/vault/${address}/swap`)}
+                    onClick={() => navigator(`/vault/${token.id}/swap`)}
                 >
                     Swap
                 </button>
@@ -101,7 +72,7 @@ const VaultHeader = ({ address, type }: any) => {
                             ? "bg-purple-primary text-white hover:bg-purple-hover"
                             : ""
                     }`}
-                    onClick={() => navigator(`/vault/${address}/info`)}
+                    onClick={() => navigator(`/vault/${token.id}/info`)}
                 >
                     Info
                 </button>

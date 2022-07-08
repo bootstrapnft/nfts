@@ -11,6 +11,9 @@ import ERC721ABI from "@/contract/ERC721.json";
 import { useLoading } from "@/context/loading";
 import useAssetAddress from "@/hooks/useAssetAddress";
 import { toast } from "react-toastify";
+import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
+import { gql, request } from "graphql-request";
+import config from "@/config";
 
 const VaultMint = () => {
     const params = useParams();
@@ -22,22 +25,68 @@ const VaultMint = () => {
     const [selectMintIds, setSelectMintIds] = useState<
         { [key: string]: any }[]
     >([]);
+    const [token, setToken] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
-        if (assetAddress !== "") {
-            getNFTIds();
-        }
+        getNFTIds();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [assetAddress]);
 
     useEffect(() => {
         if (ownerNFTIds.length > 0) {
-            getNFTInfo();
+            setLoading(true);
+            getNFTInfo(assetAddress, ownerNFTIds)
+                .then((res) => {
+                    setLoading(false);
+                    setOwnerNFTs(res);
+                })
+                .catch((err) => {
+                    setLoading(false);
+                });
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ownerNFTIds]);
+
+    useEffect(() => {
+        getToken();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getNFTIds = () => {
+        if (assetAddress !== "" && account) {
+            setLoading(true);
+            getOwnerNFTIds(assetAddress, account)
+                .then((res) => {
+                    setLoading(false);
+                    setOwnerNFTIds(res);
+                })
+                .catch((err) => {
+                    setLoading(false);
+                });
+        }
+    };
+
+    const getToken = async () => {
+        const query = gql`
+            query {
+                vault(id: "${params.address}") {
+                    token {
+                        id
+                        name
+                        symbol
+                    }
+                }
+            }
+        `;
+        request(config.nftSubgraphUrl, query).then((res) => {
+            if (res.vault.token) {
+                setToken(res.vault.token);
+            }
+        });
+    };
 
     const selectTokenId = (item: any) => {
         console.log(item);
@@ -50,61 +99,9 @@ const VaultMint = () => {
         });
 
         if (!isSelect) {
-            setSelectMintIds([...selectMintIds, item]);
+            // setSelectMintIds([...selectMintIds, item]);
         }
-    };
-
-    const getNFTIds = async () => {
-        setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-
-        const tokenIds: number[] = [];
-        await Promise.all(
-            new Array(58).fill(1).map(async (item, index) => {
-                const result = await contract.ownerOf(index);
-                console.log("get NFT ids res:", result);
-                if (result === account) {
-                    tokenIds.push(index);
-                }
-            })
-        ).catch((err) => {
-            setLoading(false);
-        });
-
-        setOwnerNFTIds(
-            tokenIds.sort((a, b) => {
-                return a - b;
-            })
-        );
-        setLoading(false);
-    };
-
-    const getNFTInfo = async () => {
-        setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-
-        const ownerNFTs: any[] = [];
-        await Promise.all(
-            ownerNFTIds.map(async (item, index) => {
-                const url = await contract.tokenURI(item);
-                const res = await fetch(url);
-                await res.json().then((res: any) => {
-                    console.log("get nft URI::", res);
-                    res.number = item;
-                    ownerNFTs.push(res);
-                });
-            })
-        );
-        setOwnerNFTs(ownerNFTs);
-        setLoading(false);
+        setSelectMintIds([item]);
     };
 
     const mint = async () => {
@@ -168,9 +165,12 @@ const VaultMint = () => {
             <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
                 <section className="relative sm:static pb-12 flex-1 flex flex-col">
                     <VaultHeader
-                        address={params?.address}
+                        token={token}
                         isManager
                         type="mint"
+                        symbolImage={
+                            ownerNFTs.length > 0 ? ownerNFTs[0].image : ""
+                        }
                     />
                     <div className="dark:bg-gray-700">
                         <div className="px-3 py-6 sm:px-6">
