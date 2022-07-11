@@ -1,5 +1,5 @@
 import arrowDown from "@/assets/icon/arrow-down.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SelectToken from "@/pages/pool/component/select-token";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { Contract, ethers } from "ethers";
@@ -15,7 +15,7 @@ import BN from "bignumber.js";
 import Helper from "@/util/help";
 import Swapper from "@/util/swapper";
 import { useLoading } from "@/context/loading";
-import { getPublicVaults } from "@/util/vault";
+import { tokenListBalance, tokenListInfo } from "@/util/tokens";
 
 let sor: SOR | undefined = undefined;
 const PoolSwap = () => {
@@ -42,74 +42,60 @@ const PoolSwap = () => {
     const [tokensBalance, setTokensBalance] = useState<{ [key: string]: any }>(
         {}
     );
-    const [balanceInterval, setBalanceInterval] = useState<any>();
-    const [sorInterval, setSorInterval] = useState<any>();
+    const balanceInterval = useRef<any>(null);
+    const sorInterval = useRef<any>(null);
 
-    // useMemo(() => {
-    //     console.log("callback==========");
-    //     if (!sorInterval) {
-    //         const sorVal = setInterval(async () => {
-    //             if (sor) {
-    //                 console.log('[SOR Interval] fetchPools', assetInAddress, assetOutAddress);
-    //                 await sor.fetchPools();
-    //                 await onInAmountChange(swapFromAmount);
-    //             }
-    //         }, 60 * 1000);
-    //         setSorInterval(sorVal);
-    //     }
-    //
-    //     if (!balanceInterval) {
-    //         const balanceVal = setInterval(async () => {
-    //             if (active) {
-    //                 getBalances();
-    //             }
-    //         }, 5 * 60 * 1000);
-    //         setBalanceInterval(balanceVal);
-    //     }
-    //
-    //     return () => {
-    //         if (sorInterval) {
-    //             clearInterval(sorInterval);
-    //         }
-    //         if (balanceInterval) {
-    //             clearInterval(balanceInterval);
-    //         }
-    //     };
-    // }, []);
+    useEffect(() => {
+        console.log("callback==========");
+        sorInterval.current = setInterval(async () => {
+            if (sor) {
+                console.log(
+                    "[SOR Interval] fetchPools",
+                    assetInAddress,
+                    assetOutAddress
+                );
+                await sor.fetchPools();
+                await onInAmountChange(swapFromAmount);
+            }
+        }, 60 * 1000);
+
+        balanceInterval.current = setInterval(async () => {
+            tokenListBalance(tokenInfoList, account!).then((res) => {
+                setTokensBalance(res);
+            });
+        }, 60 * 1000);
+
+        return () => {
+            if (sorInterval.current) {
+                clearInterval(sorInterval.current);
+            }
+            if (balanceInterval.current) {
+                clearInterval(balanceInterval.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         (async () => {
             sor = undefined;
-            const tokens = config.tokens as unknown as {
-                [key: string]: any;
-            };
-            const tokenInfo: any[] = [];
-            Object.keys(tokens).forEach((key) => {
-                tokenInfo.push(tokens[key] as any);
+            await tokenListInfo().then((res) => {
+                setTokenInfoList(res);
+                res.forEach((token: any) => {
+                    if (
+                        token.address ===
+                        config.swapDefaultAddress.assetInDefaultAddress
+                    ) {
+                        setSwapFromToken(token);
+                        setAssetInAddress(token.address);
+                    } else if (
+                        token.address ===
+                        config.swapDefaultAddress.assetOutDefaultAddress
+                    ) {
+                        setSwapToToken(token);
+                        setAssetOutAddress(token.address);
+                    }
+                });
             });
-            await getPublicVaults()
-                .then((vaults) => {
-                    vaults.map((vault) => {
-                        console.log("vault: ", vault);
-                        const token = vault.token;
-                        const temp = {
-                            address: token.id,
-                            color: "#422940",
-                            decimals: 18,
-                            hasIcon: false,
-                            id: token.symbol.toLowerCase(),
-                            logoUrl: "",
-                            name: token.name,
-                            precision: 3,
-                            price: 0,
-                            symbol: token.symbol,
-                        };
-                        tokenInfo.push(temp);
-                    });
-                })
-                .catch((err) => {});
-            console.log("tokenInfo", tokenInfo);
-            await getPrice(tokenInfo);
             setTimeout(() => {
                 initSor();
             }, 1000);
@@ -122,30 +108,12 @@ const PoolSwap = () => {
         if (!active || tokenInfoList.length === 0) {
             return;
         }
-        getBalances();
+        tokenListBalance(tokenInfoList, account!).then((res) => {
+            setTokensBalance(res);
+        });
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, account, tokenInfoList]);
-
-    const getBalances = async () => {
-        const balances: { [key: string]: any } = {};
-        await Promise.all(
-            tokenInfoList.map(async (token: any) => {
-                await getBalance(token)
-                    .then((balance: any) => {
-                        balances[token.address] = ethers.utils.formatUnits(
-                            balance,
-                            token.decimals
-                        );
-                    })
-                    .catch((err: any) => {
-                        console.log("getBalance err", err);
-                    });
-            })
-        ).then(() => {
-            setTokensBalance(balances);
-        });
-    };
 
     useEffect(() => {
         if (assetInAddress) {
@@ -178,36 +146,6 @@ const PoolSwap = () => {
         setShowSelectToken(true);
     };
 
-    const getPrice = async (tokens: any[]) => {
-        // document.title = "Create Pool";
-        const idString = "weth,dai,usd-coin,balancer";
-        const ENDPOINT = "https://api.coingecko.com/api/v3";
-        const url = `${ENDPOINT}/simple/price?ids=${idString}&vs_currencies=usd`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const temp = tokens.map((token: any) => {
-            token.price = data[token.id] ? data[token.id].usd : 0;
-            return token;
-        });
-        setTokenInfoList(temp);
-        console.log("get price info:", temp);
-        temp.forEach((token: any) => {
-            if (
-                token.address ===
-                config.swapDefaultAddress.assetInDefaultAddress
-            ) {
-                setSwapFromToken(token);
-                setAssetInAddress(token.address);
-            } else if (
-                token.address ===
-                config.swapDefaultAddress.assetOutDefaultAddress
-            ) {
-                setSwapToToken(token);
-                setAssetOutAddress(token.address);
-            }
-        });
-    };
-
     const handleSelectToken = async (token: any) => {
         if (changeTokenIndex === 1) {
             setAssetInAddress(token.address);
@@ -219,15 +157,6 @@ const PoolSwap = () => {
             setSwapToAmount("0.00");
         }
         setChangeTokenIndex(0);
-    };
-
-    const getBalance = async (token: any) => {
-        const contract = new Contract(
-            token.address,
-            ERC20ABI,
-            library.getSigner()
-        );
-        return await contract.balanceOf(account);
     };
 
     const initSor = async () => {
@@ -679,6 +608,39 @@ const PoolSwap = () => {
         setTokensBalance({ ...tokensBalance });
     };
 
+    const validation = () => {
+        const inputValidation = validateNumberInput();
+        if (inputValidation !== "") {
+            return inputValidation;
+        }
+
+        if (
+            swaps.length === 0 &&
+            !isWrapPair(assetInAddress, assetOutAddress)
+        ) {
+            return "Not enough liquidity";
+        }
+
+        if (swapFromAmount > tokensBalance[assetInAddress]) {
+            return "Not enough funds";
+        }
+        return "";
+    };
+
+    const validateNumberInput = () => {
+        if (swapFromAmount === "0.00") {
+            return "Enter amount";
+        }
+        const number = parseFloat(swapFromAmount);
+        if (!number) {
+            return "Invalid amount";
+        }
+        if (number <= 0) {
+            return "Invalid amount";
+        }
+        return "";
+    };
+
     return (
         <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 pt-12 pb-28 text-purple-second">
             <section className="relative filter z-10 mx-auto bg-blue-primary top-8 rounded-2xl ">
@@ -965,25 +927,35 @@ const PoolSwap = () => {
                             </div>
                         )}
                     <div className="mx-auto mt-6 mb-6 w-11/12">
-                        {isApprove() ? (
+                        {validation() !== "" && (
                             <button
                                 className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl
-                                    text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
-                                disabled={parseFloat(swapFromAmount) <= 0}
-                                onClick={swap}
+                                        text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
+                                disabled={true}
                             >
-                                Swap
-                            </button>
-                        ) : (
-                            <button
-                                className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl
-                                    text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
-                                disabled={parseFloat(swapFromAmount) <= 0}
-                                onClick={approve}
-                            >
-                                Unlock
+                                {validation()}
                             </button>
                         )}
+                        {validation() === "" &&
+                            (isApprove() ? (
+                                <button
+                                    className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl
+                                                text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
+                                    disabled={parseFloat(swapFromAmount) <= 0}
+                                    onClick={swap}
+                                >
+                                    Swap
+                                </button>
+                            ) : (
+                                <button
+                                    className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl
+                                                text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
+                                    disabled={parseFloat(swapFromAmount) <= 0}
+                                    onClick={approve}
+                                >
+                                    Unlock
+                                </button>
+                            ))}
                     </div>
                 </div>
             </section>

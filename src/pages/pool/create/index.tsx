@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import arrowLeft from "@/assets/icon/arrow-down.svg";
 import close from "@/assets/icon/close.svg";
 import SelectToken from "@/pages/pool/component/select-token";
@@ -14,7 +14,12 @@ import { useLoading } from "@/context/loading";
 import { useNavigate } from "react-router";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { toast } from "react-toastify";
-import { getPublicVaults } from "@/util/vault";
+import {
+    getTokensPrice,
+    tokenListAllowance,
+    tokenListBalance,
+    tokenListInfo,
+} from "@/util/tokens";
 
 const PoolCreate = () => {
     const [, setLoading] = useLoading();
@@ -53,64 +58,21 @@ const PoolCreate = () => {
     const [enableChangeSupply, setEnableChangeSupply] = useState(false);
     const [enableChangeToken, setEnableChangeToken] = useState(false);
     const [enableChangeWeights, setEnableChangeWeights] = useState(false);
+    const priceInterval = useRef<any>(null);
 
     useEffect(() => {
         (async () => {
             console.log("SelectToken1");
             setLoading(true);
-            const tokens = config.tokens as unknown as {
-                [key: string]: any;
-            };
-            const tokenInfo: any[] = [];
-            Object.keys(tokens).forEach((key) => {
-                tokenInfo.push(tokens[key] as any);
+            await tokenListInfo().then((res) => {
+                setTokensInfo(res);
+                const selectTokens = res.slice(0, 2);
+                setSelectTokens(selectTokens);
             });
-            await getPublicVaults()
-                .then((vaults) => {
-                    vaults.map((vault) => {
-                        console.log("vault: ", vault);
-                        const token = vault.token;
-                        const temp = {
-                            address: token.id,
-                            color: "#422940",
-                            decimals: 18,
-                            hasIcon: false,
-                            id: token.symbol.toLowerCase(),
-                            logoUrl: "",
-                            name: token.name,
-                            precision: 3,
-                            price: 0,
-                            symbol: token.symbol,
-                        };
-                        tokenInfo.push(temp);
-                    });
-                })
-                .catch((err) => {});
-
-            await getPrice(tokenInfo);
+            await tokenListBalance(tokensInfo, account!).then((res) => {
+                setTokensBalance(res);
+            });
             await getProxyAddress();
-
-            const balances: { [key: string]: any } = {};
-            await Promise.all(
-                tokenInfo.map(async (token: any) => {
-                    await getBalance(token)
-                        .then((balance: any) => {
-                            balances[token.address] = ethers.utils.formatUnits(
-                                balance,
-                                token.decimals
-                            );
-                        })
-                        .catch((err: any) => {
-                            console.log("getBalance err", err);
-                        });
-                })
-            )
-                .then(() => {
-                    setTokensBalance(balances);
-                })
-                .catch((err) => {
-                    console.log("get balance err:", err);
-                });
             setLoading(false);
         })();
 
@@ -118,10 +80,34 @@ const PoolCreate = () => {
     }, [active, account]);
 
     useEffect(() => {
+        priceInterval.current = setInterval(() => {
+            if (tokensInfo.length > 0) {
+                getTokensPrice(tokensInfo).then((res) => {
+                    setTokensInfo(res);
+                });
+            }
+        }, 5000 * 4);
+
+        return () => {
+            if (priceInterval.current) {
+                clearInterval(priceInterval.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
         clacPercent();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [weights]);
+
+    useEffect(() => {
+        if (selectTokens.length > 0) {
+            changeAmount(tokenAmount[selectTokens[0].id], selectTokens[0]);
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tokenPercent]);
 
     useEffect(() => {
         console.log("set weight");
@@ -141,10 +127,18 @@ const PoolCreate = () => {
 
     useEffect(() => {
         (async () => {
-            if (tokensInfo === [] || proxyAddress === "") {
+            if (
+                tokensInfo === [] ||
+                proxyAddress === "" ||
+                tokensAllowance !== []
+            ) {
                 return;
             }
-            await getTokensAllowance();
+            await tokenListAllowance(tokensInfo, account!, proxyAddress).then(
+                (res) => {
+                    setTokensAllowance(res);
+                }
+            );
         })();
     }, [tokensInfo, proxyAddress]);
 
@@ -165,32 +159,6 @@ const PoolCreate = () => {
             percent[token.id] = getPercentage(token);
         });
         setTokenPercent(percent);
-    };
-
-    const getPrice = async (tokens: any[]) => {
-        // document.title = "Create Pool";
-        const idString = "weth,dai,usd-coin,balancer";
-        const ENDPOINT = "https://api.coingecko.com/api/v3";
-        const url = `${ENDPOINT}/simple/price?ids=${idString}&vs_currencies=usd`;
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log("price", data);
-        const temp = tokens.map((token: any) => {
-            token.price = data[token.id] ? data[token.id].usd : 0;
-            return token;
-        });
-        setTokensInfo(temp);
-        const selectTokens = temp.slice(0, 2);
-        setSelectTokens(selectTokens);
-    };
-
-    const getBalance = async (token: any) => {
-        const contract = new Contract(
-            token.address,
-            ERC20ABI,
-            library.getSigner()
-        );
-        return await contract.balanceOf(account);
     };
 
     const showToken = (index: number) => {
@@ -258,43 +226,6 @@ const PoolCreate = () => {
         }
     };
 
-    const getTokensAllowance = async () => {
-        console.log("get token list allowance:", tokensInfo, proxyAddress);
-        if (!proxyAddress) {
-            return;
-        }
-        const tokensAllowance: { [key: string]: any } = {};
-        await Promise.all(
-            tokensInfo.map(async (token: any, index: number) => {
-                console.log("allow ==== address", token.address);
-                const contract = new Contract(
-                    token.address,
-                    ERC20ABI,
-                    library.getSigner()
-                );
-                await contract
-                    .allowance(account, proxyAddress)
-                    .then((res: any) => {
-                        console.log("get token allow result:", res);
-                        tokensAllowance[token.id] = ethers.utils.formatUnits(
-                            res,
-                            token.decimals
-                        );
-                    })
-                    .catch((err: any) => {
-                        console.log(`tokensAllowance err: ${index}:`, err);
-                    });
-            })
-        )
-            .then(() => {
-                console.log("tokensAllowance result -------", tokensAllowance);
-                setTokensAllowance(tokensAllowance);
-            })
-            .catch((err) => {
-                console.log("get tokens all allowance err", err);
-            });
-    };
-
     const checkApprove = () => {
         if (Object.keys(tokensAllowance).length === 0) {
             return;
@@ -333,7 +264,11 @@ const PoolCreate = () => {
                 .wait()
                 .then((res: any) => {
                     console.log("approve:", res);
-                    getTokensAllowance();
+                    tokenListAllowance(tokensInfo, account!, proxyAddress).then(
+                        (res) => {
+                            setTokensAllowance(res);
+                        }
+                    );
                     setLoading(false);
                     toast.success(`Approve ${token.symbol} success`);
                 })
@@ -533,13 +468,24 @@ const PoolCreate = () => {
         return BigNumber.from(res + "").toString();
     };
 
+    const changePrice = (val: string, changeToken: any) => {
+        changeToken.price = parseFloat(val);
+        const amount = tokenAmount[changeToken.id];
+        console.log("changePrice", amount, changeToken);
+        if (amount) {
+            changeAmount(amount, changeToken);
+        }
+    };
+
     const addNewToken = (token: any, balance: any) => {
         console.log("add new token:", token, balance);
         tokensInfo.push(token);
         setTokensInfo([...tokensInfo]);
         tokensBalance[token.address] = balance;
         setTokensBalance({ ...tokensBalance });
-        getTokensAllowance();
+        tokenListAllowance(tokensInfo, account!, proxyAddress).then((res) => {
+            setTokensAllowance(res);
+        });
     };
 
     return (
@@ -560,7 +506,7 @@ const PoolCreate = () => {
                                     </th>
                                     <th className="text-right">My Balance</th>
                                     <th className="text-right">Weights</th>
-                                    <th className="text-right">Percent</th>
+                                    <th className="text-right px-3">Percent</th>
                                     <th className="text-right">Amount</th>
                                     <th className="text-right">Price</th>
                                     <th className="text-right">Total Value</th>
@@ -632,7 +578,7 @@ const PoolCreate = () => {
                                                 }}
                                             />
                                         </td>
-                                        <td className="text-right">
+                                        <td className="text-right px-3">
                                             {tokenPercent[token.id]} %
                                         </td>
                                         <td className="text-right">
@@ -653,29 +599,22 @@ const PoolCreate = () => {
                                                 }
                                             />
                                         </td>
-                                        <td className="text-right">
-                                            $
-                                            {token.price && token.price > 0 ? (
-                                                token.price
-                                            ) : (
-                                                <input
-                                                    className="border text-lg font-mono transition-colors w-20 px-2
-                                                                border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
-                                                                focus:border-purple-primary focus:ring-0 text-center"
-                                                    type="number"
-                                                    min="0.000000000000001"
-                                                    defaultValue={1}
-                                                    onChange={(e) => {
-                                                        token.price =
-                                                            parseFloat(
-                                                                e.target.value
-                                                            );
-                                                        setTokensInfo([
-                                                            ...tokensInfo,
-                                                        ]);
-                                                    }}
-                                                />
-                                            )}
+                                        <td className="text-right pl-4">
+                                            $ &nbsp;
+                                            <input
+                                                className="border text-lg font-mono transition-colors w-20 px-2
+                                                        border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
+                                                        focus:border-purple-primary focus:ring-0 text-center w-[150px]"
+                                                type="number"
+                                                min="0.000000000000001"
+                                                defaultValue={token.price}
+                                                onChange={(e) => {
+                                                    changePrice(
+                                                        e.target.value,
+                                                        token
+                                                    );
+                                                }}
+                                            />
                                         </td>
                                         <td className="text-right px-4 w-1/5">
                                             ${" "}
