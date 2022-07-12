@@ -69,12 +69,12 @@ const Header = () => {
 
     const getIsManager = () => {
         const query = gql`
-      query {
-        vaults(where: {manager: "${account?.toLowerCase()}"}) {
-          id
-        }
-      }
-    `;
+          query {
+            vaults(where: {manager: "${account?.toLowerCase()}"}) {
+              id
+            }
+          }
+        `;
         request(config.nftSubgraphUrl, query)
             .then((data) => {
                 if (data.vaults.length > 0) {

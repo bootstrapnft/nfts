@@ -26,6 +26,7 @@
         "graphql": "^16.5.0",
         "graphql-request": "^4.3.0",
         "graphql-tag": "^2.12.6",
+        "http-proxy-middleware": "^2.0.6",
         "https-browserify": "^1.0.0",
         "i18next": "^21.8.4",
         "i18next-browser-languagedetector": "^6.1.4",

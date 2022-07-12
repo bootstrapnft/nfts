@@ -1,9 +1,8 @@
 import { Contract, ethers } from "ethers";
 import ERC721ABI from "@/contract/ERC721.json";
+import config from "@/config";
 
-const provider = new ethers.providers.JsonRpcProvider(
-    "https://rpc-mumbai.maticvigil.com/v1/c1947560c824b65dcc8774279fe1225b3c835d35"
-);
+const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 
 export const getNFTInfo = async (
     assetAddress: string,
@@ -65,5 +64,6 @@ export const getOwnerNFTIds = async (
         return a - b;
     });
 
+    console.log("utils get nft ids:", nftIds);
     return nftIds;
 };

@@ -12,7 +12,7 @@ import { useLoading } from "@/context/loading";
 import Vault from "@/contract/Vault.json";
 import { toast } from "react-toastify";
 import useAssetAddress from "@/hooks/useAssetAddress";
-import { getNFTInfo } from "@/util/nfts";
+import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
 import { gql, request } from "graphql-request";
 import config from "@/config";
 
@@ -214,32 +214,17 @@ const VaultManage = () => {
     };
 
     const getNFTIds = async () => {
-        setLoading(true);
-        const contract = new Contract(
-            assetAddress,
-            ERC721ABI,
-            library.getSigner()
-        );
-
-        const tokenIds: number[] = [];
-        await Promise.all(
-            new Array(58).fill(1).map(async (item, index) => {
-                const result = await contract.ownerOf(index);
-                if (result === account) {
-                    tokenIds.push(index);
-                }
-                console.log(`result: ${index}`, result);
-            })
-        ).catch((err) => {
-            console.log("get nft id err:", err);
-            setLoading(false);
-        });
-
-        setOwnerNFTIds(
-            tokenIds.sort((a, b) => {
-                return a - b;
-            })
-        );
+        if (assetAddress && account) {
+            setLoading(true);
+            getOwnerNFTIds(assetAddress, account)
+                .then((res) => {
+                    setOwnerNFTIds(res);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    setLoading(false);
+                });
+        }
         setShowDeposit(true);
         setLoading(false);
     };
