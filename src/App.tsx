@@ -21,6 +21,7 @@ import OwnerVault from "@/pages/vault/owner";
 import PoolSwap from "@/pages/pool/swap";
 import VaultInfo from "@/pages/vault/info";
 import { ToastContainer } from "react-toastify";
+import WalletProvider from "@/context/connect-wallet";
 
 const getLibrary = (provider: any) => {
     const library = new ethers.providers.Web3Provider(provider);
@@ -35,61 +36,63 @@ const App = () => {
             <Suspense fallback={<div>loading...</div>}>
                 <Web3ReactProvider getLibrary={getLibrary}>
                     <LoadingProvider>
-                        <BrowserRouter>
-                            <Header />
-                            <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route
-                                    path="/vault/create"
-                                    element={<Create />}
-                                />
-                                <Route
-                                    path="/vault/:address/buy"
-                                    element={<Vault />}
-                                />
-                                <Route
-                                    path="/vault/:address/mint"
-                                    element={<VaultMint />}
-                                />
-                                <Route
-                                    path="/vault/:address/redeem"
-                                    element={<VaultRedeem />}
-                                />
-                                <Route
-                                    path="/vault/:address/manage"
-                                    element={<VaultManager />}
-                                />
-                                <Route
-                                    path="/vault/:address/swap"
-                                    element={<VaultSwap />}
-                                />
-                                <Route
-                                    path="/vault/:address/info"
-                                    element={<VaultInfo />}
-                                />
-                                <Route
-                                    path="/pool/swap"
-                                    element={<PoolSwap />}
-                                />
-                                <Route
-                                    path="/pool/create"
-                                    element={<PoolCreate />}
-                                />
-                                <Route
-                                    path="/vault/manage"
-                                    element={<OwnerVault />}
-                                />
-                                <Route
-                                    path="/pool/explore"
-                                    element={<PoolExplore />}
-                                />
-                                <Route
-                                    path="/pool/:address/manage"
-                                    element={<PoolManage />}
-                                />
-                            </Routes>
-                            <Footer />
-                        </BrowserRouter>
+                        <WalletProvider>
+                            <BrowserRouter>
+                                <Header />
+                                <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route
+                                        path="/vault/create"
+                                        element={<Create />}
+                                    />
+                                    <Route
+                                        path="/vault/:address/buy"
+                                        element={<Vault />}
+                                    />
+                                    <Route
+                                        path="/vault/:address/mint"
+                                        element={<VaultMint />}
+                                    />
+                                    <Route
+                                        path="/vault/:address/redeem"
+                                        element={<VaultRedeem />}
+                                    />
+                                    <Route
+                                        path="/vault/:address/manage"
+                                        element={<VaultManager />}
+                                    />
+                                    <Route
+                                        path="/vault/:address/swap"
+                                        element={<VaultSwap />}
+                                    />
+                                    <Route
+                                        path="/vault/:address/info"
+                                        element={<VaultInfo />}
+                                    />
+                                    <Route
+                                        path="/pool/swap"
+                                        element={<PoolSwap />}
+                                    />
+                                    <Route
+                                        path="/pool/create"
+                                        element={<PoolCreate />}
+                                    />
+                                    <Route
+                                        path="/vault/manage"
+                                        element={<OwnerVault />}
+                                    />
+                                    <Route
+                                        path="/pool/explore"
+                                        element={<PoolExplore />}
+                                    />
+                                    <Route
+                                        path="/pool/:address/manage"
+                                        element={<PoolManage />}
+                                    />
+                                </Routes>
+                                <Footer />
+                            </BrowserRouter>
+                        </WalletProvider>
                     </LoadingProvider>
                 </Web3ReactProvider>
             </Suspense>

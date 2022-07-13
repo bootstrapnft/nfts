@@ -1,27 +1,19 @@
 import { Fragment, useEffect, useState } from "react";
 import Card from "@/components/card";
 import { useLoading } from "@/context/loading";
-import config from "@/config";
-import { gql, request } from "graphql-request";
-import { Contract } from "ethers";
-import { useWeb3React } from "@web3-react/core";
-import ERC721ABI from "@/contract/ERC721.json";
 import { getPublicVaults } from "@/util/vault";
+import { getNFTInfo } from "@/util/nfts";
 
 const Home = () => {
-    const { active, library } = useWeb3React();
-    const [vaults, setVaults] = useState<any[]>([]);
     const [, setLoading] = useLoading();
+    const [vaults, setVaults] = useState<any[]>([]);
 
     useEffect(() => {
         getVaults();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [active]);
+    }, []);
 
     const getVaults = () => {
-        if (!active) {
-            return;
-        }
         setLoading(true);
         getPublicVaults()
             .then(async (vaults) => {
@@ -37,30 +29,15 @@ const Home = () => {
         await Promise.all(
             vaults.map(async (item) => {
                 console.log("vault item", item);
-                const contract = new Contract(
-                    item.asset.id,
-                    ERC721ABI,
-                    library.getSigner()
-                );
-                try {
-                    let url = await contract.tokenURI(item.mints[0].nftIds[0]);
-                    if (url.startsWith("ipfs://")) {
-                        url = url.replace("ipfs://", "https://ipfs.io/ipfs/");
-                    }
-                    const res = await fetch(url);
-                    const result = await res.json();
-                    if (result.image.startsWith("ipfs://")) {
-                        result.image = result.image.replace(
-                            "ipfs://",
-                            "https://ipfs.io/ipfs/"
-                        );
-                    }
-                    item.image = result.image;
-                    item.symbolImage = result.image;
-                } catch (e) {
+                const nftInfo = await getNFTInfo(item.asset.id, [
+                    item.mints[0].nftIds[0],
+                ]);
+                if (nftInfo.length > 0) {
+                    item.image = nftInfo[0].image;
+                    item.symbolImage = nftInfo[0].image;
+                } else {
                     item.image = "/images/cover.png";
                     item.symbolImage = "/images/cover.png";
-                    console.log("get nft images error:", e);
                 }
                 return item;
             })

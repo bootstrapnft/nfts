@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import VaultHeader from "@/pages/vault/header";
 
 import VaultCard from "@/pages/vault/card";
@@ -14,11 +14,13 @@ import { toast } from "react-toastify";
 import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
 import { gql, request } from "graphql-request";
 import config from "@/config";
+import { useWalletSelect } from "@/context/connect-wallet";
 
 const VaultMint = () => {
     const params = useParams();
-    const { library, account, active } = useWeb3React();
     const [, setLoading] = useLoading();
+    const [, setIsOpen] = useWalletSelect();
+    const { library, account, active } = useWeb3React();
     const { address: assetAddress } = useAssetAddress(params.address!);
     const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
     const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
@@ -172,13 +174,15 @@ const VaultMint = () => {
                             ownerNFTs.length > 0 ? ownerNFTs[0].image : ""
                         }
                     />
-                    <div className="dark:bg-gray-700">
-                        <div className="px-3 py-6 sm:px-6">
-                            <div className="mb-2 text-sm flex items-center justify-between">
-                                {ownerNFTs.length} items
+                    {ownerNFTs.length > 0 && (
+                        <div className="dark:bg-gray-700">
+                            <div className="px-3 py-6 sm:px-6">
+                                <div className="mb-2 text-sm flex items-center justify-between">
+                                    {ownerNFTs.length} items
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                     <div
                         className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
                     3xl:grid-cols-7 sm:gap-4 gap-2"
@@ -192,6 +196,14 @@ const VaultMint = () => {
                             />
                         ))}
                     </div>
+                    {!active && (
+                        <button
+                            className="btn-primary w-2/3 py-6 mx-auto"
+                            onClick={() => setIsOpen(true)}
+                        >
+                            Connect wallet
+                        </button>
+                    )}
                 </section>
                 <aside
                     className="flex-none w-full h-max md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second
@@ -298,7 +310,7 @@ const VaultMint = () => {
                                             </dt>
                                             <dd className="flex-1 text-right">
                                                 {selectMintIds.length * 0.9}{" "}
-                                                PUNK
+                                                {token.symbol}
                                             </dd>
                                         </div>
                                     </dl>

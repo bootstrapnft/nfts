@@ -10,10 +10,11 @@ import config from "@/config";
 import { truncateAddress } from "@/util/address";
 import { currentNetwork } from "@/util/network";
 import SwitchNetwork from "@/components/header/switch-network";
+import { useWalletSelect } from "@/context/connect-wallet";
 
 const Header = () => {
     const navigator = useNavigate();
-    const [isOpen, setIsOpen] = useState(false);
+    const [, setIsOpen] = useWalletSelect();
     const [showTips, setShowTips] = useState(false);
     const [isManager, setIsManager] = useState(false);
     const { account, active, library, activate, chainId } = useWeb3React();
@@ -224,7 +225,6 @@ const Header = () => {
                     </div>
                 )}
             </header>
-            <SelectWallet isOpen={isOpen} onClose={() => setIsOpen(false)} />
         </div>
     );
 };

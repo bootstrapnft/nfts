@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, Contract, ethers } from "ethers";
@@ -8,18 +8,19 @@ import { useLoading } from "@/context/loading";
 import VaultABI from "@/contract/Vault.json";
 import close from "@/assets/icon/close.svg";
 import VaultHeader from "@/pages/vault/header";
-import useAssetAddress from "@/hooks/useAssetAddress";
 import { toast } from "react-toastify";
 import { getNFTInfo } from "@/util/nfts";
 import { gql, request } from "graphql-request";
 import config from "@/config";
+import { useWalletSelect } from "@/context/connect-wallet";
 
 const VaultRedeem = () => {
     const params = useParams();
     const [, setLoading] = useLoading();
+    const [, setIsOpen] = useWalletSelect();
     const { library, account, active } = useWeb3React();
     const [balance, setBalance] = useState("0");
-    const { address: assetAddress } = useAssetAddress(params.address!);
+    const [assetAddress, setAssetAddress] = useState("");
     const [allHolding, setAllHolding] = useState<number[]>([]);
     const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
     const [selectRedeemIds, setSelectRedeemIds] = useState<
@@ -29,7 +30,6 @@ const VaultRedeem = () => {
 
     useEffect(() => {
         if (active) {
-            getAllHolding();
             getBalance();
         }
 
@@ -53,19 +53,28 @@ const VaultRedeem = () => {
     }, [allHolding, assetAddress]);
 
     useEffect(() => {
-        getToken();
+        getVaultInfo();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const getToken = async () => {
+    const getVaultInfo = async () => {
         const query = gql`
             query {
                 vault(id: "${params.address}") {
+                    id
+                    asset {
+                        id
+                        name
+                        symbol
+                    }
                     token {
                         id
                         name
                         symbol
+                    }
+                    holdings {
+                        tokenId
                     }
                 }
             }
@@ -74,6 +83,8 @@ const VaultRedeem = () => {
             if (res.vault.token) {
                 setToken(res.vault.token);
             }
+            setAssetAddress(res.vault.asset.id);
+            setAllHolding(res.vault.holdings.map((item: any) => item.tokenId));
         });
     };
 
@@ -281,12 +292,21 @@ const VaultRedeem = () => {
                                         </div>
                                     </dl>
                                     <div className="text-center">
-                                        <button
-                                            className="btn-primary p-4 px-6"
-                                            onClick={redeem}
-                                        >
-                                            Redeem
-                                        </button>
+                                        {active ? (
+                                            <button
+                                                className="btn-primary p-4 px-6"
+                                                onClick={redeem}
+                                            >
+                                                Redeem
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="btn-primary p-4 px-6"
+                                                onClick={() => setIsOpen(true)}
+                                            >
+                                                Connect
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )}

@@ -44,4 +44,11 @@ module.exports = function (app) {
             },
         })
     );
+    app.use(
+        "/metadata/cache",
+        createProxyMiddleware({
+            target: "http://45.77.30.9:5688/api/v1",
+            changeOrigin: true,
+        })
+    );
 };

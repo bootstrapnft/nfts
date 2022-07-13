@@ -16,15 +16,16 @@ import Helper from "@/util/help";
 import Swapper from "@/util/swapper";
 import { useLoading } from "@/context/loading";
 import { tokenListBalance, tokenListInfo } from "@/util/tokens";
+import { useWalletSelect } from "@/context/connect-wallet";
 
 let sor: SOR | undefined = undefined;
 const PoolSwap = () => {
     const ETH_KEY = "ether";
     const GAS_PRICE = process.env.APP_GAS_PRICE || "100000000000";
     const MAX_POOLS = 4;
-    // const sor = useRef<SOR | undefined>(undefined);
-    const { active, account, library } = useWeb3React();
     const [, setLoading] = useLoading();
+    const [, setIsOpen] = useWalletSelect();
+    const { active, account, library } = useWeb3React();
     const [swaps, setSwaps] = useState<Swap[][]>([]);
     const [approves, setApproves] = useState<{ [key: string]: any }>({});
     const [slippage, setSlippage] = useState<any>(0);
@@ -927,7 +928,16 @@ const PoolSwap = () => {
                             </div>
                         )}
                     <div className="mx-auto mt-6 mb-6 w-11/12">
-                        {validation() !== "" && (
+                        {!active && (
+                            <button
+                                className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl
+                                        text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
+                                onClick={() => setIsOpen(true)}
+                            >
+                                Connect wallet
+                            </button>
+                        )}
+                        {validation() !== "" && active && (
                             <button
                                 className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl
                                         text-white hover:from-purple-900 hover:to-pink-700 disabled:opacity-75"
@@ -937,6 +947,7 @@ const PoolSwap = () => {
                             </button>
                         )}
                         {validation() === "" &&
+                            active &&
                             (isApprove() ? (
                                 <button
                                     className="w-full py-3 bg-gradient-to-r from-purple-primary to-pink-600 rounded-xl

@@ -2,7 +2,7 @@ import VaultHeader from "@/pages/vault/header";
 import { useParams } from "react-router";
 import { useWeb3React } from "@web3-react/core";
 import { useLoading } from "@/context/loading";
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import VaultCard from "@/pages/vault/card";
 import { Contract } from "ethers";
 import ERC721ABI from "@/contract/ERC721.json";
@@ -14,10 +14,12 @@ import config from "@/config";
 import { ethers } from "ethers/lib.esm";
 import { toast } from "react-toastify";
 import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
+import { useWalletSelect } from "@/context/connect-wallet";
 
 const VaultSwap = () => {
     const params = useParams();
     const [, setLoading] = useLoading();
+    const [, setIsOpen] = useWalletSelect();
     const { library, account, active } = useWeb3React();
     const [assetAddress, setAssetAddress] = useState("");
     const [mints, setMints] = useState<any[]>([]);
@@ -65,21 +67,21 @@ const VaultSwap = () => {
         }
 
         const query = gql`
-      query {
-        vault(id: "${params.address}") {
-          id
-          asset {
-            id
-            name
-            symbol
+          query {
+            vault(id: "${params.address}") {
+              id
+              asset {
+                id
+                name
+                symbol
+              }
+              mints {
+                id
+                nftIds
+              }
+            }
           }
-          mints {
-            id
-            nftIds
-          }
-        }
-      }
-    `;
+        `;
 
         request(config.nftSubgraphUrl, query)
             .then((data) => {
@@ -165,32 +167,18 @@ const VaultSwap = () => {
     const getMintsNFT = async (vault: any) => {
         const address = ethers.utils.getAddress(vault.asset.id);
         const mints: any[] = vault.mints;
-        const contract = new Contract(address, ERC721ABI, library.getSigner());
         await Promise.all(
             mints.map(async (item, index) => {
-                try {
-                    let url = await contract.tokenURI(item.nftIds[0]);
-                    if (url.startsWith("ipfs://")) {
-                        url = url.replace("ipfs://", "https://ipfs.io/ipfs/");
-                    }
-                    const res = await fetch(url);
-                    await res.json().then((res: any) => {
+                await getNFTInfo(address, item.nftIds).then((res) => {
+                    if (res.length > 0) {
                         item.number = item.nftIds[0];
-                        item.name = res.name;
-                        item.desc = res.description;
-                        item.image = res.image;
-                        if (res.image.startsWith("ipfs://")) {
-                            item.image = res.image.replace(
-                                "ipfs://",
-                                "https://ipfs.io/ipfs/"
-                            );
-                        }
-                    });
-                } catch (err) {
-                    console.log("get mints nft err:", err);
-                    item.number = item.nftIds[0];
-                    item.image = "/images/cover.png";
-                }
+                        item.image = res[0].image;
+                        item.symbolImage = res[0].image;
+                    } else {
+                        item.image = "/images/cover.png";
+                        item.symbolImage = "/images/cover.png";
+                    }
+                });
                 return item;
             })
         )
@@ -303,6 +291,14 @@ const VaultSwap = () => {
                                 />
                             ))}
                     </div>
+                    {!active && (
+                        <button
+                            className="btn-primary w-2/3 py-6 mx-auto"
+                            onClick={() => setIsOpen(true)}
+                        >
+                            Connect wallet
+                        </button>
+                    )}
                 </section>
                 <aside className="flex-none w-full h-max md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second bg-blue-primary">
                     <div className="md:block md:sticky md:top-18 hidden">
