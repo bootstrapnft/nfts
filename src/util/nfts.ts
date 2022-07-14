@@ -40,18 +40,44 @@ export const getOwnerNFTIds = async (
 ): Promise<any[]> => {
     const contract = new Contract(assetAddress, ERC721ABI, provider);
 
-    const tokenIds: number[] = [];
-    await Promise.all(
-        new Array(58).fill(1).map(async (item, index) => {
-            const tokenId = index + 1;
-            const result = await contract.ownerOf(tokenId);
-            if (result === account) {
-                tokenIds.push(tokenId);
-            }
-        })
-    ).catch((err) => {
-        console.log("get nft ids err:", err);
-    });
+    let tokenIds: number[] = [];
+    try {
+        const total = await contract.balanceOf(account);
+        console.log("开始获取nft", total.toNumber());
+
+        await Promise.all(
+            new Array(total.toNumber()).fill(1).map(async (item, index) => {
+                const tokenId = await contract.tokenOfOwnerByIndex(
+                    account,
+                    index
+                );
+                console.log("tokenId:", tokenId.toString(), index);
+                tokenIds.push(tokenId.toNumber());
+            })
+        );
+    } catch (e) {
+        console.log("token of owner by index err:", e);
+        const nftIds: number[] = [];
+        await Promise.all(
+            new Array(58).fill(1).map(async (item, index) => {
+                const tokenId = index + 1;
+                try {
+                    const result = await contract.ownerOf(tokenId);
+                    if (result === account) {
+                        nftIds.push(tokenId);
+                    }
+                } catch (e) {
+                    console.log("ownerOf err:", tokenId, e);
+                }
+            })
+        )
+            .then(() => {
+                tokenIds = nftIds;
+            })
+            .catch((err) => {
+                console.log("get nft ids err:", err);
+            });
+    }
 
     const nftIds = tokenIds.sort((a, b) => {
         return a - b;
