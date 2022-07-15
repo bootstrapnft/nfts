@@ -1,17 +1,29 @@
 input[type="checkbox"] {
-  appearance: none;
-  border-width: 1px;
+    appearance: none;
+    border-width: 1px;
 }
 
 input[type="checkbox"]:checked {
-  border-color: transparent;
-  background-color: currentColor;
-  background-size: 100% 100%;
-  background-position: 50%;
-  background-repeat: no-repeat;
-  background-image: url("./assets/icon/check.svg");
+    border-color: transparent;
+    background-color: currentColor;
+    background-size: 100% 100%;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-image: url("./assets/icon/check.svg");
 }
 
 .nft-list {
-  min-height: calc(100vh - 65px);
+    min-height: calc(100vh - 65px);
+}
+
+.hide-scroll {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .overflow-y-scroll {
+        -ms-overflow-style: none; /* IE and Edge */
+    }
 }

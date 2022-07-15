@@ -54,7 +54,7 @@ const Home = () => {
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 pt-12 text-purple-second">
-                <section>
+                <section className="pb-32 lg:pb-14">
                     <header>
                         <h1 className="font-bold text-3xl mb-2">Buy NFTs</h1>
                         <p className="mb-4">

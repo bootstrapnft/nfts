@@ -33,7 +33,7 @@ const SwitchNetwork = () => {
 
     return (
         <Fragment>
-            <div className="hidden sm:inline-flex">
+            <div className="sm:inline-flex">
                 <Menu as="div" className="relative inline-block text-left">
                     <div className="h-full">
                         <Menu.Button

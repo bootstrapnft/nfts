@@ -247,7 +247,7 @@ const VaultSwap = () => {
 
     return (
         <Fragment>
-            <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
+            <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second lg:py-8 lg:px-20">
                 <section className="relative sm:static pb-12 flex-1 flex flex-col border-blue-primary">
                     <VaultHeader
                         token={token}

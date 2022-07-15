@@ -15,11 +15,13 @@ import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
 import { gql, request } from "graphql-request";
 import config from "@/config";
 import { useWalletSelect } from "@/context/connect-wallet";
+import Basket from "@/pages/vault/basket";
 
 const VaultMint = () => {
     const params = useParams();
     const [, setLoading] = useLoading();
     const [, setIsOpen] = useWalletSelect();
+    const [showSidebar, setShowSidebar] = useState(false);
     const { library, account, active } = useWeb3React();
     const { address: assetAddress } = useAssetAddress(params.address!);
     const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
@@ -164,7 +166,7 @@ const VaultMint = () => {
 
     return (
         <Fragment>
-            <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
+            <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second lg:py-8 lg:px-20">
                 <section className="relative sm:static pb-12 flex-1 flex flex-col">
                     <VaultHeader
                         token={token}
@@ -205,21 +207,37 @@ const VaultMint = () => {
                         </button>
                     )}
                 </section>
-                <aside
-                    className="flex-none w-full h-max md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second
-            bg-blue-primary mb-20"
-                >
-                    <div className="md:block sticky top-18  hidden">
-                        <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
+                <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
+                    <div
+                        className={`md:block md:sticky md:top-18 overflow-y-scroll hide-scroll hidden fixed z-30 h-screen
+                        w-full bottom-0 bg-blue-primary bg-opacity-80 flex flex-col lg:h-[380px] ${
+                            showSidebar ? "!flex" : ""
+                        }`}
+                    >
+                        <div
+                            className="z-20 cursor-pointer top-4 left-0 right-0 flex flex-1 justify-center
+                            md:hidden mt-auto mb-auto"
+                            onClick={() => {
+                                console.log("click close sidebar");
+                                setShowSidebar(false);
+                            }}
+                        >
+                            <img src={close} className="w-6 h-6" alt="" />
+                        </div>
+                        <div
+                            className="overflow-y-scroll hide-scroll max-h-3/4-screen block p-6 sm:p-10 md:p-6 md:mb-8
+                            bg-blue-primary"
+                        >
                             {selectMintIds.length === 0 && (
                                 <div>
                                     <h3 className="mb-4 text-xl text-center dark:text-gray-50 text-lm-gray-600">
                                         Select NFTs to mint
                                     </h3>
                                     <button
-                                        className="inline-flex items-center justify-center outline-none font-medium rounded-md break-word
-                      hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-6 px-12 w-full
-                      bg-gradient-to-b text-white from-gray-700 to-black focus:ring-gray-800 cursor-not-allowed opacity-90"
+                                        className="inline-flex items-center justify-center outline-none font-medium
+                                        rounded-md break-word hover:outline focus:outline-none focus:ring-1
+                                        focus:ring-opacity-75 py-6 px-12 w-full bg-gradient-to-b text-white
+                                        from-gray-700 to-black focus:ring-gray-800 cursor-not-allowed opacity-90"
                                         disabled={true}
                                     >
                                         Mint NFTs
@@ -327,6 +345,10 @@ const VaultMint = () => {
                         </div>
                     </div>
                 </aside>
+                <Basket
+                    count={selectMintIds.length}
+                    onClick={() => setShowSidebar(true)}
+                />
             </main>
         </Fragment>
     );

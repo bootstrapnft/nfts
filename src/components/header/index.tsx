@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import SelectWallet from "@/components/select_wallet";
 import { useWeb3React } from "@web3-react/core";
 import { useNavigate } from "react-router";
 import arrowDown from "@/assets/icon/arrow-down.svg";
 import logo from "@/assets/logo.svg";
+import simpleLogo from "@/assets/simple_logo.svg";
 import { gql, request } from "graphql-request";
 import { connectors } from "@/components/select_wallet/connector";
 import config from "@/config";
@@ -38,7 +38,6 @@ const Header = () => {
     }, [chainId]);
 
     useEffect(() => {
-        // TODO save account in local storage
         const type = localStorage.getItem("provider");
         if (type !== "injected") {
             return;
@@ -90,12 +89,18 @@ const Header = () => {
     return (
         <div className="sticky top-0 z-30">
             <header className="bg-blue-primary">
-                <div className="px-10 py-2 flex flex-wrap">
+                <div className="px-5 py-2 flex justify-between lg:px-10">
                     <aside className="flex items-center">
                         <img
                             src={logo}
                             alt=""
-                            className="h-8 w-48 cursor-pointer"
+                            className="h-8 w-48 cursor-pointer hidden lg:block"
+                            onClick={() => navigator("/")}
+                        />
+                        <img
+                            src={simpleLogo}
+                            alt=""
+                            className="h-8 w-10 cursor-pointer lg:hidden"
                             onClick={() => navigator("/")}
                         />
                     </aside>
@@ -122,8 +127,8 @@ const Header = () => {
                             </button>
                             <div
                                 className="lg:shadow-lg lg:absolute lg:flex lg:flex-col lg:space-y-1.5 lg:top-full lg:-left-1
-                  lg:-right-4 lg:p-2 lg:rounded-lg lg:border-purple-primary lg:bg-blue-primary lg:dark:bg-gray-800 lg:border
-                  lg:dark:border-gray-600 lg:hidden group-hover:inline-flex z-50"
+                                      lg:-right-4 lg:p-2 lg:rounded-lg lg:border-purple-primary lg:bg-blue-primary
+                                      lg:dark:bg-gray-800 lg:border lg:dark:border-gray-600 lg:hidden group-hover:inline-flex z-50"
                             >
                                 <div
                                     onClick={() => navigator("/")}

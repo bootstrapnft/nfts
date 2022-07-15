@@ -159,7 +159,7 @@ const VaultRedeem = () => {
 
     return (
         <Fragment>
-            <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second py-8 px-20">
+            <main className="flex-1 flex gap-x-6 relative flex-wrap md:flex-nowrap text-purple-second  lg:py-8 lg:px-20">
                 <section className="relative sm:static pb-12 flex-1 flex flex-col">
                     <VaultHeader
                         token={token}
@@ -177,8 +177,8 @@ const VaultRedeem = () => {
                         </div>
                     </div>
                     <div
-                        className="pb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
-                    3xl:grid-cols-7 sm:gap-4 gap-2 "
+                        className="pb-6 px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
+                            3xl:grid-cols-7 sm:gap-4 gap-2 "
                     >
                         {ownerNFTs.map((item, index) => (
                             <VaultCard
@@ -190,9 +190,19 @@ const VaultRedeem = () => {
                         ))}
                     </div>
                 </section>
-                <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second bg-blue-primary">
-                    <div className="md:block md:sticky md:top-18 hidden">
-                        <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
+                <aside
+                    className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second
+                    bg-blue-primary"
+                >
+                    <div
+                        className="md:block md:sticky md:top-18 overflow-y-scroll hide-scroll hidden fixed z-30 h-full w-full bottom-0
+                         bg-blue-primary bg-opacity-80 flex flex-col"
+                    >
+                        <div
+                            className="z-20 cursor-pointer top-4 left-0 right-0 flex justify-center
+                            md:hidden mt-auto mb-auto"
+                        ></div>
+                        <div className="overflow-y-scroll hide-scroll max-h-3/4-screen block p-6 sm:p-10 md:p-6 md:mb-8 bg-blue-primary">
                             {selectRedeemIds.length === 0 && (
                                 <div>
                                     <h3 className="mb-4 text-xl text-center dark:text-gray-50 text-lm-gray-600">
