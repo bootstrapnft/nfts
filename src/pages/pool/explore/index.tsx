@@ -5,6 +5,7 @@ import Pie from "@/components/pie";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router";
 import config from "@/config";
+import { unknownColors } from "@/util/utils";
 
 const PoolExplore = () => {
     const navigate = useNavigate();
@@ -113,11 +114,11 @@ const PoolExplore = () => {
                     [key: string]: any;
                 };
                 data.pools.map((pool: any) => {
-                    pool.tokens.map((token: any) => {
+                    pool.tokens.map((token: any, index: number) => {
                         const address = ethers.utils.getAddress(token.address);
                         token.color = tokenInfo[address]
                             ? tokenInfo[address]["color"]
-                            : "#7ada6a";
+                            : unknownColors[index];
                         return token;
                     });
                     return pool;
@@ -140,14 +141,26 @@ const PoolExplore = () => {
                     <div className="bg-gradient-to-r from-transparent to-purple-primary h-px mb-4"></div>
                 </section>
                 <section>
-                    <div className="rounded mt-4 bg-blue-primary px-8 pt-10 pb-20 rounded-lg">
+                    <div className="rounded mt-4 bg-blue-primary px-3 pt-10 pb-36 rounded-lg md:px-8">
                         <div className="flex items-center px-4 py-3 text-right bg-purple-second bg-opacity-10 rounded-lg">
-                            <div className="text-left w-1/12">Pool address</div>
-                            <div className="flex-auto text-left">Asset</div>
-                            <div className="w-1/12">Swap fee</div>
-                            <div className="w-1/12">Market cap</div>
-                            <div className="w-1/12">My liquidity</div>
-                            <div className="w-1/12">Volume (24h)</div>
+                            <div className="text-left md:w-1/12">
+                                Pool address
+                            </div>
+                            <div className="flex-auto text-center md:text-left md:pl-4">
+                                Asset
+                            </div>
+                            <div className="w-1/12 hidden md:inline md:text-center">
+                                Swap fee
+                            </div>
+                            <div className="w-1/12 hidden md:inline">
+                                Market cap
+                            </div>
+                            <div className="w-1/12 hidden md:inline">
+                                My liquidity
+                            </div>
+                            <div className="w-1/12 hidden md:inline">
+                                Volume (24h)
+                            </div>
                         </div>
                         {pools.map((item, index) => {
                             return (
@@ -158,8 +171,8 @@ const PoolExplore = () => {
                                         navigate(`/pool/${item.id}/manage`);
                                     }}
                                 >
-                                    <div className="px-4 py-4 flex text-right">
-                                        <div className="text-left w-1/12">
+                                    <div className="px-4 py-4 flex text-right justify-around items-center gap-x-4">
+                                        <div className="text-left w-2/5 md:w-1/12">
                                             {truncateAddress(item.id)}
                                         </div>
                                         <div className="flex flex-auto gap-x-2 items-center text-left">
@@ -167,31 +180,34 @@ const PoolExplore = () => {
                                                 size={34}
                                                 values={item.tokens}
                                             />
-                                            <span>
-                                                {" "}
-                                                {parseFloat(
-                                                    item.tokens[0].denormWeight
-                                                ).toFixed(1)}{" "}
-                                                % {item.tokens[0].symbol}{" "}
-                                            </span>
-                                            <span>
-                                                {" "}
-                                                {parseFloat(
-                                                    item.tokens[1].denormWeight
-                                                ).toFixed(1)}{" "}
-                                                % {item.tokens[1].symbol}{" "}
-                                            </span>
+                                            {item.tokens.map(
+                                                (token: any, index: number) => {
+                                                    return (
+                                                        <span key={index}>
+                                                            {" "}
+                                                            {parseFloat(
+                                                                token.denormWeight
+                                                            ).toFixed(1)}{" "}
+                                                            %{" "}
+                                                            {
+                                                                item.tokens[0]
+                                                                    .symbol
+                                                            }{" "}
+                                                        </span>
+                                                    );
+                                                }
+                                            )}
                                         </div>
-                                        <div className="w-1/12">
+                                        <div className="w-1/12 text-right hidden md:inline">
                                             {item.swapFee * 100} %
                                         </div>
-                                        <div className="w-1/12">
+                                        <div className="w-1/12 hidden md:inline">
                                             $ {item.market}
                                         </div>
-                                        <div className="w-1/12">
+                                        <div className="w-1/12 hidden md:inline">
                                             $ {item.liquidity}
                                         </div>
-                                        <div className="w-1/12">
+                                        <div className="w-1/12 hidden md:inline">
                                             $ {item.market}
                                         </div>
                                     </div>

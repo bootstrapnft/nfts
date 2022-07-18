@@ -15,12 +15,14 @@ import { ethers } from "ethers/lib.esm";
 import { toast } from "react-toastify";
 import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
 import { useWalletSelect } from "@/context/connect-wallet";
+import Basket from "@/pages/vault/basket";
 
 const VaultSwap = () => {
     const params = useParams();
     const [, setLoading] = useLoading();
     const [, setIsOpen] = useWalletSelect();
     const { library, account, active } = useWeb3React();
+    const [showSidebar, setShowSidebar] = useState(false);
     const [assetAddress, setAssetAddress] = useState("");
     const [mints, setMints] = useState<any[]>([]);
     const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
@@ -257,6 +259,53 @@ const VaultSwap = () => {
                             ownerNFTs.length > 0 ? ownerNFTs[0].image : ""
                         }
                     />
+                    <div className="md:hidden">
+                        <nav
+                            className="mx-3 mt-6 sm:mx-6 rounded-2xl border dark:border-gray-600
+                            dark:bg-gray-800 flex p-1 space-x-1"
+                        >
+                            <button
+                                className={`inline-flex items-center justify-center outline-none font-medium rounded-md
+                                break-word py-2.5 px-4 bg-transparent border border-blue-primary text-white
+                                bg-opacity-80 flex-1 rounded-xl ${
+                                    swapSwitchType === "from"
+                                        ? "bg-purple-primary"
+                                        : ""
+                                }`}
+                                onClick={() => {
+                                    setSwapSwitchType("from");
+                                }}
+                            >
+                                <div>
+                                    <b>Swap from</b>
+                                    <br />
+                                    <span className="text-xs opacity-70 font-bold">
+                                        Select assets to swap
+                                    </span>
+                                </div>
+                            </button>
+                            <button
+                                className={`inline-flex items-center justify-center outline-none font-medium rounded-md
+                                break-word py-2.5 px-4 bg-transparent border border-blue-primary text-white
+                                bg-opacity-80 flex-1 rounded-xl ${
+                                    swapSwitchType === "to"
+                                        ? "bg-purple-primary"
+                                        : ""
+                                }`}
+                                onClick={() => {
+                                    setSwapSwitchType("to");
+                                }}
+                            >
+                                <div>
+                                    <b>Swap to</b>
+                                    <br />
+                                    <span className="text-xs opacity-70 font-bold">
+                                        Select assets to receive
+                                    </span>
+                                </div>
+                            </button>
+                        </nav>
+                    </div>
                     <div className="dark:bg-gray-700">
                         <div className="px-3 py-6 sm:px-6">
                             <div className="mb-2 text-sm flex items-center justify-between">
@@ -265,8 +314,8 @@ const VaultSwap = () => {
                         </div>
                     </div>
                     <div
-                        className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
-                 3xl:grid-cols-7 sm:gap-4 gap-2"
+                        className="p-6 pb-32 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
+                            3xl:grid-cols-7 sm:gap-4 gap-2 md:pb-3"
                     >
                         {swapSwitchType === "from" &&
                             ownerNFTs.map((item, index) => (
@@ -300,28 +349,45 @@ const VaultSwap = () => {
                         </button>
                     )}
                 </section>
-                <aside className="flex-none w-full h-max md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second bg-blue-primary">
-                    <div className="md:block md:sticky md:top-18 hidden">
-                        <div className="block p-6 sm:p-10 md:p-6 md:mb-8">
+                <aside className="flex-none w-full h-max md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
+                    <div
+                        className={`md:block md:sticky md:top-18 overflow-y-scroll hide-scroll hidden fixed z-30 h-screen
+                        w-full bottom-0 bg-blue-primary bg-opacity-80 flex flex-col lg:h-[380px] ${
+                            showSidebar ? "!flex" : ""
+                        }`}
+                    >
+                        <div
+                            className="z-20 cursor-pointer top-4 left-0 right-0 flex flex-1 justify-center
+                            md:hidden mt-auto mb-auto"
+                            onClick={() => {
+                                console.log("click close sidebar");
+                                setShowSidebar(false);
+                            }}
+                        >
+                            <img src={close} className="w-6 h-6" alt="" />
+                        </div>
+
+                        <div className="block p-6 sm:p-10 md:p-6 md:mb-8 bg-blue-primary">
                             <header className="flex justify-between items-center mb-6 relative">
                                 <h3 className="font-bold text-lg">
                                     Swap assets
                                 </h3>
                             </header>
                             <div
-                                className={`w-full text-left rounded-t-lg pb-4 pt-2 border border-b-0 border-gray-600 
-                      ${
-                          swapSwitchType === "from"
-                              ? "bg-purple-primary border-purple-primary bg-opacity-60"
-                              : "bg-gray-700"
-                      }`}
+                                className={`w-full text-left rounded-t-lg pb-4 pt-2 border border-b-0 
+                                border-gray-600 ${
+                                    swapSwitchType === "from"
+                                        ? "bg-purple-primary border-purple-primary bg-opacity-60"
+                                        : "bg-gray-700"
+                                }`}
                             >
                                 {selectFromIds.length === 0 && (
                                     <div
                                         className="w-full text-left p-3 cursor-default text-purple-second"
-                                        onClick={() =>
-                                            setSwapSwitchType("from")
-                                        }
+                                        onClick={() => {
+                                            setSwapSwitchType("from");
+                                            setShowSidebar(false);
+                                        }}
                                     >
                                         <h4 className="text-lg dark:text-white">
                                             Swap from
@@ -332,9 +398,10 @@ const VaultSwap = () => {
                                         {swapSwitchType === "to" && (
                                             <button
                                                 className="inline-flex items-center justify-center
-                            outline-none font-medium rounded-md
-                            break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
-                            py-2 px-3 text-sm bg-white text-gray-900 hover:bg-gray-100 focus:ring-gray-300 mt-4"
+                                                    outline-none font-medium rounded-md break-word hover:outline
+                                                    focus:outline-none focus:ring-1 focus:ring-opacity-75
+                                                    py-2 px-3 text-sm bg-white text-gray-900 hover:bg-gray-100
+                                                    focus:ring-gray-300 mt-4"
                                             >
                                                 Select assets
                                             </button>
@@ -350,11 +417,12 @@ const VaultSwap = () => {
                                             {swapSwitchType === "to" && (
                                                 <button
                                                     className="px-4 border border-purple-primary text-sm rounded hover:bg-purple-primary"
-                                                    onClick={() =>
+                                                    onClick={() => {
                                                         setSwapSwitchType(
                                                             "from"
-                                                        )
-                                                    }
+                                                        );
+                                                        setShowSidebar(false);
+                                                    }}
                                                 >
                                                     Change
                                                 </button>
@@ -379,7 +447,7 @@ const VaultSwap = () => {
                                                                     item.imageUrl
                                                                 }
                                                                 className="w-8 h-8 object-cover flex-none rounded-md"
-                                                                alt="CRYPTOPUNKS"
+                                                                alt="nfts"
                                                             />
                                                             <div className="flex-1 ml-2 overflow-hidden">
                                                                 <h4 className="text-sm font-bold leading-tight">
@@ -435,7 +503,10 @@ const VaultSwap = () => {
                                 {selectReceiveIds.length === 0 && (
                                     <div
                                         className="w-full text-left p-3 cursor-default text-purple-second"
-                                        onClick={() => setSwapSwitchType("to")}
+                                        onClick={() => {
+                                            setSwapSwitchType("to");
+                                            setShowSidebar(false);
+                                        }}
                                     >
                                         <h4 className="text-lg dark:text-white">
                                             Swap to
@@ -445,9 +516,10 @@ const VaultSwap = () => {
                                         </p>
                                         {swapSwitchType === "from" && (
                                             <button
-                                                className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                            break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75
-                            py-2 px-3 text-sm bg-white text-gray-900 hover:bg-gray-100 focus:ring-gray-300 mt-4"
+                                                className="inline-flex items-center justify-center outline-none
+                                                font-medium rounded-md break-word hover:outline focus:outline-none
+                                                focus:ring-1 focus:ring-opacity-75 py-2 px-3 text-sm bg-white
+                                                text-gray-900 hover:bg-gray-100 focus:ring-gray-300 mt-4"
                                             >
                                                 Select assets
                                             </button>
@@ -463,9 +535,10 @@ const VaultSwap = () => {
                                             {swapSwitchType === "from" && (
                                                 <button
                                                     className="px-4 border border-purple-primary text-sm rounded hover:bg-purple-primary"
-                                                    onClick={() =>
-                                                        setSwapSwitchType("to")
-                                                    }
+                                                    onClick={() => {
+                                                        setSwapSwitchType("to");
+                                                        setShowSidebar(false);
+                                                    }}
                                                 >
                                                     Change
                                                 </button>
@@ -490,7 +563,7 @@ const VaultSwap = () => {
                                                                     item.imageUrl
                                                                 }
                                                                 className="w-8 h-8 object-cover flex-none rounded-md"
-                                                                alt="CRYPTOPUNKS"
+                                                                alt="nfts"
                                                             />
                                                             <div className="flex-1 ml-2 overflow-hidden">
                                                                 <h4 className="text-sm font-bold leading-tight">
@@ -537,6 +610,17 @@ const VaultSwap = () => {
                         </div>
                     </div>
                 </aside>
+                {(selectFromIds.length > 0 || selectReceiveIds.length > 0) &&
+                    !showSidebar && (
+                        <Basket
+                            count={
+                                swapSwitchType === "from"
+                                    ? selectFromIds.length
+                                    : selectReceiveIds.length
+                            }
+                            onClick={() => setShowSidebar(true)}
+                        />
+                    )}
             </main>
         </Fragment>
     );

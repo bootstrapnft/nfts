@@ -112,9 +112,10 @@ const Header = () => {
                         <div className="relative inline-flex group">
                             <button
                                 className="inline-flex items-center justify-center outline-none font-medium rounded-md
-                  break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5 px-4
-                  bg-transparent dark:text-white text-lm-gray-900 border border-transparent hover:border-opacity-50
-                   hidden lg:inline-flex lg:hover:bg-transparent lg:focus:ring-0 text-purple-primary"
+                                  break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5
+                                  px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
+                                  hover:border-opacity-50 hidden lg:inline-flex lg:hover:bg-transparent
+                                  lg:focus:ring-0 text-purple-primary"
                             >
                                 Shop
                                 <span className="text-center transform ml-2">

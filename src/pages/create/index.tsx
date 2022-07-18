@@ -84,7 +84,7 @@ const Create = () => {
 
     return (
         <Fragment>
-            <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 py-12">
+            <main className="flex-1 flex flex-col px-4 xl:px-8 lg:py-12 pb-24">
                 <div className="mx-auto my-10 max-w-lg w-full">
                     {active && (
                         <div

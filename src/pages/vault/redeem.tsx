@@ -13,12 +13,14 @@ import { getNFTInfo } from "@/util/nfts";
 import { gql, request } from "graphql-request";
 import config from "@/config";
 import { useWalletSelect } from "@/context/connect-wallet";
+import Basket from "@/pages/vault/basket";
 
 const VaultRedeem = () => {
     const params = useParams();
     const [, setLoading] = useLoading();
     const [, setIsOpen] = useWalletSelect();
     const { library, account, active } = useWeb3React();
+    const [showSidebar, setShowSidebar] = useState(false);
     const [balance, setBalance] = useState("0");
     const [assetAddress, setAssetAddress] = useState("");
     const [allHolding, setAllHolding] = useState<number[]>([]);
@@ -177,8 +179,8 @@ const VaultRedeem = () => {
                         </div>
                     </div>
                     <div
-                        className="pb-6 px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
-                            3xl:grid-cols-7 sm:gap-4 gap-2 "
+                        className="pb-32 px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
+                            3xl:grid-cols-7 sm:gap-4 gap-2 md:pb-6 "
                     >
                         {ownerNFTs.map((item, index) => (
                             <VaultCard
@@ -190,18 +192,23 @@ const VaultRedeem = () => {
                         ))}
                     </div>
                 </section>
-                <aside
-                    className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second
-                    bg-blue-primary"
-                >
+                <aside className="flex-none w-full md:w-1/3 md:max-w-xs 2xl:max-w-sm z-20 text-purple-second">
                     <div
-                        className="md:block md:sticky md:top-18 overflow-y-scroll hide-scroll hidden fixed z-30 h-full w-full bottom-0
-                         bg-blue-primary bg-opacity-80 flex flex-col"
+                        className={`md:block md:sticky md:top-18 overflow-y-scroll hide-scroll hidden fixed z-30 h-screen
+                        w-full bottom-0 bg-blue-primary bg-opacity-80 flex flex-col lg:h-[380px] ${
+                            showSidebar ? "!flex" : ""
+                        }`}
                     >
                         <div
-                            className="z-20 cursor-pointer top-4 left-0 right-0 flex justify-center
+                            className="z-20 cursor-pointer top-4 left-0 right-0 flex flex-1 justify-center
                             md:hidden mt-auto mb-auto"
-                        ></div>
+                            onClick={() => {
+                                console.log("click close sidebar");
+                                setShowSidebar(false);
+                            }}
+                        >
+                            <img src={close} className="w-6 h-6" alt="" />
+                        </div>
                         <div className="overflow-y-scroll hide-scroll max-h-3/4-screen block p-6 sm:p-10 md:p-6 md:mb-8 bg-blue-primary">
                             {selectRedeemIds.length === 0 && (
                                 <div>
@@ -323,6 +330,12 @@ const VaultRedeem = () => {
                         </div>
                     </div>
                 </aside>
+                {selectRedeemIds.length > 0 && !showSidebar && (
+                    <Basket
+                        count={selectRedeemIds.length}
+                        onClick={() => setShowSidebar(true)}
+                    />
+                )}
             </main>
         </Fragment>
     );

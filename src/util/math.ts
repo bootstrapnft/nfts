@@ -139,7 +139,7 @@ function bpowApprox(
         // Test case: Remove Liquidity, single asset, poolAmountIn >> max
         // Should be halted before calling this, but...
         // Retain this halt after a max iteration limit as a backstop/failsafe
-        if (LOOP_LIMIT == idx) {
+        if (LOOP_LIMIT === idx) {
             break;
         }
 

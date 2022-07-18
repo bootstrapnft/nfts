@@ -1,8 +1,4 @@
-import { getAddress } from "@ethersproject/address";
 import { MaxUint256 } from "@ethersproject/constants";
-import { Contract } from "@ethersproject/contracts";
-import { Provider } from "@ethersproject/providers";
-import { Wallet } from "@ethersproject/wallet";
 import BigNumber from "@/util/bignumber";
 
 export const ITEMS_PER_PAGE = 20;
@@ -19,14 +15,14 @@ export const amplAddress = "0xD46bA6D942050d489DBd938a2C909A5d5039A161";
 export const validAmplPools = ["0xa751a143f8fe0a108800bfb915585e4255c2fe80"];
 
 export const unknownColors = [
+    "#7ada6a",
+    "#8d4f8d",
+    "#6ddbfd",
+    "#9d8eff",
+    "#faa788",
     "#5d6872",
     "#7e9e99",
-    "#9d9f7f",
-    "#68aca9",
-    "#a593a5",
-    "#387080",
-    "#c7bdf4",
-    "#c28d75",
+    "#f5fd84",
 ];
 
 export function shortenAddress(str = "") {

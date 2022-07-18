@@ -69,9 +69,6 @@ const PoolCreate = () => {
                 const selectTokens = res.slice(0, 2);
                 setSelectTokens(selectTokens);
             });
-            await tokenListBalance(tokensInfo, account!).then((res) => {
-                setTokensBalance(res);
-            });
             await getProxyAddress();
             setLoading(false);
         })();
@@ -111,6 +108,10 @@ const PoolCreate = () => {
 
     useEffect(() => {
         console.log("set weight");
+        tokenListBalance(tokensInfo, account!).then((res) => {
+            console.log("token list balance", res);
+            setTokensBalance(res);
+        });
         selectTokens.forEach((token: any, index) => {
             if (!weights[token.id]) {
                 weights[token.id] = index === 0 ? 10 : 40;
@@ -127,12 +128,11 @@ const PoolCreate = () => {
 
     useEffect(() => {
         (async () => {
-            if (
-                tokensInfo === [] ||
-                proxyAddress === "" ||
-                tokensAllowance !== []
-            ) {
+            if (tokensInfo === [] || proxyAddress === "") {
                 return;
+            }
+            if (tokensAllowance !== []) {
+                setTokensAllowance({ ...tokensAllowance });
             }
             await tokenListAllowance(tokensInfo, account!, proxyAddress).then(
                 (res) => {
@@ -227,10 +227,10 @@ const PoolCreate = () => {
     };
 
     const checkApprove = () => {
+        console.log("checkApprove----", proxyAddress, tokensAllowance);
         if (Object.keys(tokensAllowance).length === 0) {
             return;
         }
-        console.log("checkApprove----", proxyAddress);
         const unApproveToken: any[] = [];
         selectTokens.forEach((token: any) => {
             if (!tokensAllowance[token.id]) {

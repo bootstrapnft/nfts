@@ -21,8 +21,8 @@ const VaultMint = () => {
     const params = useParams();
     const [, setLoading] = useLoading();
     const [, setIsOpen] = useWalletSelect();
-    const [showSidebar, setShowSidebar] = useState(false);
     const { library, account, active } = useWeb3React();
+    const [showSidebar, setShowSidebar] = useState(false);
     const { address: assetAddress } = useAssetAddress(params.address!);
     const [ownerNFTIds, setOwnerNFTIds] = useState<number[]>([]);
     const [ownerNFTs, setOwnerNFTs] = useState<{ [key: string]: any }[]>([]);
@@ -177,7 +177,7 @@ const VaultMint = () => {
                         }
                     />
                     {ownerNFTs.length > 0 && (
-                        <div className="dark:bg-gray-700">
+                        <div>
                             <div className="px-3 py-6 sm:px-6">
                                 <div className="mb-2 text-sm flex items-center justify-between">
                                     {ownerNFTs.length} items
@@ -186,8 +186,8 @@ const VaultMint = () => {
                         </div>
                     )}
                     <div
-                        className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
-                    3xl:grid-cols-7 sm:gap-4 gap-2"
+                        className="p-6 pb-32 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
+                            3xl:grid-cols-7 sm:gap-4 gap-2 md:pb-2"
                     >
                         {ownerNFTs.map((item, index) => (
                             <VaultCard
@@ -345,10 +345,12 @@ const VaultMint = () => {
                         </div>
                     </div>
                 </aside>
-                <Basket
-                    count={selectMintIds.length}
-                    onClick={() => setShowSidebar(true)}
-                />
+                {selectMintIds.length > 0 && !showSidebar && (
+                    <Basket
+                        count={selectMintIds.length}
+                        onClick={() => setShowSidebar(true)}
+                    />
+                )}
             </main>
         </Fragment>
     );

@@ -11,7 +11,7 @@ const Footer = () => {
         },
         {
             name: "Fractionalize",
-            uri: "/",
+            uri: "/vault/create",
         },
         {
             name: "Auction",
@@ -23,7 +23,7 @@ const Footer = () => {
         },
         {
             name: "Swap",
-            uri: "/swap",
+            uri: "/pool/swap",
         },
         {
             name: "Activity",

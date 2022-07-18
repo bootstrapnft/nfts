@@ -34,6 +34,7 @@ export const tokenListInfo = async () => {
                     symbol: token.symbol,
                 };
                 tokenInfo.push(temp);
+                return "";
             });
         })
         .catch((err) => {});
@@ -43,6 +44,7 @@ export const tokenListInfo = async () => {
 };
 
 export const tokenListBalance = async (tokens: any[], account: string) => {
+    console.log("tokenListBalance: ", tokens, account);
     if (tokens.length < 1 || account === "") {
         return [];
     }
