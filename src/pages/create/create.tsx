@@ -23,7 +23,7 @@ const CreateForm = ({
                 <b>Note:</b> Fees and eligibilities can be set after vault
                 creation, but the name and symbol cannot. Please consult our
                 <a
-                    href="https://docs.nftx.io/tutorials/vault-creation"
+                    href="https://docs.bootstrapnft.org"
                     target="_blank"
                     className="underline hover:no-underline"
                     rel="noopener noreferrer"
@@ -33,7 +33,7 @@ const CreateForm = ({
                 for details, and if you have any questions or concerns, please
                 reach out to us in
                 <a
-                    href="https://discord.com/invite/hytQVM5ZxR"
+                    href="https://discord.com/invite/cqduK4ZNaY"
                     target="_blank"
                     className="underline hover:no-underline"
                     rel="noopener noreferrer"

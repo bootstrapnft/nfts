@@ -2,10 +2,9 @@ import config from "@/config";
 import { getPublicVaults } from "@/util/vault";
 import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
+import BigNumber from "bignumber.js";
 
-const provider = new ethers.providers.JsonRpcProvider(
-    "https://rpc-mumbai.maticvigil.com/v1/c1947560c824b65dcc8774279fe1225b3c835d35"
-);
+const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 
 export const tokenListInfo = async () => {
     const tokens = config.tokens as unknown as {
@@ -53,10 +52,11 @@ export const tokenListBalance = async (tokens: any[], account: string) => {
         tokens.map(async (token: any) => {
             await getBalance(token, account)
                 .then((balance: any) => {
-                    balances[token.address] = ethers.utils.formatUnits(
-                        balance,
-                        token.decimals
-                    );
+                    balances[token.address] = new BigNumber(
+                        ethers.utils.formatUnits(balance, token.decimals)
+                    )
+                        .toFixed(3)
+                        .toString();
                 })
                 .catch((err: any) => {
                     console.log("getBalance err", err);
@@ -109,7 +109,7 @@ export const getTokensPrice = async (tokens: any[]) => {
     const data = await response.json();
     console.log("tokens utils get price:", data);
     const temp = tokens.map((token: any) => {
-        token.price = data[token.id] ? data[token.id].usd : 0;
+        token.price = data[token.id] ? data[token.id].usd : 0.1;
         return token;
     });
     return temp;

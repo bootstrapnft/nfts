@@ -418,8 +418,8 @@ const PoolCreate = () => {
     };
 
     const changeAmount = (val: string, changeToken: any) => {
-        let value = val === "" ? 0 : parseInt(val);
-        if (value <= 0) {
+        let value = val === "" ? 0 : parseFloat(val);
+        if (value < 0) {
             return;
         }
         console.log("tokenAmount", value);
@@ -587,7 +587,8 @@ const PoolCreate = () => {
                                                   border-lm-gray-300 rounded-sm  text-gray-700 bg-white focus:outline-none
                                                   focus:border-purple-primary focus:ring-0 text-center"
                                                 type="number"
-                                                min="1"
+                                                min="0.000001"
+                                                step="0.001"
                                                 value={
                                                     tokenAmount[token.id] || 0
                                                 }
@@ -618,8 +619,10 @@ const PoolCreate = () => {
                                         </td>
                                         <td className="text-right px-4 w-1/5">
                                             ${" "}
-                                            {token.price *
-                                                tokenAmount[token.id]}
+                                            {(
+                                                token.price *
+                                                tokenAmount[token.id]
+                                            ).toFixed(3)}
                                         </td>
                                         <td className="text-right px-3">
                                             {selectTokens.length > 1 && (
