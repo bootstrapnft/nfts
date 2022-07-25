@@ -51,7 +51,7 @@ const VaultSwap = () => {
     useEffect(() => {
         if (ownerNFTIds.length > 0) {
             setLoading(true);
-            getNFTInfo(assetAddress, ownerNFTIds)
+            getNFTInfo(assetAddress, ownerNFTIds, "thumbnail")
                 .then((res) => {
                     setLoading(false);
                     setOwnerNFTs(res);
@@ -171,16 +171,18 @@ const VaultSwap = () => {
         const mints: any[] = vault.mints;
         await Promise.all(
             mints.map(async (item, index) => {
-                await getNFTInfo(address, item.nftIds).then((res) => {
-                    if (res.length > 0) {
-                        item.number = item.nftIds[0];
-                        item.image = res[0].image;
-                        item.symbolImage = res[0].image;
-                    } else {
-                        item.image = "/images/cover.png";
-                        item.symbolImage = "/images/cover.png";
+                await getNFTInfo(address, item.nftIds, "thumbnail").then(
+                    (res) => {
+                        if (res.length > 0) {
+                            item.number = item.nftIds[0];
+                            item.image = res[0].image;
+                            item.symbolImage = res[0].image;
+                        } else {
+                            item.image = "/images/cover.png";
+                            item.symbolImage = "/images/cover.png";
+                        }
                     }
-                });
+                );
                 return item;
             })
         )

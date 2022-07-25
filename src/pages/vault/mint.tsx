@@ -40,7 +40,7 @@ const VaultMint = () => {
     useEffect(() => {
         if (ownerNFTIds.length > 0) {
             setLoading(true);
-            getNFTInfo(assetAddress, ownerNFTIds)
+            getNFTInfo(assetAddress, ownerNFTIds, "thumbnail")
                 .then((res) => {
                     setLoading(false);
                     setOwnerNFTs(res);

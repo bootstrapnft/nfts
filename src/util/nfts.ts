@@ -4,9 +4,12 @@ import config from "@/config";
 
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 
+type imgType = "img" | "thumbnail";
+
 export const getNFTInfo = async (
     assetAddress: string,
-    nftIds: any[]
+    nftIds: any[],
+    type: imgType = "img"
 ): Promise<any[]> => {
     console.log("utils get nft:", assetAddress, nftIds);
 
@@ -14,7 +17,7 @@ export const getNFTInfo = async (
     await Promise.all(
         nftIds.map(async (item, index) => {
             await fetch(
-                `/metadata/cache?network=${config.network}&dataType=img&contract=${assetAddress}&nftId=${item}`
+                `/metadata/cache?network=${config.network}&dataType=${type}&contract=${assetAddress}&nftId=${item}`
             )
                 .then(async (res) => {
                     const blob = await res.blob();

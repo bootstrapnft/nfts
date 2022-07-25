@@ -41,7 +41,7 @@ const VaultRedeem = () => {
     useEffect(() => {
         if (allHolding.length > 0 && assetAddress) {
             setLoading(true);
-            getNFTInfo(assetAddress, allHolding)
+            getNFTInfo(assetAddress, allHolding, "thumbnail")
                 .then((res) => {
                     setLoading(false);
                     setOwnerNFTs(res);

@@ -59,7 +59,7 @@ const VaultManage = () => {
     useEffect(() => {
         if (ownerNFTIds) {
             setLoading(true);
-            getNFTInfo(assetAddress, ownerNFTIds)
+            getNFTInfo(assetAddress, ownerNFTIds, "thumbnail")
                 .then((res) => {
                     setLoading(false);
                     setOwnerNFTs(res);
