@@ -4,7 +4,7 @@ const Pie = ({ size, values }: any) => {
         (a: any, b: any) => a + parseFloat(b.denormWeight),
         0
     );
-    console.log("values", values, dataTotal);
+
     let startingPoint = 0;
     const dataObjects = values.map((item: any) => {
         const relativeSize =

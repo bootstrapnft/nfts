@@ -188,11 +188,7 @@ const PoolExplore = () => {
                                                             {parseFloat(
                                                                 token.denormWeight
                                                             ).toFixed(1)}{" "}
-                                                            %{" "}
-                                                            {
-                                                                item.tokens[0]
-                                                                    .symbol
-                                                            }{" "}
+                                                            % {token.symbol}{" "}
                                                         </span>
                                                     );
                                                 }
