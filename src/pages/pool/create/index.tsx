@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import arrowLeft from "@/assets/icon/arrow-down.svg";
 import close from "@/assets/icon/close.svg";
+import caution from "@/assets/icon/caution.svg";
 import SelectToken from "@/pages/pool/component/select-token";
 import config from "@/config";
 import { useWeb3React } from "@web3-react/core";
@@ -488,6 +489,48 @@ const PoolCreate = () => {
         });
     };
 
+    const validationError = () => {
+        if (selectTokens.length < 2) {
+            return "Pool should contain at least 2 tokens";
+        }
+
+        let weightError = "";
+        selectTokens.forEach((token: any) => {
+            if (!weights[token.id]) {
+                weightError = "Token Weight can't be empty";
+                return;
+            }
+        });
+        if (weightError !== "") {
+            return weightError;
+        }
+
+        let amountError = "";
+        selectTokens.forEach((token: any) => {
+            if (parseFloat(tokenAmount[token.id]) <= 0) {
+                amountError = "Token Amount can't be empty";
+                return;
+            }
+        });
+        if (amountError !== "") {
+            return amountError;
+        }
+
+        if (swapFees <= 0) {
+            return "Swap Fees can't be empty and should be a positive number";
+        }
+
+        if (tokenSymbol === "") {
+            return "Pool Token Symbol can't be empty";
+        }
+
+        if (tokenName === "") {
+            return "Pool Token Name can't be empty";
+        }
+
+        return "";
+    };
+
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 pt-12 pb-28 text-purple-second">
@@ -845,11 +888,22 @@ const PoolCreate = () => {
                             )}
                         </div>
 
+                        {validationError() && (
+                            <div
+                                className="flex items-center gap-x-4 p-2 mt-6 border border-[#EC4E6E] max-w-max
+                                rounded-md text-[#EC4E6E]"
+                            >
+                                <img src={caution} alt="" width={16} />
+                                <span>{validationError()}</span>
+                            </div>
+                        )}
+
                         <div className="pt-5 pb-28">
                             {stepType === "SetProxy" && (
                                 <button
                                     className="btn-primary px-4 py-3"
                                     onClick={setupProxy}
+                                    disabled={validationError() !== ""}
                                 >
                                     Setup Proxy
                                 </button>
@@ -861,6 +915,7 @@ const PoolCreate = () => {
                                         onClick={() =>
                                             approve(approveTokens[0])
                                         }
+                                        disabled={validationError() !== ""}
                                     >
                                         Approve {approveTokens[0].name}
                                     </button>
@@ -869,6 +924,7 @@ const PoolCreate = () => {
                                 <button
                                     className="btn-primary px-4 py-3"
                                     onClick={createPool}
+                                    disabled={validationError() !== ""}
                                 >
                                     Create
                                 </button>
