@@ -20,6 +20,7 @@ import DSProxyABI from "@/contract/pool/DSProxy.json";
 import { useLoading } from "@/context/loading";
 import { calcPoolOutGivenSingleIn } from "@/util/math";
 import { toast } from "react-toastify";
+import caution from "@/assets/icon/caution.svg";
 
 const Liquidity = ({
     proxyAddress,
@@ -310,6 +311,22 @@ const Liquidity = ({
         }
     };
 
+    const validationError = () => {
+        let amountError = "";
+        if (Object.keys(amounts).length === 0) {
+            amountError = "Amount can't be empty";
+            return amountError;
+        }
+
+        Object.keys(amounts).forEach((key: any) => {
+            if (amounts[key] < 0) {
+                amountError = "Amount should be a positive number";
+                return;
+            }
+        });
+        return amountError;
+    };
+
     return (
         <Fragment>
             <Transition appear show={true}>
@@ -539,10 +556,26 @@ const Liquidity = ({
                                                 )}
                                             </div>
                                         </div>
+                                        {validationError() && (
+                                            <div
+                                                className="flex items-center mx-auto gap-x-4 p-2 mt-6 border
+                                                border-[#EC4E6E] max-w-max rounded-md text-[#EC4E6E]"
+                                            >
+                                                <img
+                                                    src={caution}
+                                                    alt=""
+                                                    width={16}
+                                                />
+                                                <span>{validationError()}</span>
+                                            </div>
+                                        )}
                                         <div className="mx-auto w-max mt-4">
                                             <button
                                                 className="btn-primary"
                                                 onClick={changeAmount}
+                                                disabled={
+                                                    validationError() !== ""
+                                                }
                                             >
                                                 Add Liquidity
                                             </button>

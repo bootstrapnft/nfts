@@ -17,6 +17,7 @@ import {
 import { calcSingleOutGivenPoolIn } from "@/util/math";
 import { BigNumber } from "bignumber.js";
 import { toast } from "react-toastify";
+import caution from "@/assets/icon/caution.svg";
 
 const RemoveLiquidity = ({
     proxyAddress,
@@ -208,6 +209,18 @@ const RemoveLiquidity = ({
             setLoading(false);
             toast.error("Error removing liquidity");
         }
+    };
+
+    const validationError = () => {
+        if (parseFloat(removeAmount) === 0) {
+            return "Amount can't be empty";
+        }
+
+        if (parseFloat(removeAmount) < 0) {
+            return "Amount should be a positive number";
+        }
+
+        return "";
     };
 
     return (
@@ -430,10 +443,26 @@ const RemoveLiquidity = ({
                                                 )}
                                             </div>
                                         </div>
+                                        {validationError() && (
+                                            <div
+                                                className="flex items-center mx-auto gap-x-4 p-2 mt-6 border
+                                                border-[#EC4E6E] max-w-max rounded-md text-[#EC4E6E]"
+                                            >
+                                                <img
+                                                    src={caution}
+                                                    alt=""
+                                                    width={16}
+                                                />
+                                                <span>{validationError()}</span>
+                                            </div>
+                                        )}
                                         <div className="mx-auto w-max mt-4">
                                             <button
                                                 className="btn-primary"
                                                 onClick={changeAmount}
+                                                disabled={
+                                                    validationError() !== ""
+                                                }
                                             >
                                                 Remove Liquidity
                                             </button>

@@ -451,7 +451,7 @@ const PoolManage = () => {
                         </div>
 
                         <div className="bg-blue-primary rounded-lg h-32 w-1/5 flex justify-center items-center flex-col">
-                            <h1 className="font-bold text-2xl">$134.2M</h1>
+                            <h1 className="font-bold text-2xl">$ 0</h1>
                             <h3>Volume (24h)</h3>
                         </div>
 
@@ -615,8 +615,8 @@ const PoolManage = () => {
                                                                 %
                                                             </td>
                                                             <td className="text-right px-4">
-                                                                {token.balance >
-                                                                0
+                                                                {token.balance !=
+                                                                ""
                                                                     ? parseFloat(
                                                                           token.balance
                                                                       ).toFixed(
@@ -625,7 +625,14 @@ const PoolManage = () => {
                                                                     : "-"}
                                                             </td>
                                                             <td className="text-right px-4">
-                                                                -
+                                                                {token.balance !=
+                                                                ""
+                                                                    ? parseFloat(
+                                                                          token.balance
+                                                                      ).toFixed(
+                                                                          4
+                                                                      )
+                                                                    : "-"}
                                                             </td>
                                                             <td className="text-right pr-4">
                                                                 0

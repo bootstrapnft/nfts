@@ -66,7 +66,11 @@ const SwapFee = ({ proxyAddress, controller, fee, close }: any) => {
                     </dt>
                     <dd>
                         <input
-                            className="input-second w-2/3 mt-3"
+                            className={`input-second w-2/3 mt-3 ${
+                                swapFees < 0
+                                    ? "border-red-500 text-red-500"
+                                    : ""
+                            }`}
                             value={swapFees}
                             type="number"
                             step="0.0001"
@@ -91,7 +95,7 @@ const SwapFee = ({ proxyAddress, controller, fee, close }: any) => {
                     </button>
                     <button
                         className="btn-primary"
-                        disabled={fee === swapFees}
+                        disabled={fee === swapFees || swapFees < 0}
                         onClick={changeSwapFee}
                     >
                         Confirm
