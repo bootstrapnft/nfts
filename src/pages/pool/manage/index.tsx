@@ -22,6 +22,7 @@ import ERC20ABI from "@/contract/ERC20.json";
 import GradualWeight from "@/pages/pool/manage/gradual-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
 import BigNumber from "bignumber.js";
+import { getTokensPrice } from "@/util/tokens";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -39,6 +40,7 @@ const PoolManage = () => {
     const [swaps, setSwaps] = useState<any[]>([]);
     const [poolBalance, setPoolBalance] = useState("0");
     const [proxyAddress, setProxyAddress] = useState("");
+    const [totalLiquidity, setTotalLiquidity] = useState(0);
     const [infoBtn, setInfoBtn] = useState<InfoBtn>(InfoBtn.Balance);
     const [openLiquidity, setOpenLiquidity] = useState(false);
     const [openRemoveLiquidity, setOpenRemoveLiquidity] = useState(false);
@@ -95,6 +97,14 @@ const PoolManage = () => {
                 .catch((err) => {
                     console.log("get tokens balance err", err);
                 });
+
+            const tokens = pool.tokens.map((token: any) => {
+                token.id = token.symbol.toLowerCase();
+                return token;
+            });
+            getTokensPrice(tokens).then((res) => {
+                getPoolLiquidity(res);
+            });
         }
     }, [pool, active]);
 
@@ -296,24 +306,27 @@ const PoolManage = () => {
         });
     };
 
-    const getPoolLiquidity = (pool: any, prices: any) => {
+    const getPoolLiquidity = (tokens: any) => {
         let sumWeight = new BigNumber(0);
         let sumValue = new BigNumber(0);
-        for (const token of pool.tokens) {
-            const price = prices[token.address];
+
+        for (const token of tokens) {
+            const price = token.price;
             if (!price) {
                 continue;
             }
             const balanceNumber = new BigNumber(token.balance);
             const value = balanceNumber.times(price);
             sumValue = sumValue.plus(value);
-            sumWeight = sumWeight.plus(token.weightPercent / 100);
+            sumWeight = sumWeight.plus(parseFloat(token.denormWeight) / 100);
         }
+        let liquidity: any = 0;
         if (sumWeight.gt(0)) {
-            return sumValue.div(sumWeight).toString();
+            liquidity = sumValue.div(sumWeight).toString();
         } else {
-            return pool.liquidity;
+            liquidity = pool.liquidity;
         }
+        setTotalLiquidity(Number(Number(liquidity).toFixed(2)));
     };
 
     const getPoolMetrics = () => {
@@ -333,15 +346,12 @@ const PoolManage = () => {
                 poolLiquidity 
              }` + "\n";
         }
-        console.log("query sql:", query);
         const querySql = gql`
             query {
                 ${query}
             }
         `;
-        request(config.subgraphUrl, querySql).then((data) => {
-            console.log("metrics query data:", data);
-        });
+        request(config.subgraphUrl, querySql).then((data) => {});
     };
 
     const normalizeMetrics = (rawMetrics: any) => {
@@ -434,7 +444,9 @@ const PoolManage = () => {
                     </header>
                     <div className="flex flex-1 justify-between flex-nowrap mt-5">
                         <div className="bg-blue-primary rounded-lg h-32 w-1/5 flex justify-center items-center flex-col">
-                            <h1 className="font-bold text-2xl">$134.2M</h1>
+                            <h1 className="font-bold text-2xl">
+                                ${totalLiquidity}
+                            </h1>
                             <h3>Liquidity</h3>
                         </div>
 
