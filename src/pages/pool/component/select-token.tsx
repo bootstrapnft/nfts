@@ -1,6 +1,6 @@
 import Modal from "@/components/modal";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
 import { unknownColors } from "@/util/utils";
@@ -12,10 +12,19 @@ const SelectToken = ({
     selectedToken,
     addNewToken,
     close,
+    excludeTokens,
 }: any) => {
     const [, setLoading] = useLoading();
     const { active, account, library } = useWeb3React();
     const [tokenList, setTokenList] = useState(tokensInfo);
+
+    useEffect(() => {
+        const tokens = tokenList.filter(
+            (token: any) => !excludeTokens.includes(token.address)
+        );
+        console.log("select tokens filter:, ", tokens);
+        setTokenList(tokens);
+    }, []);
 
     const filter = (name: string) => {
         console.log("swap search name: ", name);

@@ -940,6 +940,7 @@ const PoolCreate = () => {
                     addNewToken={addNewToken}
                     close={() => setShowSelectToken(false)}
                     selectedToken={handleSelectToken}
+                    excludeTokens={selectTokens.map((token) => token.address)}
                 />
             )}
         </Fragment>

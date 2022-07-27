@@ -977,6 +977,13 @@ const PoolSwap = () => {
                     addNewToken={addNewToken}
                     close={() => setShowSelectToken(false)}
                     selectedToken={handleSelectToken}
+                    excludeTokens={
+                        changeTokenIndex === 0
+                            ? []
+                            : changeTokenIndex === 1
+                            ? [swapToToken.address]
+                            : [swapFromToken.address]
+                    }
                 />
             )}
         </main>
