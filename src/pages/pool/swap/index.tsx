@@ -17,6 +17,7 @@ import Swapper from "@/util/swapper";
 import { useLoading } from "@/context/loading";
 import { tokenListBalance, tokenListInfo } from "@/util/tokens";
 import { useWalletSelect } from "@/context/connect-wallet";
+import { toast } from "react-toastify";
 
 let sor: SOR | undefined = undefined;
 const PoolSwap = () => {
@@ -43,6 +44,8 @@ const PoolSwap = () => {
     const [tokensBalance, setTokensBalance] = useState<{ [key: string]: any }>(
         {}
     );
+    const accountRef = useRef("");
+    const tokensList = useRef<any[]>([]);
     const balanceInterval = useRef<any>(null);
     const sorInterval = useRef<any>(null);
 
@@ -53,18 +56,22 @@ const PoolSwap = () => {
                 console.log(
                     "[SOR Interval] fetchPools",
                     assetInAddress,
-                    assetOutAddress
+                    assetOutAddress,
+                    swapFromAmount
                 );
                 await sor.fetchPools();
                 await onInAmountChange(swapFromAmount);
             }
-        }, 60 * 1000);
+        }, 20 * 1000);
 
         balanceInterval.current = setInterval(async () => {
-            tokenListBalance(tokenInfoList, account!).then((res) => {
-                setTokensBalance(res);
-            });
-        }, 60 * 1000);
+            console.log("[Balance Interval] fetchBalance");
+            tokenListBalance(tokensList.current, accountRef.current).then(
+                (res) => {
+                    setTokensBalance(res);
+                }
+            );
+        }, 20 * 1000);
 
         return () => {
             if (sorInterval.current) {
@@ -81,6 +88,7 @@ const PoolSwap = () => {
             sor = undefined;
             await tokenListInfo().then((res) => {
                 setTokenInfoList(res);
+                tokensList.current = res;
                 res.forEach((token: any) => {
                     if (
                         token.address ===
@@ -106,10 +114,11 @@ const PoolSwap = () => {
     }, []);
 
     useEffect(() => {
-        if (!active || tokenInfoList.length === 0) {
+        if (!active || !account || tokenInfoList.length === 0) {
             return;
         }
-        tokenListBalance(tokenInfoList, account!).then((res) => {
+        accountRef.current = account;
+        tokenListBalance(tokenInfoList, account).then((res) => {
             setTokensBalance(res);
         });
 
@@ -505,6 +514,7 @@ const PoolSwap = () => {
             if (transaction.code === "UNPREDICTABLE_GAS_LIMIT") {
                 console.log("warning", text);
             }
+            toast.error("swap failed");
             return;
         }
 
@@ -514,6 +524,7 @@ const PoolSwap = () => {
             transaction.hash,
             1
         );
+        toast.success("swap success");
 
         console.log(
             "saveMinedTransaction receipt:",
