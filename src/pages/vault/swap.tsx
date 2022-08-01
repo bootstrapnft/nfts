@@ -11,7 +11,7 @@ import close from "@/assets/icon/black-close.svg";
 import circleArrowDown from "@/assets/icon/circle-arrow-down.svg";
 import { gql, request } from "graphql-request";
 import config from "@/config";
-import { ethers } from "ethers/lib.esm";
+import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { getNFTInfo, getOwnerNFTIds } from "@/util/nfts";
 import { useWalletSelect } from "@/context/connect-wallet";

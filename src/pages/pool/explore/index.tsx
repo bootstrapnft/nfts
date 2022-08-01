@@ -36,6 +36,7 @@ const PoolExplore = () => {
                     publicSwap
                     finalized
                     crp
+                    cap
                     rights
                     swapFee
                     totalWeight
@@ -88,7 +89,7 @@ const PoolExplore = () => {
 
     return (
         <Fragment>
-            <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 2xl:pb-28 py-12 text-purple-second">
+            <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 2xl:pb-28 py-12 pb-36 text-purple-second">
                 <section>
                     <header>
                         <h1 className="font-bold text-3xl mb-2">
@@ -155,13 +156,13 @@ const PoolExplore = () => {
                                             {item.swapFee * 100} %
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
-                                            $ {item.market}
+                                            $ {item.cap}
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
                                             $ {item.liquidity}
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
-                                            $ {item.market}
+                                            $ {item.totalSwapVolume}
                                         </div>
                                     </div>
                                 </div>

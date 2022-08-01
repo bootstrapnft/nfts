@@ -23,7 +23,7 @@ import GradualWeight from "@/pages/pool/manage/gradual-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
 import BigNumber from "bignumber.js";
 import { getTokensPrice } from "@/util/tokens";
-import { Axis, Chart, Geom, Interval, Tooltip } from "bizcharts";
+import { Axis, Chart, Geom, Tooltip } from "bizcharts";
 import { Pagination } from "antd";
 
 const enum InfoBtn {
@@ -116,7 +116,6 @@ const PoolManage = () => {
         pool(id: "${params.address}") {
           id
           active
-          cap
           controller
           finalized
           crp
@@ -434,11 +433,10 @@ const PoolManage = () => {
                                             {pool.name} ({pool.symbol})
                                         </h3>
                                     )}
-                                    <span className="inline-block border border-emerald-primary rounded-full text-[12px] px-2">
-                                        smart pool
-                                    </span>
                                 </div>
-                                <p>$0.1277</p>
+                                <div className="inline-block border border-emerald-primary rounded-full text-[12px] px-2">
+                                    smart pool
+                                </div>
                             </div>
                         </div>
                         <div className="flex gap-x-2">
@@ -663,7 +661,7 @@ const PoolManage = () => {
                                                                 %
                                                             </td>
                                                             <td className="text-right px-4">
-                                                                {token.balance !=
+                                                                {token.balance !==
                                                                 ""
                                                                     ? parseFloat(
                                                                           token.balance
@@ -673,7 +671,7 @@ const PoolManage = () => {
                                                                     : "-"}
                                                             </td>
                                                             <td className="text-right px-4">
-                                                                {token.balance !=
+                                                                {token.balance !==
                                                                 ""
                                                                     ? parseFloat(
                                                                           token.balance

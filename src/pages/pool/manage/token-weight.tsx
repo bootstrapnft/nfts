@@ -6,7 +6,7 @@ import {
     calcPoolInGivenWeightDecrease,
     calcSingleInGivenWeightIncrease,
 } from "@/util/math";
-import { ethers } from "ethers/lib.esm";
+import { ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import BActionABI from "@/contract/pool/BAction.json";
 import DSProxyABI from "@/contract/pool/DSProxy.json";

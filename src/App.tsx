@@ -1,5 +1,5 @@
-import React, { Fragment, Suspense, useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import React, { Fragment, Suspense } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
 
@@ -88,6 +88,10 @@ const App = () => {
                                     <Route
                                         path="/pool/:address/manage"
                                         element={<PoolManage />}
+                                    />
+                                    <Route
+                                        path="*"
+                                        element={<Navigate to="/" replace />}
                                     />
                                 </Routes>
                                 <Footer />

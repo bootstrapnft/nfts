@@ -6,7 +6,7 @@ import { Contract } from "ethers";
 import VaultABI from "@/contract/Vault.json";
 import ERC721ABI from "@/contract/ERC721.json";
 import { useWeb3React } from "@web3-react/core";
-import { ethers } from "ethers/lib.esm";
+import { ethers } from "ethers";
 import { truncateAddress } from "@/util/address";
 import { useLoading } from "@/context/loading";
 import Vault from "@/contract/Vault.json";
