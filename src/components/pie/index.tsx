@@ -37,7 +37,7 @@ const Pie = ({ size, values }: any) => {
                             fill="transparent"
                             stroke={colors[index]}
                             stroke-offset={item.offset}
-                            stroke-width="10"
+                            strokeWidth="10"
                             transform="rotate(-90) translate(-20)"
                         />
                     );

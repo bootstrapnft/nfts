@@ -6,63 +6,19 @@ import { ethers } from "ethers";
 import { useNavigate } from "react-router";
 import config from "@/config";
 import { unknownColors } from "@/util/utils";
+import { Pagination } from "antd";
 
 const PoolExplore = () => {
     const navigate = useNavigate();
     const [pools, setPools] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState<any[]>([]);
 
     useEffect(() => {
         getPoolList();
     }, []);
 
     const getPoolList = async () => {
-        let query = gql`
-            {
-                pools(
-                    where: {
-                        active: true
-                        tokensCount_gt: 1
-                        crpController: "0x4Fd1A47106A2c18DE14941e99648762ed32A875d"
-                        tokensList_not: []
-                    }
-                    first: 20
-                    skip: 0
-                    orderBy: "liquidity"
-                    orderDirection: "desc"
-                ) {
-                    id
-                    publicSwap
-                    finalized
-                    crp
-                    rights
-                    swapFee
-                    totalWeight
-                    totalShares
-                    totalSwapVolume
-                    liquidity
-                    tokensList
-                    swapsCount
-                    tokens(orderBy: "denormWeight", orderDirection: "desc") {
-                        id
-                        address
-                        balance
-                        decimals
-                        symbol
-                        denormWeight
-                    }
-                    swaps(
-                        first: 1
-                        orderBy: "timestamp"
-                        orderDirection: "desc"
-                        where: { timestamp_lt: 1654758000 }
-                    ) {
-                        poolTotalSwapVolume
-                    }
-                }
-            }
-        `;
-
-        query = gql`
+        const query = gql`
             {
                 pools(
                     where: {
@@ -126,6 +82,7 @@ const PoolExplore = () => {
             }
             console.log("data", data);
             setPools(data.pools);
+            setCurrentPage(data.pools.slice(0, 10));
         });
     };
 
@@ -141,7 +98,7 @@ const PoolExplore = () => {
                     <div className="bg-gradient-to-r from-transparent to-purple-primary h-px mb-4"></div>
                 </section>
                 <section>
-                    <div className="rounded mt-4 bg-blue-primary px-3 pt-10 pb-36 rounded-lg md:px-8">
+                    <div className="rounded mt-4 bg-blue-primary px-3 pt-10 pb-20 rounded-lg md:px-8">
                         <div className="flex items-center px-4 py-3 text-right bg-purple-second bg-opacity-10 rounded-lg">
                             <div className="text-left md:w-1/12">
                                 Pool address
@@ -162,7 +119,7 @@ const PoolExplore = () => {
                                 Volume (24h)
                             </div>
                         </div>
-                        {pools.map((item, index) => {
+                        {currentPage.map((item, index) => {
                             return (
                                 <div
                                     className="border-b border-purple-second border-opacity-30  hover:bg-purple-900 cursor-pointer"
@@ -210,6 +167,19 @@ const PoolExplore = () => {
                                 </div>
                             );
                         })}
+
+                        <div className="text-center w-full pt-8 mt-6">
+                            <Pagination
+                                defaultCurrent={1}
+                                total={pools.length}
+                                pageSize={10}
+                                onChange={(page: number) => {
+                                    setCurrentPage(
+                                        pools.slice(10 * (page - 1), 10 * page)
+                                    );
+                                }}
+                            />
+                        </div>
                     </div>
                 </section>
             </main>

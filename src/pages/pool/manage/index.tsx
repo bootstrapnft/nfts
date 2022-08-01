@@ -398,31 +398,34 @@ const PoolManage = () => {
                         <div className="flex gap-x-2 items-center">
                             <div className="flex justify-end sm:justify-start -space-x-3.5">
                                 {pool &&
-                                    pool.tokens.map((token: any) => {
-                                        const logoUrl =
-                                            config.tokens[
-                                                ethers.utils.getAddress(
-                                                    token.address
-                                                )
-                                            ]?.logoUrl;
-                                        return logoUrl ? (
-                                            <img
-                                                src={logoUrl}
-                                                alt={token.symbol}
-                                                className="w-8 h-8 rounded-full bg-slate-100 ring-2 ring-white"
-                                                loading="lazy"
-                                            />
-                                        ) : (
-                                            <div>
-                                                <Jazzicon
-                                                    diameter={34}
-                                                    seed={jsNumberForAddress(
+                                    pool.tokens.map(
+                                        (token: any, index: number) => {
+                                            const logoUrl =
+                                                config.tokens[
+                                                    ethers.utils.getAddress(
                                                         token.address
-                                                    )}
+                                                    )
+                                                ]?.logoUrl;
+                                            return logoUrl ? (
+                                                <img
+                                                    key={index}
+                                                    src={logoUrl}
+                                                    alt={token.symbol}
+                                                    className="w-8 h-8 rounded-full bg-slate-100 ring-2 ring-white"
+                                                    loading="lazy"
                                                 />
-                                            </div>
-                                        );
-                                    })}
+                                            ) : (
+                                                <div key={index}>
+                                                    <Jazzicon
+                                                        diameter={34}
+                                                        seed={jsNumberForAddress(
+                                                            token.address
+                                                        )}
+                                                    />
+                                                </div>
+                                            );
+                                        }
+                                    )}
                             </div>
                             <div>
                                 <div className="flex gap-x-2">
@@ -790,7 +793,7 @@ const PoolManage = () => {
                                         <Pagination
                                             defaultCurrent={1}
                                             total={pool.swapsCount}
-                                            pageSize={2}
+                                            pageSize={10}
                                             onChange={(page, pageSize) =>
                                                 getSwap(page, pageSize)
                                             }
