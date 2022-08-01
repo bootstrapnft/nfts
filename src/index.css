@@ -47,6 +47,48 @@ code {
         monospace;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #adb9d8;
+}
+
+.ant-pagination .ant-pagination-item-link {
+    background: #5025fa;
+    border: none;
+    color: white;
+}
+
+.ant-pagination .ant-pagination-item {
+    background: #5025fa;
+    border: none;
+    color: white;
+}
+
+.ant-pagination .ant-pagination-item a {
+    color: white;
+}
+
+.ant-pagination .ant-pagination-item-active {
+    background: #5856d6;
+}
+
+.ant-pagination .ant-pagination-item-active a {
+    color: #31c895;
+}
+
+.ant-pagination .ant-pagination-item-ellipsis {
+    background: #5025fa;
+    color: white;
+}
+
+.ant-pagination .ant-pagination-options {
+    display: none;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .overflow-x-scroll::-webkit-scrollbar {
     display: none;

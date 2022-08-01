@@ -23,6 +23,8 @@ import GradualWeight from "@/pages/pool/manage/gradual-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
 import BigNumber from "bignumber.js";
 import { getTokensPrice } from "@/util/tokens";
+import { Axis, Chart, Geom, Interval, Tooltip } from "bizcharts";
+import { Pagination } from "antd";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -172,13 +174,13 @@ const PoolManage = () => {
         });
     };
 
-    const getSwap = () => {
+    const getSwap = (pageIndex: number = 1, pageSize: number = 20) => {
         const query = gql`
       {
         swaps(
           where: { poolAddress: "${params.address}" }
-          first: 20
-          skip: 0
+          first: ${pageSize}
+          skip: ${(pageIndex - 1) * pageSize}
           orderBy: "timestamp"
           orderDirection: "desc"
         ) {
@@ -367,6 +369,18 @@ const PoolManage = () => {
         return metrics;
     };
 
+    const data = [
+        { year: "2022-07-11", sales: 5 },
+        { year: "2022-07-12", sales: 52 },
+        { year: "2022-07-13", sales: 61 },
+        { year: "2022-07-13", sales: 45 },
+        { year: "2022-07-14", sales: 48 },
+        { year: "2022-07-15", sales: 38 },
+        { year: "2022-07-16", sales: 38 },
+        { year: "2022-07-17", sales: 38 },
+    ];
+
+    // @ts-ignore
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 2xl:pb-28 py-12 text-purple-second">
@@ -490,7 +504,38 @@ const PoolManage = () => {
                                 Fee returns
                             </div>
                         </div>
-                        <div className="bg-blue-primary h-72 w-full rounded-lg"></div>
+                        <div className="bg-blue-primary h-72 w-full rounded-lg px-6 py-8">
+                            <Chart height={240} grid={null} autoFit data={data}>
+                                <Tooltip shared />
+                                <Axis
+                                    name="year"
+                                    grid={null}
+                                    line={null}
+                                    tickLine={null}
+                                    label={{ style: { fill: "#ebebeb" } }}
+                                />
+                                <Axis
+                                    name="sales"
+                                    grid={null}
+                                    line={null}
+                                    label={{ style: { fill: "#ebebeb" } }}
+                                />
+                                <Geom
+                                    type="interval"
+                                    position="year*sales"
+                                    color="#31d399"
+                                    active={[
+                                        true,
+                                        {
+                                            highlight: true,
+                                            style: {
+                                                color: "#fff",
+                                            },
+                                        },
+                                    ]}
+                                />
+                            </Chart>
+                        </div>
                     </div>
 
                     <div>
@@ -522,12 +567,12 @@ const PoolManage = () => {
                                 onClick={() => setInfoBtn(InfoBtn.Swap)}
                             >
                                 Swap{" "}
-                                {swaps.length > 0 && (
+                                {pool && Number(pool.swapsCount) > 0 && (
                                     <span
                                         className="inline-block border border-purple-primary
                                     text-purple-primary rounded-full w-4 h-4 text-xs text-center leading-3"
                                     >
-                                        {swaps.length}
+                                        {pool.swapsCount}
                                     </span>
                                 )}
                             </div>
@@ -645,96 +690,113 @@ const PoolManage = () => {
                                 </table>
                             )}
                             {infoBtn === InfoBtn.Swap && (
-                                <table className="w-full">
-                                    <thead className="bg-purple-second bg-opacity-10">
-                                        <tr className="text-sm font-light">
-                                            <th className="text-left w-1/2 h-12 pl-4 rounded-l-lg">
-                                                Time
-                                            </th>
-                                            <th className="text-left">
-                                                Trade in
-                                            </th>
-                                            <th className="text-left">
-                                                Trade out
-                                            </th>
-                                            <th className="text-right pr-4 rounded-r-lg">
-                                                Swap fee
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {swaps &&
-                                            swaps.map(
-                                                (swap: any, index: number) => {
-                                                    return (
-                                                        <tr
-                                                            className="text-sm font-light border-b border-purple-second border-opacity-50"
-                                                            key={index}
-                                                        >
-                                                            <td className="text-left w-2/3 h-12 pl-4">
-                                                                {new Date(
-                                                                    swap.timestamp *
-                                                                        1000
-                                                                ).toUTCString()}
-                                                            </td>
-                                                            <td>
-                                                                <div className="flex items-center justify-start gap-x-2 h-12">
-                                                                    <Jazzicon
-                                                                        diameter={
-                                                                            22
-                                                                        }
-                                                                        seed={jsNumberForAddress(
-                                                                            swap.tokenIn
-                                                                        )}
-                                                                    />
-                                                                    <div>
-                                                                        {parseFloat(
-                                                                            swap.tokenAmountIn
-                                                                        ).toFixed(
-                                                                            3
-                                                                        )}
+                                <Fragment>
+                                    <table className="w-full">
+                                        <thead className="bg-purple-second bg-opacity-10">
+                                            <tr className="text-sm font-light">
+                                                <th className="text-left w-1/2 h-12 pl-4 rounded-l-lg">
+                                                    Time
+                                                </th>
+                                                <th className="text-left">
+                                                    Trade in
+                                                </th>
+                                                <th className="text-left">
+                                                    Trade out
+                                                </th>
+                                                <th className="text-right pr-4 rounded-r-lg">
+                                                    Swap fee
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {swaps &&
+                                                swaps.map(
+                                                    (
+                                                        swap: any,
+                                                        index: number
+                                                    ) => {
+                                                        return (
+                                                            <tr
+                                                                className="text-sm font-light border-b border-purple-second border-opacity-50"
+                                                                key={index}
+                                                            >
+                                                                <td className="text-left w-2/3 h-12 pl-4">
+                                                                    {new Date(
+                                                                        swap.timestamp *
+                                                                            1000
+                                                                    ).toUTCString()}
+                                                                </td>
+                                                                <td>
+                                                                    <div className="flex items-center justify-start gap-x-2 h-12">
+                                                                        <Jazzicon
+                                                                            diameter={
+                                                                                22
+                                                                            }
+                                                                            seed={jsNumberForAddress(
+                                                                                swap.tokenIn
+                                                                            )}
+                                                                        />
+                                                                        <div>
+                                                                            {parseFloat(
+                                                                                swap.tokenAmountIn
+                                                                            ).toFixed(
+                                                                                3
+                                                                            )}
+                                                                        </div>
+                                                                        <div>
+                                                                            {
+                                                                                swap.tokenInSym
+                                                                            }
+                                                                        </div>
                                                                     </div>
-                                                                    <div>
-                                                                        {
-                                                                            swap.tokenInSym
-                                                                        }
+                                                                </td>
+                                                                <td>
+                                                                    <div className="flex items-center justify-start gap-x-2 h-12">
+                                                                        <Jazzicon
+                                                                            diameter={
+                                                                                22
+                                                                            }
+                                                                            seed={jsNumberForAddress(
+                                                                                swap.tokenOut
+                                                                            )}
+                                                                        />
+                                                                        <div>
+                                                                            {parseFloat(
+                                                                                swap.tokenAmountOut
+                                                                            ).toFixed(
+                                                                                3
+                                                                            )}
+                                                                        </div>
+                                                                        <div>
+                                                                            {
+                                                                                swap.tokenOutSym
+                                                                            }
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div className="flex items-center justify-start gap-x-2 h-12">
-                                                                    <Jazzicon
-                                                                        diameter={
-                                                                            22
-                                                                        }
-                                                                        seed={jsNumberForAddress(
-                                                                            swap.tokenOut
-                                                                        )}
-                                                                    />
-                                                                    <div>
-                                                                        {parseFloat(
-                                                                            swap.tokenAmountOut
-                                                                        ).toFixed(
-                                                                            3
-                                                                        )}
-                                                                    </div>
-                                                                    <div>
-                                                                        {
-                                                                            swap.tokenOutSym
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="text-right pr-4">
-                                                                ${" "}
-                                                                {swap.feeValue}
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                }
-                                            )}
-                                    </tbody>
-                                </table>
+                                                                </td>
+                                                                <td className="text-right pr-4">
+                                                                    ${" "}
+                                                                    {
+                                                                        swap.feeValue
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    }
+                                                )}
+                                        </tbody>
+                                    </table>
+                                    <div className="text-center w-full pt-8">
+                                        <Pagination
+                                            defaultCurrent={1}
+                                            total={pool.swapsCount}
+                                            pageSize={2}
+                                            onChange={(page, pageSize) =>
+                                                getSwap(page, pageSize)
+                                            }
+                                        />
+                                    </div>
+                                </Fragment>
                             )}
                             {infoBtn === InfoBtn.About && pool && (
                                 <div>

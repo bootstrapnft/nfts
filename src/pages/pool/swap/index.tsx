@@ -62,7 +62,7 @@ const PoolSwap = () => {
                 await sor.fetchPools();
                 await onInAmountChange(swapFromAmount);
             }
-        }, 20 * 1000);
+        }, 60 * 1000);
 
         balanceInterval.current = setInterval(async () => {
             console.log("[Balance Interval] fetchBalance");
@@ -71,7 +71,7 @@ const PoolSwap = () => {
                     setTokensBalance(res);
                 }
             );
-        }, 20 * 1000);
+        }, 60 * 1000);
 
         return () => {
             if (sorInterval.current) {
@@ -633,7 +633,11 @@ const PoolSwap = () => {
             return "Not enough liquidity";
         }
 
-        if (swapFromAmount > tokensBalance[assetInAddress]) {
+        if (
+            parseFloat(tokensBalance[assetInAddress]) -
+                parseFloat(swapFromAmount) <
+            0
+        ) {
             return "Not enough funds";
         }
         return "";
