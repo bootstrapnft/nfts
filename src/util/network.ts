@@ -7,7 +7,7 @@ export const currentNetwork = (): Network => {
     const sessionNetwork = JSON.parse(
         sessionStorage.getItem("chain") ?? "null"
     );
-    return sessionNetwork || { id: 4, name: "rinkeby" };
+    return sessionNetwork || { id: 80001, name: "Mumbai Testnet" };
 };
 
 const networks: any = {

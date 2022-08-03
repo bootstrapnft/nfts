@@ -12,7 +12,7 @@ const SwitchNetwork = () => {
     const { library } = useWeb3React();
 
     const sessionNetwork = currentNetwork();
-    const network = sessionNetwork || { id: 4, name: "rinkeby" };
+    const network = sessionNetwork || { id: 80001, name: "Mumbai Testnet" };
 
     const chainImage = (chainId: number) => {
         switch (chainId) {
