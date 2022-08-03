@@ -1,21 +1,49 @@
 import { Fragment, useEffect, useState } from "react";
-import { gql, request } from "graphql-request";
-import { truncateAddress } from "@/util/address";
-import Pie from "@/components/pie";
-import { ethers } from "ethers";
 import { useNavigate } from "react-router";
-import config from "@/config";
-import { unknownColors } from "@/util/utils";
+import { ethers } from "ethers";
 import { Pagination } from "antd";
+import { gql, request } from "graphql-request";
+
+import config from "@/config";
+import Pie from "@/components/pie";
+import { tokenListInfo } from "@/util/tokens";
+import { unknownColors } from "@/util/utils";
+import { truncateAddress } from "@/util/address";
+import SelectToken from "@/pages/pool/component/select-token";
+
+import closeIcon from "@/assets/icon/close.svg";
 
 const PoolExplore = () => {
     const navigate = useNavigate();
     const [pools, setPools] = useState<any[]>([]);
+    const [allPools, setAllPools] = useState<any[]>([]);
+    const [tokensInfo, setTokensInfo] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState<any[]>([]);
+    const [filterTokens, setFilterTokens] = useState<any[]>([]);
+    const [showSelectToken, setShowSelectToken] = useState(false);
 
     useEffect(() => {
         getPoolList();
+        tokenListInfo().then((res) => {
+            setTokensInfo(res);
+        });
     }, []);
+
+    useEffect(() => {
+        const tokensId = filterTokens.map((t: any) => t.address.toLowerCase());
+        console.log("filterTokens: ", tokensId, allPools);
+        const filterPool = allPools.filter((pool: any) => {
+            const tkIds = pool.tokensList;
+            const includesToken = tkIds.filter((tkId: string) =>
+                tokensId.includes(tkId)
+            );
+            if (includesToken.length > 0) {
+                return pool;
+            }
+        });
+        console.log("filterPools: ", filterPool);
+        setPools(filterPool);
+    }, [filterTokens]);
 
     const getPoolList = async () => {
         const query = gql`
@@ -83,18 +111,66 @@ const PoolExplore = () => {
             }
             console.log("data", data);
             setPools(data.pools);
+            setAllPools(data.pools);
             setCurrentPage(data.pools.slice(0, 10));
         });
+    };
+
+    const handleSelectToken = (token: any) => {
+        const tokens = [token, ...filterTokens];
+        setFilterTokens(tokens);
+    };
+
+    const removeFilterToken = (id: string) => {
+        setFilterTokens(filterTokens.filter((token: any) => token.id !== id));
     };
 
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 2xl:pb-28 py-12 pb-36 text-purple-second">
                 <section>
-                    <header>
+                    <header className="flex items-center justify-between">
                         <h1 className="font-bold text-3xl mb-2">
                             Explore Pool
                         </h1>
+
+                        <div className="flex gap-3 items-center px-3">
+                            Filter by asset:
+                            {filterTokens.length > 0 && (
+                                <div className="flex gap-x-2">
+                                    {filterTokens.map(
+                                        (token: any, index: number) => {
+                                            return (
+                                                <div
+                                                    className="flex items-center gap-x-2 bg-purple-primary bg-opacity-50
+                                            rounded-3xl pl-2"
+                                                    key={index}
+                                                >
+                                                    {token.symbol}
+                                                    <img
+                                                        src={closeIcon}
+                                                        alt=""
+                                                        className="w-5 h-5 p-1 hover:bg-purple-second
+                                                rounded-full cursor-pointer"
+                                                        onClick={() => {
+                                                            removeFilterToken(
+                                                                token.id
+                                                            );
+                                                        }}
+                                                    />
+                                                </div>
+                                            );
+                                        }
+                                    )}
+                                </div>
+                            )}
+                            <img
+                                src={closeIcon}
+                                alt=""
+                                className="w-5 h-5 rotate-45 bg-purple-second rounded-full p-1 cursor-pointer"
+                                onClick={() => setShowSelectToken(true)}
+                            />
+                        </div>
                     </header>
                     <div className="bg-gradient-to-r from-transparent to-purple-primary h-px mb-4"></div>
                 </section>
@@ -183,6 +259,17 @@ const PoolExplore = () => {
                         </div>
                     </div>
                 </section>
+                {showSelectToken && (
+                    <SelectToken
+                        tokensInfo={tokensInfo}
+                        addNewToken={() => {}}
+                        close={() => setShowSelectToken(false)}
+                        selectedToken={handleSelectToken}
+                        excludeTokens={filterTokens.map(
+                            (token) => token.address
+                        )}
+                    />
+                )}
             </main>
         </Fragment>
     );

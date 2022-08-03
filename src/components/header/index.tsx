@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import arrowDown from "@/assets/icon/arrow-down.svg";
 import logo from "@/assets/logo.svg";
 import simpleLogo from "@/assets/simple_logo.svg";
@@ -14,6 +14,7 @@ import { useWalletSelect } from "@/context/connect-wallet";
 
 const Header = () => {
     const navigator = useNavigate();
+    const location = useLocation();
     const [, setIsOpen] = useWalletSelect();
     const [showTips, setShowTips] = useState(false);
     const [isManager, setIsManager] = useState(false);
@@ -21,6 +22,27 @@ const Header = () => {
 
     const sessionNetwork = currentNetwork();
     const network = sessionNetwork || { id: 4, name: "rinkeby" };
+    console.log("location: ", location);
+
+    let menu = null;
+    if (
+        location.pathname === "/" ||
+        (location.pathname.startsWith("/vault") &&
+            (location.pathname.endsWith("redeem") ||
+                location.pathname.endsWith("mint") ||
+                location.pathname.endsWith("swap") ||
+                location.pathname.endsWith("info")))
+    ) {
+        menu = "shop";
+    } else if (location.pathname === "/vault/create") {
+        menu = "Fractionalize";
+    } else if (
+        location.pathname === "/pool/create" ||
+        location.pathname === "/pool/swap" ||
+        location.pathname === "/pool/explore"
+    ) {
+        menu = "auction";
+    }
 
     const buttonStyle =
         "inline-flex items-center justify-left outline-none font-medium \n" +
@@ -111,11 +133,15 @@ const Header = () => {
                     >
                         <div className="relative inline-flex group">
                             <button
-                                className="inline-flex items-center justify-center outline-none font-medium rounded-md
+                                className={`inline-flex items-center justify-center outline-none font-medium rounded-md
                                   break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5
                                   px-4 bg-transparent dark:text-white text-lm-gray-900 border border-transparent
                                   hover:border-opacity-50 hidden lg:inline-flex lg:hover:bg-transparent
-                                  lg:focus:ring-0 text-purple-primary"
+                                  lg:focus:ring-0 ${
+                                      menu === "shop"
+                                          ? "text-purple-primary"
+                                          : "text-purple-second"
+                                  }`}
                             >
                                 Shop
                                 <span className="text-center transform ml-2">
@@ -153,7 +179,11 @@ const Header = () => {
                         </div>
 
                         <div
-                            className={`${buttonStyle}`}
+                            className={`${buttonStyle} ${
+                                menu === "Fractionalize"
+                                    ? "text-purple-primary"
+                                    : "text-purple-second"
+                            }`}
                             onClick={() => navigator("/vault/create")}
                         >
                             Fractionalize
@@ -170,11 +200,16 @@ const Header = () => {
 
                         <div className="relative inline-flex group">
                             <button
-                                className="inline-flex items-center justify-center outline-none font-medium rounded-md
+                                className={`inline-flex items-center justify-center outline-none font-medium rounded-md
                                   break-word hover:outline focus:outline-none focus:ring-1 focus:ring-opacity-75 py-2.5 px-4
                                   bg-transparent dark:text-white text-lm-gray-900 border border-transparent
                                   hover:text-purple-primary hidden lg:inline-flex lg:dark:hover:border-gray-900
-                                  lg:hover:bg-transparent lg:focus:ring-0 text-purple-second"
+                                  lg:hover:bg-transparent lg:focus:ring-0 text-purple-second 
+                                  ${
+                                      menu === "auction"
+                                          ? "text-purple-primary"
+                                          : "text-purple-second"
+                                  }`}
                             >
                                 Auction
                                 <span className="text-center transform ml-2">
@@ -193,21 +228,18 @@ const Header = () => {
                                 <button
                                     className={`${buttonStyle}`}
                                     onClick={() => navigator("/pool/create")}
-                                    // href="http://124.222.87.17:8080/#/pool/new" target="_blank"
                                 >
                                     Create Pool
                                 </button>
                                 <button
                                     className={`${buttonStyle}`}
                                     onClick={() => navigator("/pool/explore")}
-                                    // href="http://124.222.87.17:8080/#/explore"  target="_blank"
                                 >
                                     Explore Pools
                                 </button>
                                 <button
                                     className={`${buttonStyle}`}
                                     onClick={() => navigator("/pool/swap")}
-                                    // href="http://124.222.87.17:3000/#/swap"  target="_blank"
                                 >
                                     Swap
                                 </button>

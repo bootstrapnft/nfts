@@ -22,7 +22,7 @@ const SelectToken = ({
         const tokens = tokenList.filter(
             (token: any) => !excludeTokens.includes(token.address)
         );
-        console.log("select tokens filter:, ", tokens);
+        console.log("select tokens filter:, ", excludeTokens);
         setTokenList(tokens);
     }, []);
 
