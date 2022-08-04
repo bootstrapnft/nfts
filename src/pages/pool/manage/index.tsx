@@ -17,7 +17,7 @@ import ChangeWhiteList from "@/pages/pool/manage/whitelist";
 import ChangeController from "@/pages/pool/manage/controller";
 import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
 import MulticalABI from "@/contract/pool/Multical.json";
-import { Interface } from "ethers/lib/utils";
+import { id, Interface } from "ethers/lib/utils";
 import ERC20ABI from "@/contract/ERC20.json";
 import GradualWeight from "@/pages/pool/manage/gradual-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
@@ -101,7 +101,17 @@ const PoolManage = () => {
                 });
 
             const tokens = pool.tokens.map((token: any) => {
-                token.id = token.symbol.toLowerCase();
+                let tokenId = "";
+                Object.keys(config.tokens).forEach((key) => {
+                    const tk = config.tokens[key];
+                    if (tk.address.toLowerCase() === token.address) {
+                        tokenId = tk.id;
+                    }
+                });
+                if (tokenId === "") {
+                    tokenId = token.symbol.toLowerCase();
+                }
+                token.id = tokenId;
                 return token;
             });
             getTokensPrice(tokens).then((res) => {
@@ -166,6 +176,8 @@ const PoolManage = () => {
                 token.color = tokenInfo[address]
                     ? tokenInfo[address]["color"]
                     : "#7ada6a";
+                token.weightPercent =
+                    (100 / data.pool.totalWeight) * token.denormWeight;
                 return token;
             });
             console.log("get pool info:", data);
@@ -269,6 +281,10 @@ const PoolManage = () => {
         setTotalShares(
             parseInt(ethers.utils.formatEther(totalShares.toString()))
         );
+        console.log(
+            "share:",
+            parseInt(ethers.utils.formatEther(totalShares.toString()))
+        );
         setChangeWeightBlockNum(minimumWeightChangeBlockPeriod);
     };
 
@@ -308,6 +324,7 @@ const PoolManage = () => {
     };
 
     const getPoolLiquidity = (tokens: any) => {
+        console.log("get pool liquidity:", tokens);
         let sumWeight = new BigNumber(0);
         let sumValue = new BigNumber(0);
 
@@ -318,11 +335,15 @@ const PoolManage = () => {
             }
             const balanceNumber = new BigNumber(token.balance);
             const value = balanceNumber.times(price);
+            console.log("lidiquidity value", token.balance);
+            console.log("lidiquidity price", price);
             sumValue = sumValue.plus(value);
-            sumWeight = sumWeight.plus(parseFloat(token.denormWeight) / 100);
+            sumWeight = sumWeight.plus(token.weightPercent / 100);
         }
         let liquidity: any = 0;
         if (sumWeight.gt(0)) {
+            console.log("sumWeight:", sumWeight.toString());
+            console.log("sumValue:", sumValue.toString());
             liquidity = sumValue.div(sumWeight).toString();
         } else {
             liquidity = pool.liquidity;
@@ -479,12 +500,13 @@ const PoolManage = () => {
 
                         <div className="bg-blue-primary rounded-lg h-32 w-1/5 flex justify-center items-center flex-col">
                             <h1 className="font-bold text-2xl">
-                                {(
-                                    (1 / totalShares) *
-                                    parseFloat(poolBalance) *
-                                    100
-                                ).toFixed(2)}
-                                %
+                                {totalShares > 0
+                                    ? (
+                                          (1 / totalShares) *
+                                          parseFloat(poolBalance) *
+                                          100
+                                      ).toFixed(2) + "%"
+                                    : "-"}
                             </h1>
                             <h3>My pool share</h3>
                         </div>
