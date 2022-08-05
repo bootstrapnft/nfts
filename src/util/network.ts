@@ -70,8 +70,6 @@ const networks: any = {
 
 export const changeNetwork = async (network: Network, provider: any) => {
     sessionStorage.setItem("chain", JSON.stringify(network));
-    console.log("prover", typeof provider, provider);
-    console.log("network", network.id.toString(16));
     if (provider.isMetaMask) {
         if (
             provider.chainId !== network.id ||

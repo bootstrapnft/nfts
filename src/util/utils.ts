@@ -1,5 +1,7 @@
 import { MaxUint256 } from "@ethersproject/constants";
 import BigNumber from "@/util/bignumber";
+import { getTokensPrice } from "@/util/tokens";
+import config from "@/config";
 
 export const ITEMS_PER_PAGE = 20;
 export const MAX_GAS = new BigNumber("0xffffffff");
@@ -95,3 +97,41 @@ export function isLocked(
     const amount = denormalizeBalance(rawAmount, decimals);
     return amount.gt(tokenAllowance[spender]);
 }
+
+export const getPoolLiquidity = async (pool: any) => {
+    let tokens = pool.tokens.map((token: any) => {
+        let tokenId = "";
+        Object.keys(config.tokens).forEach((key) => {
+            const tk = config.tokens[key];
+            if (tk.address.toLowerCase() === token.address) {
+                tokenId = tk.id;
+            }
+        });
+        if (tokenId === "") {
+            tokenId = token.symbol.toLowerCase();
+        }
+        token.id = tokenId;
+        return token;
+    });
+    tokens = await getTokensPrice(tokens);
+    let sumWeight = new BigNumber(0);
+    let sumValue = new BigNumber(0);
+
+    for (const token of tokens) {
+        const price = token.price;
+        if (!price) {
+            continue;
+        }
+        const balanceNumber = new BigNumber(token.balance);
+        const value = balanceNumber.times(price);
+        sumValue = sumValue.plus(value);
+        sumWeight = sumWeight.plus(token.weightPercent / 100);
+    }
+    let liquidity: any = 0;
+    if (sumWeight.gt(0)) {
+        liquidity = sumValue.div(sumWeight).toString();
+    } else {
+        liquidity = pool.liquidity;
+    }
+    return Number(Number(liquidity).toFixed(2));
+};

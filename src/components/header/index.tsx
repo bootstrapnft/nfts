@@ -8,7 +8,7 @@ import { gql, request } from "graphql-request";
 import { connectors } from "@/components/select_wallet/connector";
 import config from "@/config";
 import { truncateAddress } from "@/util/address";
-import { currentNetwork } from "@/util/network";
+import { changeNetwork, currentNetwork } from "@/util/network";
 import SwitchNetwork from "@/components/header/switch-network";
 import { useWalletSelect } from "@/context/connect-wallet";
 
@@ -21,7 +21,7 @@ const Header = () => {
     const { account, active, library, activate, chainId } = useWeb3React();
 
     const sessionNetwork = currentNetwork();
-    const network = sessionNetwork || { id: 4, name: "rinkeby" };
+    const network = sessionNetwork || { id: 80001, name: "Mumbai Testnet" };
     console.log("location: ", location);
 
     let menu = null;
@@ -259,7 +259,22 @@ const Header = () => {
                 {showTips && (
                     <div className="bg-purple-primary text-white py-2 text-center text-sm">
                         App network ({network.name}) does not match wallet
-                        network.
+                        network. switch network to
+                        <b> {network.name}</b> &nbsp;&nbsp;
+                        <button
+                            className="btn-primary bg-purple-hover"
+                            onClick={() =>
+                                changeNetwork(
+                                    {
+                                        id: network.id,
+                                        name: network.name,
+                                    },
+                                    library.provider
+                                )
+                            }
+                        >
+                            switch
+                        </button>
                     </div>
                 )}
             </header>

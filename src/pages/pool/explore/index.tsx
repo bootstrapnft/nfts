@@ -7,14 +7,16 @@ import { gql, request } from "graphql-request";
 import config from "@/config";
 import Pie from "@/components/pie";
 import { tokenListInfo } from "@/util/tokens";
-import { unknownColors } from "@/util/utils";
+import { getPoolLiquidity, unknownColors } from "@/util/utils";
 import { truncateAddress } from "@/util/address";
 import SelectToken from "@/pages/pool/component/select-token";
 
 import closeIcon from "@/assets/icon/close.svg";
+import { useLoading } from "@/context/loading";
 
 const PoolExplore = () => {
     const navigate = useNavigate();
+    const [, setLoading] = useLoading();
     const [pools, setPools] = useState<any[]>([]);
     const [allPools, setAllPools] = useState<any[]>([]);
     const [tokensInfo, setTokensInfo] = useState<any[]>([]);
@@ -93,6 +95,7 @@ const PoolExplore = () => {
             }
         `;
 
+        setLoading(true);
         request(config.subgraphUrl, query).then((data) => {
             if (data.pools) {
                 const tokenInfo = config.tokens as unknown as {
@@ -110,9 +113,23 @@ const PoolExplore = () => {
                 });
             }
             console.log("data", data);
-            setPools(data.pools);
-            setAllPools(data.pools);
-            setCurrentPage(data.pools.slice(0, 10));
+            Promise.all(
+                data.pools.map(async (pool: any) => {
+                    pool.tokens.map((token: any) => {
+                        token.weightPercent = (
+                            (100 / pool.totalWeight) *
+                            token.denormWeight
+                        ).toFixed(1);
+                    });
+                    pool.poolLiquidity = await getPoolLiquidity(pool);
+                    return pool;
+                })
+            ).then((res) => {
+                setPools(res);
+                setAllPools(res);
+                setLoading(false);
+                setCurrentPage(res.slice(0, 10));
+            });
         });
     };
 
@@ -219,9 +236,9 @@ const PoolExplore = () => {
                                                     return (
                                                         <span key={index}>
                                                             {" "}
-                                                            {parseFloat(
-                                                                token.denormWeight
-                                                            ).toFixed(1)}{" "}
+                                                            {
+                                                                token.weightPercent
+                                                            }{" "}
                                                             % {token.symbol}{" "}
                                                         </span>
                                                     );
@@ -232,31 +249,39 @@ const PoolExplore = () => {
                                             {item.swapFee * 100} %
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
-                                            $ {item.cap}
+                                            $ {item.poolLiquidity}
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
-                                            $ {item.liquidity}
+                                            $ {0}
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
-                                            $ {item.totalSwapVolume}
+                                            ${" "}
+                                            {parseFloat(
+                                                item.totalSwapVolume
+                                            ).toFixed(2)}
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
 
-                        <div className="text-center w-full pt-8 mt-6">
-                            <Pagination
-                                defaultCurrent={1}
-                                total={pools.length}
-                                pageSize={10}
-                                onChange={(page: number) => {
-                                    setCurrentPage(
-                                        pools.slice(10 * (page - 1), 10 * page)
-                                    );
-                                }}
-                            />
-                        </div>
+                        {pools.length > 0 && (
+                            <div className="text-center w-full pt-8 mt-6">
+                                <Pagination
+                                    defaultCurrent={1}
+                                    total={pools.length}
+                                    pageSize={10}
+                                    onChange={(page: number) => {
+                                        setCurrentPage(
+                                            pools.slice(
+                                                10 * (page - 1),
+                                                10 * page
+                                            )
+                                        );
+                                    }}
+                                />
+                            </div>
+                        )}
                     </div>
                 </section>
                 {showSelectToken && (

@@ -21,6 +21,8 @@ import { useLoading } from "@/context/loading";
 import { calcPoolOutGivenSingleIn } from "@/util/math";
 import { toast } from "react-toastify";
 import caution from "@/assets/icon/caution.svg";
+import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
+import { tokenListAllowance } from "@/util/tokens";
 
 const Liquidity = ({
     proxyAddress,
@@ -29,7 +31,7 @@ const Liquidity = ({
     tokens,
     close,
 }: any) => {
-    console.log("Liquidity", tokens, poolInfo);
+    console.log("Liquidity", tokens, poolInfo, totalShares);
     const BALANCE_BUFFER = 0.01;
     const [, setLoading] = useLoading();
     const { account, active, library } = useWeb3React();
@@ -37,18 +39,40 @@ const Liquidity = ({
     const [userLiquidity, setUserLiquidity] = useState<any>();
     const [tokenBalance, setTokenBalance] = useState("0");
     const [isMultiAsset, setIsMultiAsset] = useState(true);
+    const [canAddLiquidity, setCanAddLiquidity] = useState(false);
     const [changeTokenAddress, setChangeTokenAddress] = useState("");
     const [amounts, setAmounts] = useState<{ [key: string]: any }>({});
     const [tokensBalance, setTokensBalance] = useState<{ [key: string]: any }>(
         {}
     );
+    const [tokensAllowance, setTokensAllowance] = useState<{
+        [key: string]: any;
+    }>({});
+    const [approveTokens, setApproveTokens] = useState<any[]>([]);
 
     useEffect(() => {
         if (poolInfo) {
             poolTokenBalance();
+            canAddLiquidityCheck();
         }
         getTokensBalances();
     }, [account]);
+
+    useEffect(() => {
+        (async () => {
+            if (tokens === [] || proxyAddress === "") {
+                return;
+            }
+            if (tokensAllowance !== []) {
+                setTokensAllowance({ ...tokensAllowance });
+            }
+            await tokenListAllowance(tokens, account!, proxyAddress).then(
+                (res) => {
+                    setTokensAllowance(res);
+                }
+            );
+        })();
+    }, [tokens, proxyAddress]);
 
     useEffect(() => {
         const poolSharesFrom = parseFloat(tokenBalance);
@@ -68,6 +92,39 @@ const Liquidity = ({
         };
         setUserLiquidity(res);
     }, [amounts, tokenBalance]);
+
+    useEffect(() => {
+        checkApprove();
+    }, [proxyAddress, tokens, tokensAllowance, changeTokenAddress]);
+
+    const canAddLiquidityCheck = async () => {
+        console.log(
+            "canAddLiquidityCheck",
+            poolInfo.rights.includes("canWhitelistLPs")
+        );
+        if (poolInfo.crp && poolInfo.rights.includes("canWhitelistLPs")) {
+            // Need to check if this address is on the LP whitelist
+            if (!proxyAddress) {
+                setCanAddLiquidity(false);
+            }
+
+            const crpContract = new Contract(
+                poolInfo.controller,
+                ConfigurableRightsPoolABI,
+                library.getSigner()
+            );
+            const isCan = await crpContract.canProvideLiquidity(proxyAddress);
+            console.log(
+                "canAddLiquidityCheck",
+                isCan,
+                poolInfo.controller,
+                proxyAddress
+            );
+            setCanAddLiquidity(isCan);
+        } else {
+            setCanAddLiquidity(true);
+        }
+    };
 
     const poolTokenBalance = async () => {
         const contract = new Contract(
@@ -120,6 +177,7 @@ const Liquidity = ({
 
         if (isMultiAsset) {
             const poolTokens = calcPoolTokensByRatio(ratio, totalShares);
+            console.log("poolTokens:", poolTokens, ratio, totalShares);
             setPoolTokens(poolTokens);
         } else {
             const tokenIn = poolInfo.tokens.find(
@@ -231,6 +289,7 @@ const Liquidity = ({
     };
 
     const handleMultiAsset = async (params: any) => {
+        console.log("handleMultiAsset:", params);
         const ifac = new Interface(BActionABI);
         const data = ifac.encodeFunctionData("joinSmartPool", [
             params.poolAddress,
@@ -319,12 +378,90 @@ const Liquidity = ({
         }
 
         Object.keys(amounts).forEach((key: any) => {
+            if (parseFloat(tokensBalance[key]) < parseFloat(amounts[key])) {
+                amountError = "Amount can't be greater than balance";
+                return;
+            }
+        });
+
+        Object.keys(amounts).forEach((key: any) => {
             if (amounts[key] < 0) {
                 amountError = "Amount should be a positive number";
                 return;
             }
         });
         return amountError;
+    };
+
+    const checkApprove = () => {
+        console.log("checkApprove----", proxyAddress, tokensAllowance);
+        if (Object.keys(tokensAllowance).length === 0) {
+            return;
+        }
+        const unApproveToken: any[] = [];
+        if (isMultiAsset) {
+            tokens.forEach((token: any) => {
+                if (!tokensAllowance[token.id]) {
+                    unApproveToken.push(token);
+                }
+                if (!(parseFloat(tokensAllowance[token.id]) > 0)) {
+                    unApproveToken.push(token);
+                }
+            });
+        } else {
+            if (!tokensAllowance[changeTokenAddress]) {
+                unApproveToken.push(
+                    tokens.filter(
+                        (token: any) => token.address === changeTokenAddress
+                    )[0]
+                );
+            }
+            if (!(parseFloat(tokensAllowance[changeTokenAddress]) > 0)) {
+                unApproveToken.push(
+                    tokens.filter(
+                        (token: any) => token.address === changeTokenAddress
+                    )[0]
+                );
+            }
+        }
+        console.log("unApproveToken:", unApproveToken);
+
+        setApproveTokens(unApproveToken);
+    };
+
+    const approve = async (token: any) => {
+        setLoading(true);
+        try {
+            const contract = new Contract(
+                token.address,
+                ERC20ABI,
+                library.getSigner()
+            );
+            const tx = await contract.approve(
+                proxyAddress,
+                ethers.constants.MaxUint256
+            );
+            await tx
+                .wait()
+                .then((res: any) => {
+                    console.log("approve:", res);
+                    tokenListAllowance(tokens, account!, proxyAddress).then(
+                        (res) => {
+                            setTokensAllowance(res);
+                        }
+                    );
+                    setLoading(false);
+                    toast.success(`Approve ${token.symbol} success`);
+                })
+                .catch((err: any) => {
+                    setLoading(false);
+                    console.log("approve error:", err);
+                });
+        } catch (e) {
+            console.log("approve err:", e);
+            setLoading(false);
+            toast.error(`Approve ${token.symbol} failed`);
+        }
     };
 
     return (
@@ -374,6 +511,7 @@ const Liquidity = ({
                                                 onClick={() => {
                                                     setIsMultiAsset(true);
                                                     setAmounts({});
+                                                    setChangeTokenAddress("");
                                                 }}
                                             >
                                                 Multi asset
@@ -387,6 +525,7 @@ const Liquidity = ({
                                                 onClick={() => {
                                                     setIsMultiAsset(false);
                                                     setAmounts({});
+                                                    setApproveTokens([]);
                                                 }}
                                             >
                                                 Single asset
@@ -412,7 +551,10 @@ const Liquidity = ({
                                                 />
                                                 {tokens.map((token: any) => {
                                                     return (
-                                                        <dd className="text-center mt-2">
+                                                        <dd
+                                                            className="text-center mt-2"
+                                                            key={token.symbol}
+                                                        >
                                                             {parseFloat(
                                                                 token.denormWeight
                                                             ).toFixed(3)}
@@ -556,6 +698,40 @@ const Liquidity = ({
                                                 )}
                                             </div>
                                         </div>
+                                        {proxyAddress === "" && (
+                                            <div
+                                                className="flex items-center mx-auto gap-x-4 p-2 mt-6 border
+                                                border-[#EC4E6E] max-w-max rounded-md text-[#EC4E6E]"
+                                            >
+                                                <img
+                                                    src={caution}
+                                                    alt=""
+                                                    width={16}
+                                                />
+                                                <span>
+                                                    Add liquidity require proxy
+                                                    address
+                                                </span>
+                                            </div>
+                                        )}
+                                        {proxyAddress !== "" &&
+                                            !canAddLiquidity && (
+                                                <div
+                                                    className="flex items-center mx-auto gap-x-4 p-2 mt-6 border
+                                                border-[#EC4E6E] max-w-max rounded-md text-[#EC4E6E]"
+                                                >
+                                                    <img
+                                                        src={caution}
+                                                        alt=""
+                                                        width={16}
+                                                    />
+                                                    <span>
+                                                        The pool controller has
+                                                        not enabled adding
+                                                        liquidity to this pool
+                                                    </span>
+                                                </div>
+                                            )}
                                         {validationError() && (
                                             <div
                                                 className="flex items-center mx-auto gap-x-4 p-2 mt-6 border
@@ -569,17 +745,52 @@ const Liquidity = ({
                                                 <span>{validationError()}</span>
                                             </div>
                                         )}
-                                        <div className="mx-auto w-max mt-4">
-                                            <button
-                                                className="btn-primary"
-                                                onClick={changeAmount}
-                                                disabled={
-                                                    validationError() !== ""
-                                                }
-                                            >
-                                                Add Liquidity
-                                            </button>
-                                        </div>
+                                        {approveTokens.length > 0 ? (
+                                            <div className="mx-auto w-max mt-4">
+                                                <button
+                                                    className={`btn-primary  ${
+                                                        validationError() !==
+                                                            "" ||
+                                                        !canAddLiquidity
+                                                            ? "cursor-not-allowed"
+                                                            : ""
+                                                    }`}
+                                                    onClick={() =>
+                                                        approve(
+                                                            approveTokens[0]
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        validationError() !==
+                                                            "" ||
+                                                        !canAddLiquidity
+                                                    }
+                                                >
+                                                    Approve{" "}
+                                                    {approveTokens[0].symbol}
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="mx-auto w-max mt-4">
+                                                <button
+                                                    className={`btn-primary  ${
+                                                        validationError() !==
+                                                            "" ||
+                                                        !canAddLiquidity
+                                                            ? "cursor-not-allowed"
+                                                            : ""
+                                                    }`}
+                                                    onClick={changeAmount}
+                                                    disabled={
+                                                        validationError() !==
+                                                            "" ||
+                                                        !canAddLiquidity
+                                                    }
+                                                >
+                                                    Add Liquidity
+                                                </button>
+                                            </div>
+                                        )}
                                     </section>
                                 </Dialog.Panel>
                             </Transition.Child>

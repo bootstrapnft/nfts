@@ -3,6 +3,7 @@ import { getPublicVaults } from "@/util/vault";
 import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
 import BigNumber from "bignumber.js";
+import { toast } from "react-toastify";
 
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 

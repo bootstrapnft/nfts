@@ -1,30 +1,33 @@
 import { Fragment, useEffect, useState } from "react";
-import { gql, request } from "graphql-request";
-import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
-import { truncateAddress } from "@/util/address";
-import Liquidity from "@/pages/pool/manage/liquidity";
-import { Contract, ethers } from "ethers";
 import { useParams } from "react-router";
-import config from "@/config";
-import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
+import { Contract, ethers } from "ethers";
+import { gql, request } from "graphql-request";
 import { useWeb3React } from "@web3-react/core";
-import SwapFee from "@/pages/pool/manage/swap-fee";
-import SwapPause from "@/pages/pool/manage/swap-pause";
-import ChangeTokenWeight from "@/pages/pool/manage/token-weight";
-import ChangeToken from "@/pages/pool/manage/change-token";
+import { id, Interface } from "ethers/lib/utils";
+import { Axis, Chart, Geom, Tooltip } from "bizcharts";
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+
 import ChangeCap from "@/pages/pool/manage/cap";
+import SwapFee from "@/pages/pool/manage/swap-fee";
+import Liquidity from "@/pages/pool/manage/liquidity";
+import SwapPause from "@/pages/pool/manage/swap-pause";
+import SwapTable from "@/pages/pool/manage/swap-table";
+import TokenTable from "@/pages/pool/manage/token-table";
+import ChangeToken from "@/pages/pool/manage/change-token";
 import ChangeWhiteList from "@/pages/pool/manage/whitelist";
 import ChangeController from "@/pages/pool/manage/controller";
-import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
-import MulticalABI from "@/contract/pool/Multical.json";
-import { id, Interface } from "ethers/lib/utils";
-import ERC20ABI from "@/contract/ERC20.json";
 import GradualWeight from "@/pages/pool/manage/gradual-weight";
+import ChangeTokenWeight from "@/pages/pool/manage/token-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
-import BigNumber from "bignumber.js";
-import { getTokensPrice } from "@/util/tokens";
-import { Axis, Chart, Geom, Tooltip } from "bizcharts";
-import { Pagination } from "antd";
+
+import { truncateAddress } from "@/util/address";
+import { getPoolLiquidity } from "@/util/utils";
+
+import config from "@/config";
+import ERC20ABI from "@/contract/ERC20.json";
+import MulticalABI from "@/contract/pool/Multical.json";
+import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
+import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -39,7 +42,6 @@ const PoolManage = () => {
     const { active, account, library } = useWeb3React();
     const [totalShares, setTotalShares] = useState(0);
     const [pool, setPool] = useState<any>(undefined);
-    const [swaps, setSwaps] = useState<any[]>([]);
     const [poolBalance, setPoolBalance] = useState("0");
     const [proxyAddress, setProxyAddress] = useState("");
     const [totalLiquidity, setTotalLiquidity] = useState(0);
@@ -55,11 +57,14 @@ const PoolManage = () => {
     const [openChangeTokenWeight, setOpenChangeTokenWeight] = useState(false);
     const [openChangeController, setOpenChangeController] = useState(false);
     const [changeWeightBlockNum, setChangeWeightBlockNum] = useState<any>();
+    const [poolLiquidity, setPoolLiquidity] = useState<any[]>([]);
+    const [poolTotalSwapFee, setPoolTotalSwapFee] = useState<any[]>([]);
+    const [poolTotalSwapVolume, setPoolTotalSwapVolume] = useState<any[]>([]);
+    const [chartType, setChartType] = useState("Liquidity");
 
     useEffect(() => {
         getProxyAddress();
         getInfo();
-        getSwap();
         getPoolMetrics();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,22 +105,8 @@ const PoolManage = () => {
                     console.log("get tokens balance err", err);
                 });
 
-            const tokens = pool.tokens.map((token: any) => {
-                let tokenId = "";
-                Object.keys(config.tokens).forEach((key) => {
-                    const tk = config.tokens[key];
-                    if (tk.address.toLowerCase() === token.address) {
-                        tokenId = tk.id;
-                    }
-                });
-                if (tokenId === "") {
-                    tokenId = token.symbol.toLowerCase();
-                }
-                token.id = tokenId;
-                return token;
-            });
-            getTokensPrice(tokens).then((res) => {
-                getPoolLiquidity(res);
+            getPoolLiquidity(pool).then((res) => {
+                setTotalLiquidity(res);
             });
         }
     }, [pool, active]);
@@ -182,37 +173,6 @@ const PoolManage = () => {
             });
             console.log("get pool info:", data);
             setPool(data.pool);
-        });
-    };
-
-    const getSwap = (pageIndex: number = 1, pageSize: number = 20) => {
-        const query = gql`
-      {
-        swaps(
-          where: { poolAddress: "${params.address}" }
-          first: ${pageSize}
-          skip: ${(pageIndex - 1) * pageSize}
-          orderBy: "timestamp"
-          orderDirection: "desc"
-        ) {
-          id
-          tokenIn
-          tokenInSym
-          tokenAmountIn
-          tokenOut
-          tokenOutSym
-          tokenAmountOut
-          poolTotalSwapVolume
-          timestamp
-          value
-          feeValue
-        }
-      }
-    `;
-
-        request(config.subgraphUrl, query).then((data) => {
-            console.log(data);
-            setSwaps(data.swaps);
         });
     };
 
@@ -289,6 +249,7 @@ const PoolManage = () => {
     };
 
     const multicall = async (abi: any[], calls: any[], options?: any) => {
+        console.log("multicall", calls);
         const multi = new Contract(
             config.addresses.multicall,
             MulticalABI,
@@ -307,6 +268,7 @@ const PoolManage = () => {
                 itf.decodeFunctionResult(calls[i][1], call)
             );
         } catch (e) {
+            console.log("multicall err", e, calls);
             return Promise.reject();
         }
     };
@@ -321,34 +283,6 @@ const PoolManage = () => {
             console.log("get pool balance of:", ethers.utils.formatEther(res));
             setPoolBalance(ethers.utils.formatEther(res));
         });
-    };
-
-    const getPoolLiquidity = (tokens: any) => {
-        console.log("get pool liquidity:", tokens);
-        let sumWeight = new BigNumber(0);
-        let sumValue = new BigNumber(0);
-
-        for (const token of tokens) {
-            const price = token.price;
-            if (!price) {
-                continue;
-            }
-            const balanceNumber = new BigNumber(token.balance);
-            const value = balanceNumber.times(price);
-            console.log("lidiquidity value", token.balance);
-            console.log("lidiquidity price", price);
-            sumValue = sumValue.plus(value);
-            sumWeight = sumWeight.plus(token.weightPercent / 100);
-        }
-        let liquidity: any = 0;
-        if (sumWeight.gt(0)) {
-            console.log("sumWeight:", sumWeight.toString());
-            console.log("sumValue:", sumValue.toString());
-            liquidity = sumValue.div(sumWeight).toString();
-        } else {
-            liquidity = pool.liquidity;
-        }
-        setTotalLiquidity(Number(Number(liquidity).toFixed(2)));
     };
 
     const getPoolMetrics = () => {
@@ -373,7 +307,36 @@ const PoolManage = () => {
                 ${query}
             }
         `;
-        request(config.subgraphUrl, querySql).then((data) => {});
+        request(config.subgraphUrl, querySql).then((data) => {
+            const res = normalizeMetrics(data);
+            const poolLiquidity: any[] = [];
+            const poolTotalSwapFee: any[] = [];
+            const poolTotalSwapVolume: any[] = [];
+
+            Object.keys(res).forEach((key) => {
+                const item = res[key];
+                const date = new Date(
+                    parseInt(key.replace("metrics_", ""))
+                ).toLocaleDateString();
+                poolLiquidity.push({
+                    date: date,
+                    price: Number(parseFloat(item.poolLiquidity).toFixed(3)),
+                });
+                poolTotalSwapVolume.push({
+                    date: date,
+                    price: Number(
+                        parseFloat(item.poolTotalSwapVolume).toFixed(3)
+                    ),
+                });
+                poolTotalSwapFee.push({
+                    date: date,
+                    price: Number(parseFloat(item.poolTotalSwapFee).toFixed(3)),
+                });
+            });
+            setPoolLiquidity(poolLiquidity);
+            setPoolTotalSwapVolume(poolTotalSwapVolume);
+            setPoolTotalSwapFee(poolTotalSwapFee);
+        });
     };
 
     const normalizeMetrics = (rawMetrics: any) => {
@@ -388,17 +351,6 @@ const PoolManage = () => {
         }
         return metrics;
     };
-
-    const data = [
-        { year: "2022-07-11", sales: 5 },
-        { year: "2022-07-12", sales: 52 },
-        { year: "2022-07-13", sales: 61 },
-        { year: "2022-07-13", sales: 45 },
-        { year: "2022-07-14", sales: 48 },
-        { year: "2022-07-15", sales: 38 },
-        { year: "2022-07-16", sales: 38 },
-        { year: "2022-07-17", sales: 38 },
-    ];
 
     // @ts-ignore
     return (
@@ -487,7 +439,11 @@ const PoolManage = () => {
                         </div>
 
                         <div className="bg-blue-primary rounded-lg h-32 w-1/5 flex justify-center items-center flex-col">
-                            <h1 className="font-bold text-2xl">$ 0</h1>
+                            <h1 className="font-bold text-2xl">
+                                ${" "}
+                                {pool &&
+                                    parseFloat(pool.totalSwapVolume).toFixed(2)}
+                            </h1>
                             <h3>Volume (24h)</h3>
                         </div>
 
@@ -515,37 +471,67 @@ const PoolManage = () => {
                     <div>
                         <div className="flex gap-x-10 mt-5 px-2">
                             <div
-                                className="py-2 hover:text-purple-primary cursor-pointer text-purple-primary
-                                border-b border-purple-primary border-b-2"
+                                className={`py-2 hover:text-purple-primary cursor-pointer 
+                                ${
+                                    chartType === "Liquidity"
+                                        ? "text-purple-primary border-b border-purple-primary border-b-2"
+                                        : ""
+                                }`}
+                                onClick={() => setChartType("Liquidity")}
                             >
                                 Liquidity
                             </div>
-                            <div className="py-2 hover:text-purple-primary cursor-pointer">
+                            <div
+                                className={`py-2 hover:text-purple-primary cursor-pointer ${
+                                    chartType === "Volume"
+                                        ? "text-purple-primary border-b border-purple-primary border-b-2"
+                                        : ""
+                                }`}
+                                onClick={() => setChartType("Volume")}
+                            >
                                 Volume
                             </div>
-                            <div className="py-2 hover:text-purple-primary cursor-pointer">
+                            <div
+                                className={`py-2 hover:text-purple-primary cursor-pointer ${
+                                    chartType === "Fee returns"
+                                        ? "text-purple-primary border-b border-purple-primary border-b-2"
+                                        : ""
+                                }`}
+                                onClick={() => setChartType("Fee returns")}
+                            >
                                 Fee returns
                             </div>
                         </div>
                         <div className="bg-blue-primary h-72 w-full rounded-lg px-6 py-8">
-                            <Chart height={240} grid={null} autoFit data={data}>
+                            <Chart
+                                height={240}
+                                grid={null}
+                                autoFit
+                                data={
+                                    chartType === "Liquidity"
+                                        ? poolLiquidity
+                                        : chartType === "Volume"
+                                        ? poolTotalSwapVolume
+                                        : poolTotalSwapFee
+                                }
+                            >
                                 <Tooltip shared />
                                 <Axis
-                                    name="year"
+                                    name="date"
                                     grid={null}
                                     line={null}
                                     tickLine={null}
                                     label={{ style: { fill: "#ebebeb" } }}
                                 />
                                 <Axis
-                                    name="sales"
+                                    name="price"
                                     grid={null}
                                     line={null}
                                     label={{ style: { fill: "#ebebeb" } }}
                                 />
                                 <Geom
                                     type="interval"
-                                    position="year*sales"
+                                    position="date*price"
                                     color="#31d399"
                                     active={[
                                         true,
@@ -630,196 +616,13 @@ const PoolManage = () => {
                         </div>
                         <div className="bg-blue-primary pt-8 py-16 px-8 w-full">
                             {infoBtn === InfoBtn.Balance && (
-                                <table className="w-full">
-                                    <thead className="bg-purple-second bg-opacity-10">
-                                        <tr className="text-sm font-light">
-                                            <th className="text-left w-1/2 h-12 pl-4 rounded-l-lg">
-                                                Token
-                                            </th>
-                                            <th className="text-right">
-                                                Weight
-                                            </th>
-                                            <th className="text-right">
-                                                Pool balance
-                                            </th>
-                                            <th className="text-right">
-                                                My balance
-                                            </th>
-                                            <th className="text-right pr-4 rounded-r-lg">
-                                                My asset value
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {pool &&
-                                            pool.tokens.map(
-                                                (token: any, index: number) => {
-                                                    return (
-                                                        <tr
-                                                            className="text-sm font-light border-b border-purple-second border-opacity-50"
-                                                            key={index}
-                                                        >
-                                                            <td className="text-left w-1/2 h-12 pl-4 flex gap-x-3 items-center">
-                                                                {/*<img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" alt=""*/}
-                                                                {/*     className="h-6 w-6"/>*/}
-                                                                <Jazzicon
-                                                                    diameter={
-                                                                        22
-                                                                    }
-                                                                    seed={jsNumberForAddress(
-                                                                        token.address
-                                                                    )}
-                                                                />
-                                                                <span>
-                                                                    {
-                                                                        token.symbol
-                                                                    }
-                                                                </span>
-                                                            </td>
-                                                            <td className="text-right px-4">
-                                                                {
-                                                                    token.denormWeight
-                                                                }{" "}
-                                                                %
-                                                            </td>
-                                                            <td className="text-right px-4">
-                                                                {token.balance !==
-                                                                ""
-                                                                    ? parseFloat(
-                                                                          token.balance
-                                                                      ).toFixed(
-                                                                          4
-                                                                      )
-                                                                    : "-"}
-                                                            </td>
-                                                            <td className="text-right px-4">
-                                                                {token.balance !==
-                                                                ""
-                                                                    ? parseFloat(
-                                                                          token.balance
-                                                                      ).toFixed(
-                                                                          4
-                                                                      )
-                                                                    : "-"}
-                                                            </td>
-                                                            <td className="text-right pr-4">
-                                                                0
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                }
-                                            )}
-                                    </tbody>
-                                </table>
+                                <TokenTable pool={pool} />
                             )}
                             {infoBtn === InfoBtn.Swap && (
-                                <Fragment>
-                                    <table className="w-full">
-                                        <thead className="bg-purple-second bg-opacity-10">
-                                            <tr className="text-sm font-light">
-                                                <th className="text-left w-1/2 h-12 pl-4 rounded-l-lg">
-                                                    Time
-                                                </th>
-                                                <th className="text-left">
-                                                    Trade in
-                                                </th>
-                                                <th className="text-left">
-                                                    Trade out
-                                                </th>
-                                                <th className="text-right pr-4 rounded-r-lg">
-                                                    Swap fee
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {swaps &&
-                                                swaps.map(
-                                                    (
-                                                        swap: any,
-                                                        index: number
-                                                    ) => {
-                                                        return (
-                                                            <tr
-                                                                className="text-sm font-light border-b border-purple-second border-opacity-50"
-                                                                key={index}
-                                                            >
-                                                                <td className="text-left w-2/3 h-12 pl-4">
-                                                                    {new Date(
-                                                                        swap.timestamp *
-                                                                            1000
-                                                                    ).toUTCString()}
-                                                                </td>
-                                                                <td>
-                                                                    <div className="flex items-center justify-start gap-x-2 h-12">
-                                                                        <Jazzicon
-                                                                            diameter={
-                                                                                22
-                                                                            }
-                                                                            seed={jsNumberForAddress(
-                                                                                swap.tokenIn
-                                                                            )}
-                                                                        />
-                                                                        <div>
-                                                                            {parseFloat(
-                                                                                swap.tokenAmountIn
-                                                                            ).toFixed(
-                                                                                3
-                                                                            )}
-                                                                        </div>
-                                                                        <div>
-                                                                            {
-                                                                                swap.tokenInSym
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div className="flex items-center justify-start gap-x-2 h-12">
-                                                                        <Jazzicon
-                                                                            diameter={
-                                                                                22
-                                                                            }
-                                                                            seed={jsNumberForAddress(
-                                                                                swap.tokenOut
-                                                                            )}
-                                                                        />
-                                                                        <div>
-                                                                            {parseFloat(
-                                                                                swap.tokenAmountOut
-                                                                            ).toFixed(
-                                                                                3
-                                                                            )}
-                                                                        </div>
-                                                                        <div>
-                                                                            {
-                                                                                swap.tokenOutSym
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="text-right pr-4">
-                                                                    ${" "}
-                                                                    {
-                                                                        swap.feeValue
-                                                                    }
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    }
-                                                )}
-                                        </tbody>
-                                    </table>
-                                    <div className="text-center w-full pt-8">
-                                        <Pagination
-                                            defaultCurrent={1}
-                                            total={pool.swapsCount}
-                                            pageSize={10}
-                                            onChange={(page, pageSize) =>
-                                                getSwap(page, pageSize)
-                                            }
-                                        />
-                                    </div>
-                                </Fragment>
+                                <SwapTable
+                                    pool={pool}
+                                    address={params.address}
+                                />
                             )}
                             {infoBtn === InfoBtn.About && pool && (
                                 <div>
@@ -853,7 +656,7 @@ const PoolManage = () => {
                                             cap
                                         </dt>
                                         <dd className="text-xl font-medium">
-                                            {pool.cap}
+                                            {cap}
                                         </dd>
                                     </div>
 
@@ -893,7 +696,9 @@ const PoolManage = () => {
                                             Creation date
                                         </dt>
                                         <dd className="text-xl font-medium">
-                                            {pool.createTime}
+                                            {new Date(
+                                                pool.createTime * 1000
+                                            ).toLocaleString()}
                                         </dd>
                                     </div>
                                     <div className="mt-2">
@@ -901,7 +706,7 @@ const PoolManage = () => {
                                             Swap fee
                                         </dt>
                                         <dd className="text-xl font-medium">
-                                            {pool.swapFee}
+                                            {pool.swapFee * 100}%
                                         </dd>
                                     </div>
                                     <div className="mt-2">
@@ -1072,29 +877,35 @@ const PoolManage = () => {
                                             </button>
                                         </div>
                                     </div>
-                                    <div
-                                        className="flex justify-between items-center border-b border-purple-primary pb-4
-                        border-opacity-50 mt-6"
-                                    >
-                                        <dl>
-                                            <dt className="text-sm">
-                                                LP whitelist
-                                            </dt>
-                                            <dd className="text-2xl font-bold">
-                                                {""}
-                                            </dd>
-                                        </dl>
-                                        <div>
-                                            <button
-                                                className="btn-primary"
-                                                onClick={() =>
-                                                    setOpenChangeWhitelist(true)
-                                                }
-                                            >
-                                                Manage
-                                            </button>
+                                    {pool.rights.includes(
+                                        "canWhitelistLPs"
+                                    ) && (
+                                        <div
+                                            className="flex justify-between items-center border-b border-purple-primary pb-4
+                                            border-opacity-50 mt-6"
+                                        >
+                                            <dl>
+                                                <dt className="text-sm">
+                                                    LP whitelist
+                                                </dt>
+                                                <dd className="text-2xl font-bold">
+                                                    {""}
+                                                </dd>
+                                            </dl>
+                                            <div>
+                                                <button
+                                                    className="btn-primary"
+                                                    onClick={() =>
+                                                        setOpenChangeWhitelist(
+                                                            true
+                                                        )
+                                                    }
+                                                >
+                                                    Manage
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                     <div
                                         className="flex justify-between items-center border-b border-purple-primary pb-4
                         border-opacity-50 mt-6"

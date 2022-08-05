@@ -17,7 +17,7 @@
         "dsProxyRegistry": "0x4Cc5893939218dCde9Ca533ad4E35000d5bb9f7c",
         "proxy": "0x3dC7c33227f9becC4f35172301A6539bDfD22A62",
         "weth": "0xA95aA7229Aaf354CA18FB8f9A5aA3e78B88a2806",
-        "multicall": "0xC90C43199c0e5F8F04f63fbcc90CE05aF5ffa225",
+        "multicall": "0x13B62b4084d7eba0B59D933FcAfB25C0ff88E275",
         "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         "sorMulticall": "0xAFdbA29203159a16b38Be3e42Bb6bbB0C39a73Ba",
         "exchangeProxy": "0x3dC7c33227f9becC4f35172301A6539bDfD22A62"

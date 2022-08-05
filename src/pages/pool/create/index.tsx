@@ -284,7 +284,7 @@ const PoolCreate = () => {
         }
     };
 
-    const clacAmount = (token: any) => {
+    const calcAmount = (token: any) => {
         if (tokenAmount[token.id] === 0) {
             return;
         }
@@ -617,7 +617,7 @@ const PoolCreate = () => {
                                                             JSON.stringify(w)
                                                         )
                                                     );
-                                                    clacAmount(token);
+                                                    calcAmount(token);
                                                 }}
                                             />
                                         </td>
