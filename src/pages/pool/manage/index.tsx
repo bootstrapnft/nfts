@@ -113,8 +113,7 @@ const PoolManage = () => {
                 setTotalLiquidity(res);
             });
 
-            const chainId = currentNetwork()["id"];
-            const lbpData = getLbpData(pool, chainId);
+            const lbpData = getLbpData(pool);
             setLbpData(lbpData);
             getSwaps();
             console.log("get lbpData", lbpData);
@@ -400,7 +399,7 @@ const PoolManage = () => {
                     const date = new Date(
                         item.timestamp * 1000
                     ).toLocaleDateString();
-                    const price = swapPrice(pool, currentNetwork()["id"], item);
+                    const price = swapPrice(pool, item);
                     return {
                         date: date,
                         price: Number(price.toFixed(3)),

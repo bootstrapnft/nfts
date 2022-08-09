@@ -1,29 +1,13 @@
 import { calcSpotPrice } from "@balancer-labs/sor/dist/bmath";
 import { bnum } from "@/util/utils";
 import { ethers } from "ethers";
+import config from "@/config";
 
-const reserveCurrencies: any = {
-    1: [
-        "0x6B175474E89094C44Da98b954EedeAC495271d0F", // DAI
-        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
-        "0x261b45D85cCFeAbb11F022eBa346ee8D1cd488c0", // rDAI
-    ],
-    4: [
-        "0xa3FcE8597Ae238f1050c382f1f94Db8c646529A9",
-        "0x6C97D2dda691c7eeeffCF7FF561D9CC596c94739",
-    ],
-    42: [
-        "0x1528F3FCc26d13F7079325Fb78D9442607781c8C", // DAI
-        "0x2F375e94FC336Cdec2Dc0cCB5277FE59CBf1cAe5", // USDC
-        "0x3183683ceeab01699722053a2cb6a945ce0d7cec", // rDAI
-    ],
-};
+export function swapPrice(pool: any, swap: any) {
+    const reserveCurrencies = Object.keys(config.tokens);
+    const reserves = new Set(reserveCurrencies);
+    const poolTokens: any = new Set(pool.tokensList);
 
-export function swapPrice(pool: any, chainId: number, swap: any) {
-    const reserves = new Set(reserveCurrencies[chainId]);
-    const poolTokens = new Set(pool.tokensList);
-
-    // @ts-ignore
     const intersection = new Set(
         [...poolTokens].filter((x) => reserves.has(ethers.utils.getAddress(x)))
     );
@@ -35,10 +19,11 @@ export function swapPrice(pool: any, chainId: number, swap: any) {
         : swap.tokenAmountOut / swap.tokenAmountIn;
 }
 
-export const getLbpData = (pool: any, chainId: number) => {
-    console.log("getLbpData", pool, chainId);
-    const reserves = new Set(reserveCurrencies[chainId]);
-    const poolTokens = new Set(pool.tokensList);
+export const getLbpData = (pool: any) => {
+    console.log("getLbpData", pool);
+    const reserveCurrencies = Object.keys(config.tokens);
+    const reserves = new Set(reserveCurrencies);
+    const poolTokens: any = new Set(pool.tokensList);
 
     let projectToken;
     let projectIdx;
@@ -51,7 +36,6 @@ export const getLbpData = (pool: any, chainId: number) => {
     );
 
     // Project token is the pool token that is NOT in reserves
-    // @ts-ignore
     const difference = new Set(
         [...poolTokens].filter((x) => !reserves.has(ethers.utils.getAddress(x)))
     );
