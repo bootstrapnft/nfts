@@ -331,17 +331,17 @@ const PoolManage = () => {
                 ).toLocaleDateString();
                 poolLiquidity.push({
                     date: date,
-                    price: Number(parseFloat(item.poolLiquidity).toFixed(3)),
+                    value: Number(parseFloat(item.poolLiquidity).toFixed(3)),
                 });
                 poolTotalSwapVolume.push({
                     date: date,
-                    price: Number(
+                    value: Number(
                         parseFloat(item.poolTotalSwapVolume).toFixed(3)
                     ),
                 });
                 poolTotalSwapFee.push({
                     date: date,
-                    price: Number(parseFloat(item.poolTotalSwapFee).toFixed(3)),
+                    value: Number(parseFloat(item.poolTotalSwapFee).toFixed(3)),
                 });
             });
             setPoolLiquidity(poolLiquidity);
@@ -594,7 +594,7 @@ const PoolManage = () => {
                                             : poolTotalSwapFee
                                     }
                                 >
-                                    <Tooltip shared />
+                                    <Tooltip />
                                     <Axis
                                         name="date"
                                         grid={null}
@@ -603,7 +603,7 @@ const PoolManage = () => {
                                         label={{ style: { fill: "#ebebeb" } }}
                                     />
                                     <Axis
-                                        name="price"
+                                        name="value"
                                         grid={null}
                                         line={null}
                                         label={{ style: { fill: "#ebebeb" } }}
@@ -611,7 +611,7 @@ const PoolManage = () => {
                                     {chartType !== "Price" && (
                                         <Geom
                                             type="interval"
-                                            position="date*price"
+                                            position="date*value"
                                             color="#31d399"
                                             active={[
                                                 true,
@@ -641,7 +641,7 @@ const PoolManage = () => {
                                 visible={chartType === "Price"}
                                 data={chartPrice}
                             >
-                                <Tooltip shared />
+                                <Tooltip />
                                 <Axis
                                     name="date"
                                     grid={null}
