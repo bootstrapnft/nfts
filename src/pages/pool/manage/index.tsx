@@ -28,6 +28,8 @@ import ERC20ABI from "@/contract/ERC20.json";
 import MulticalABI from "@/contract/pool/Multical.json";
 import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
 import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
+import { getLbpData, swapPrice } from "@/util/lbpData";
+import { currentNetwork } from "@/util/network";
 
 const enum InfoBtn {
     Swap = "swap",
@@ -61,6 +63,8 @@ const PoolManage = () => {
     const [poolTotalSwapFee, setPoolTotalSwapFee] = useState<any[]>([]);
     const [poolTotalSwapVolume, setPoolTotalSwapVolume] = useState<any[]>([]);
     const [chartType, setChartType] = useState("Liquidity");
+    const [lbpData, setLbpData] = useState<any>(null);
+    const [chartPrice, setChartPrice] = useState<any[]>([]);
 
     useEffect(() => {
         getProxyAddress();
@@ -108,6 +112,12 @@ const PoolManage = () => {
             getPoolLiquidity(pool).then((res) => {
                 setTotalLiquidity(res);
             });
+
+            const chainId = currentNetwork()["id"];
+            const lbpData = getLbpData(pool, chainId);
+            setLbpData(lbpData);
+            getSwaps();
+            console.log("get lbpData", lbpData);
         }
     }, [pool, active]);
 
@@ -292,15 +302,14 @@ const PoolManage = () => {
         let query = "";
         for (let i = 0; i < 31; i++) {
             const timestamp = today - i * day;
-            query +=
-                `metrics_${timestamp}:swaps(first: 1, orderBy: timestamp, orderDirection: desc,
+            query += `metrics_${timestamp}:swaps(first: 1, orderBy: timestamp, orderDirection: desc,
              where: {poolAddress: "${params.address}", timestamp_gt: ${
-                    timestamp / 1000
-                }, timestamp_lt: ${(timestamp + day) / 1000} }) {
+                timestamp / 1000
+            }, timestamp_lt: ${(timestamp + day) / 1000} }) {
                 poolTotalSwapVolume
                 poolTotalSwapFee
                 poolLiquidity 
-             }` + "\n";
+             }`;
         }
         const querySql = gql`
             query {
@@ -315,6 +324,9 @@ const PoolManage = () => {
 
             Object.keys(res).forEach((key) => {
                 const item = res[key];
+                if (!item) {
+                    return;
+                }
                 const date = new Date(
                     parseInt(key.replace("metrics_", ""))
                 ).toLocaleDateString();
@@ -349,7 +361,55 @@ const PoolManage = () => {
                 metrics[keys[i]] = metrics[keys[i - 1]];
             }
         }
+        const metricsKeys = Object.keys(metrics).reverse();
+        for (let i = 0; i < metricsKeys.length; i++) {
+            if (!metrics[metricsKeys[i]]) {
+                metrics[metricsKeys[i]] = metrics[metricsKeys[i - 1]];
+            }
+        }
         return metrics;
+    };
+
+    const getSwaps = () => {
+        // if (parseInt(pool.swapsCount) === 0) {
+
+        const query = gql`
+            query {
+                swaps (where: {poolAddress: "${params.address}"}, first: ${pool.swapsCount}, skip: 0, orderBy: "timestamp", orderDirection: "asc")
+                {
+                    id
+                    tokenIn
+                    tokenInSym
+                    tokenAmountIn
+                    tokenOut
+                    tokenOutSym
+                    tokenAmountOut
+                    poolTotalSwapVolume
+                    timestamp
+                    value
+                    feeValue
+                }
+            }
+        `;
+        request(config.subgraphUrl, query)
+            .then((data) => {
+                console.log("get swaps:", data);
+                const swaps = data.swaps;
+
+                const chartPrice = swaps.map((item: any) => {
+                    const date = new Date(
+                        item.timestamp * 1000
+                    ).toLocaleDateString();
+                    const price = swapPrice(pool, currentNetwork()["id"], item);
+                    return {
+                        date: date,
+                        price: Number(price.toFixed(3)),
+                    };
+                });
+                console.log("chartPrice:", chartPrice);
+                setChartPrice(chartPrice);
+            })
+            .catch((err) => {});
     };
 
     // @ts-ignore
@@ -501,19 +561,86 @@ const PoolManage = () => {
                             >
                                 Fee returns
                             </div>
+                            {lbpData && (
+                                <div
+                                    className={`py-2 hover:text-purple-primary cursor-pointer ${
+                                        chartType === "Price"
+                                            ? "text-purple-primary border-b border-purple-primary border-b-2"
+                                            : ""
+                                    }`}
+                                    onClick={() => setChartType("Price")}
+                                >
+                                    {lbpData.projectToken} Price
+                                </div>
+                            )}
                         </div>
-                        <div className="bg-blue-primary h-72 w-full rounded-lg px-6 py-8">
+                        <div className="bg-blue-primary h-72 w-full rounded-lg px-6 py-8 overflow-hidden">
+                            <div
+                                className={`${
+                                    chartType !== "Price"
+                                        ? ""
+                                        : "opacity-0 -mt-60"
+                                }`}
+                            >
+                                <Chart
+                                    height={240}
+                                    grid={null}
+                                    autoFit
+                                    visible={chartType !== "Price"}
+                                    data={
+                                        chartType === "Liquidity"
+                                            ? poolLiquidity
+                                            : chartType === "Volume"
+                                            ? poolTotalSwapVolume
+                                            : poolTotalSwapFee
+                                    }
+                                >
+                                    <Tooltip shared />
+                                    <Axis
+                                        name="date"
+                                        grid={null}
+                                        line={null}
+                                        tickLine={null}
+                                        label={{ style: { fill: "#ebebeb" } }}
+                                    />
+                                    <Axis
+                                        name="price"
+                                        grid={null}
+                                        line={null}
+                                        label={{ style: { fill: "#ebebeb" } }}
+                                    />
+                                    {chartType !== "Price" && (
+                                        <Geom
+                                            type="interval"
+                                            position="date*price"
+                                            color="#31d399"
+                                            active={[
+                                                true,
+                                                {
+                                                    highlight: true,
+                                                    style: {
+                                                        color: "#fff",
+                                                    },
+                                                },
+                                            ]}
+                                        />
+                                    )}
+                                    {chartType === "Price" && (
+                                        <Geom
+                                            type="line"
+                                            position="date*price"
+                                            color="#31d399"
+                                            shape={"smooth"}
+                                        />
+                                    )}
+                                </Chart>
+                            </div>
                             <Chart
                                 height={240}
                                 grid={null}
                                 autoFit
-                                data={
-                                    chartType === "Liquidity"
-                                        ? poolLiquidity
-                                        : chartType === "Volume"
-                                        ? poolTotalSwapVolume
-                                        : poolTotalSwapFee
-                                }
+                                visible={chartType === "Price"}
+                                data={chartPrice}
                             >
                                 <Tooltip shared />
                                 <Axis
@@ -530,18 +657,10 @@ const PoolManage = () => {
                                     label={{ style: { fill: "#ebebeb" } }}
                                 />
                                 <Geom
-                                    type="interval"
+                                    type="line"
                                     position="date*price"
                                     color="#31d399"
-                                    active={[
-                                        true,
-                                        {
-                                            highlight: true,
-                                            style: {
-                                                color: "#fff",
-                                            },
-                                        },
-                                    ]}
+                                    shape={"smooth"}
                                 />
                             </Chart>
                         </div>
@@ -714,7 +833,9 @@ const PoolManage = () => {
                                             Total swap volume
                                         </dt>
                                         <dd className="text-xl font-medium">
-                                            {pool.totalSwapVolume}
+                                            {parseFloat(
+                                                pool.totalSwapVolume
+                                            ).toFixed(2)}
                                         </dd>
                                     </div>
                                     <div className="mt-2">
@@ -722,7 +843,9 @@ const PoolManage = () => {
                                             Total swap fee
                                         </dt>
                                         <dd className="text-xl font-medium">
-                                            {pool.totalSwapFee}
+                                            {parseFloat(
+                                                pool.totalSwapFee
+                                            ).toFixed(2)}
                                         </dd>
                                     </div>
                                 </div>
@@ -943,6 +1066,7 @@ const PoolManage = () => {
                     proxyAddress={proxyAddress}
                     totalShares={totalShares}
                     tokens={pool.tokens}
+                    cap={cap}
                     close={() => setOpenLiquidity(false)}
                 />
             )}

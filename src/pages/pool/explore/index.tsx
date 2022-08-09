@@ -13,13 +13,16 @@ import SelectToken from "@/pages/pool/component/select-token";
 
 import closeIcon from "@/assets/icon/close.svg";
 import { useLoading } from "@/context/loading";
+import { useWeb3React } from "@web3-react/core";
 
 const PoolExplore = () => {
     const navigate = useNavigate();
     const [, setLoading] = useLoading();
+    const { account } = useWeb3React();
     const [pools, setPools] = useState<any[]>([]);
     const [allPools, setAllPools] = useState<any[]>([]);
     const [tokensInfo, setTokensInfo] = useState<any[]>([]);
+    const [userShares, setUserShares] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState<any[]>([]);
     const [filterTokens, setFilterTokens] = useState<any[]>([]);
     const [showSelectToken, setShowSelectToken] = useState(false);
@@ -30,6 +33,10 @@ const PoolExplore = () => {
             setTokensInfo(res);
         });
     }, []);
+
+    useEffect(() => {
+        getUserShares();
+    }, [account]);
 
     useEffect(() => {
         const tokensId = filterTokens.map((t: any) => t.address.toLowerCase());
@@ -133,6 +140,30 @@ const PoolExplore = () => {
         });
     };
 
+    const getUserShares = () => {
+        if (!account) {
+            return;
+        }
+        console.log("getUserShares");
+        const query = gql`
+            query {
+                crpPoolShares(where:{userAddress:"${account.toLowerCase()}"}) {
+                    poolId {
+                        id
+                    }
+                    userAddress {
+                        id
+                    }
+                    balance
+                }
+            }
+        `;
+
+        request(config.subgraphUrl, query).then((data) => {
+            setUserShares(data.crpPoolShares);
+        });
+    };
+
     const handleSelectToken = (token: any) => {
         const tokens = [token, ...filterTokens];
         setFilterTokens(tokens);
@@ -140,6 +171,25 @@ const PoolExplore = () => {
 
     const removeFilterToken = (id: string) => {
         setFilterTokens(filterTokens.filter((token: any) => token.id !== id));
+    };
+
+    const getMyLiquidity = (pool: any) => {
+        if (userShares.length === 0) {
+            return "-";
+        }
+
+        let myLiquidity = "-";
+        userShares.forEach((share: any) => {
+            if (share.poolId.id === pool.id) {
+                const liquidity =
+                    (pool.poolLiquidity / parseFloat(pool.totalShares)) *
+                    parseFloat(share.balance);
+                myLiquidity = "$" + liquidity.toFixed(3);
+                return;
+            }
+        });
+
+        return myLiquidity;
     };
 
     return (
@@ -252,7 +302,7 @@ const PoolExplore = () => {
                                             $ {item.poolLiquidity}
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
-                                            $ {0}
+                                            {getMyLiquidity(item)}
                                         </div>
                                         <div className="w-1/12 hidden md:inline">
                                             ${" "}

@@ -128,7 +128,10 @@ const RemoveLiquidity = ({
 
     const getMyPoolBalance = (token: any) => {
         if (!tokenBalance && parseFloat(tokenBalance) !== 0) return 0;
-        return (parseFloat(tokenBalance) / totalShares) * token.balance;
+        return (
+            (parseFloat(tokenBalance) / totalShares) *
+            token.balance
+        ).toFixed(3);
     };
 
     const changeAmount = () => {
@@ -300,7 +303,8 @@ const RemoveLiquidity = ({
                                                 </dd>
                                                 <dd>My share: -</dd>
                                                 <dd className="mb-6">
-                                                    Swap fee: 0.1%
+                                                    Swap fee:{" "}
+                                                    {poolInfo.swapFee * 100}%
                                                 </dd>
                                                 <Pie
                                                     size={114}
@@ -403,7 +407,9 @@ const RemoveLiquidity = ({
                                                                                     ? tokenAmount[
                                                                                           token
                                                                                               .address
-                                                                                      ]
+                                                                                      ].toFixed(
+                                                                                          3
+                                                                                      )
                                                                                     : "-"}
                                                                             </td>
                                                                         </tr>

@@ -30,8 +30,9 @@ const Liquidity = ({
     poolInfo,
     tokens,
     close,
+    cap,
 }: any) => {
-    console.log("Liquidity", tokens, poolInfo, totalShares);
+    console.log("Liquidity", tokens, poolInfo, totalShares, cap);
     const BALANCE_BUFFER = 0.01;
     const [, setLoading] = useLoading();
     const { account, active, library } = useWeb3React();
@@ -390,6 +391,16 @@ const Liquidity = ({
                 return;
             }
         });
+
+        if (userLiquidity.absolute.future > cap) {
+            amountError =
+                "You can't add liquidity more than your liquidity cap";
+        }
+
+        if (proxyAddress === "0x0000000000000000000000000000000000000000") {
+            amountError = "Please create first proxy";
+        }
+
         return amountError;
     };
 
@@ -431,6 +442,7 @@ const Liquidity = ({
 
     const approve = async (token: any) => {
         setLoading(true);
+        console.log("approve token:", token, proxyAddress);
         try {
             const contract = new Contract(
                 token.address,

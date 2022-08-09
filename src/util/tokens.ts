@@ -106,8 +106,13 @@ export const getTokensPrice = async (tokens: any[]) => {
     const tokenIds = tokens.map((token) => token.id).join(",");
     const ENDPOINT = "https://api.coingecko.com/api/v3";
     const url = `${ENDPOINT}/simple/price?ids=${tokenIds}&vs_currencies=usd`;
-    const response = await fetch(url);
-    const data = await response.json();
+    let data: any = {};
+    try {
+        const response = await fetch(url);
+        data = await response.json();
+    } catch (e) {
+        console.log("getTokensPrice err:", e);
+    }
     console.log("tokens utils get price:", data);
     const temp = tokens.map((token: any) => {
         token.price = data[token.id] ? data[token.id].usd : 0.1;
