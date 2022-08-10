@@ -29,7 +29,6 @@ import MulticalABI from "@/contract/pool/Multical.json";
 import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
 import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
 import { getLbpData, swapPrice } from "@/util/lbpData";
-import { currentNetwork } from "@/util/network";
 
 const enum InfoBtn {
     Swap = "swap",

@@ -3,7 +3,7 @@ import { getPublicVaults } from "@/util/vault";
 import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
 import BigNumber from "bignumber.js";
-import { toast } from "react-toastify";
+import { gql, request } from "graphql-request";
 
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 
@@ -119,6 +119,31 @@ export const getTokensPrice = async (tokens: any[]) => {
         return token;
     });
     return temp;
+};
+
+export const getTokensPriceFormGraph = async () => {
+    const query = gql`
+        query {
+            tokenPrices {
+                id
+                name
+                symbol
+                price
+            }
+        }
+    `;
+
+    let data: any = {};
+    try {
+        const result = await request(config.subgraphUrl, query);
+        console.log("getTokensPriceFormGraph:", result);
+        result.tokenPrices.forEach((item: any) => {
+            data[item.id] = item.price;
+        });
+    } catch (e) {
+        console.log("getTokensPriceFormGraph err:", e);
+    }
+    return data;
 };
 
 const getBalance = async (token: any, account: string) => {

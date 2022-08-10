@@ -1,6 +1,6 @@
 import { MaxUint256 } from "@ethersproject/constants";
 import BigNumber from "@/util/bignumber";
-import { getTokensPrice } from "@/util/tokens";
+import { getTokensPrice, getTokensPriceFormGraph } from "@/util/tokens";
 import config from "@/config";
 
 export const ITEMS_PER_PAGE = 20;
@@ -99,26 +99,29 @@ export function isLocked(
 }
 
 export const getPoolLiquidity = async (pool: any) => {
-    let tokens = pool.tokens.map((token: any) => {
-        let tokenId = "";
-        Object.keys(config.tokens).forEach((key) => {
-            const tk = config.tokens[key];
-            if (tk.address.toLowerCase() === token.address) {
-                tokenId = tk.id;
-            }
-        });
-        if (tokenId === "") {
-            tokenId = token.symbol.toLowerCase();
-        }
-        token.id = tokenId;
-        return token;
-    });
-    tokens = await getTokensPrice(tokens);
+    // let tokens = pool.tokens.map((token: any) => {
+    //     let tokenId = "";
+    //     Object.keys(config.tokens).forEach((key) => {
+    //         const tk = config.tokens[key];
+    //         if (tk.address.toLowerCase() === token.address) {
+    //             tokenId = tk.id;
+    //         }
+    //     });
+    //     if (tokenId === "") {
+    //         tokenId = token.symbol.toLowerCase();
+    //     }
+    //     token.id = tokenId;
+    //     return token;
+    // });
+    // tokens = await getTokensPrice(tokens);
+
+    const tokensPrice = await getTokensPriceFormGraph();
+
     let sumWeight = new BigNumber(0);
     let sumValue = new BigNumber(0);
 
-    for (const token of tokens) {
-        const price = token.price;
+    for (const token of pool.tokens) {
+        const price = tokensPrice[token.address];
         if (!price) {
             continue;
         }
