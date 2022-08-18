@@ -20,13 +20,12 @@ import GradualWeight from "@/pages/pool/manage/gradual-weight";
 import ChangeTokenWeight from "@/pages/pool/manage/token-weight";
 import RemoveLiquidity from "@/pages/pool/manage/remove-liquidity";
 
-import { truncateAddress } from "@/util/address";
+import { getProxyAddress, truncateAddress } from "@/util/address";
 import { getPoolLiquidity } from "@/util/utils";
 
 import config from "@/config";
 import ERC20ABI from "@/contract/ERC20.json";
 import MulticalABI from "@/contract/pool/Multical.json";
-import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
 import ConfigurableRightsPoolABI from "@/contract/pool/ConfigurableRightsPool.json";
 import { getLbpData, swapPrice } from "@/util/lbpData";
 
@@ -66,7 +65,15 @@ const PoolManage = () => {
     const [chartPrice, setChartPrice] = useState<any[]>([]);
 
     useEffect(() => {
-        getProxyAddress();
+        if (active && account) {
+            getProxyAddress(library, account)
+                .then((res) => {
+                    setProxyAddress(res);
+                })
+                .catch((err) => {
+                    console.log("manage proxy address error", err);
+                });
+        }
         getInfo();
         getPoolMetrics();
 
@@ -181,21 +188,6 @@ const PoolManage = () => {
             });
             console.log("get pool info:", data);
             setPool(data.pool);
-        });
-    };
-
-    const getProxyAddress = async () => {
-        if (!active) {
-            return;
-        }
-        const contract = new Contract(
-            config.addresses.dsProxyRegistry,
-            DSProxyRegistryABI,
-            library.getSigner()
-        );
-        await contract.proxies(account).then((res: any) => {
-            console.log("proxy", res);
-            setProxyAddress(res);
         });
     };
 

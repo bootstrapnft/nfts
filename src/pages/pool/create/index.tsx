@@ -21,6 +21,7 @@ import {
     tokenListBalance,
     tokenListInfo,
 } from "@/util/tokens";
+import { getProxyAddress } from "@/util/address";
 
 const PoolCreate = () => {
     const [, setLoading] = useLoading();
@@ -70,7 +71,15 @@ const PoolCreate = () => {
                 const selectTokens = res.slice(0, 2);
                 setSelectTokens(selectTokens);
             });
-            await getProxyAddress();
+            if (active && account) {
+                await getProxyAddress(library, account)
+                    .then((res) => {
+                        setProxyAddress(res);
+                    })
+                    .catch((err) => {
+                        console.log("creat proxy address error", err);
+                    });
+            }
             setLoading(false);
         })();
 
@@ -186,24 +195,6 @@ const PoolCreate = () => {
         setSelectTokens([...selectTokens, tokens[0]]);
     };
 
-    const getProxyAddress = async () => {
-        if (!active) {
-            return;
-        }
-        const contract = new Contract(
-            config.addresses.dsProxyRegistry,
-            DSProxyRegistryABI,
-            library.getSigner()
-        );
-        await contract.proxies(account).then((res: any) => {
-            console.log("proxy", res);
-            if (res === "0x0000000000000000000000000000000000000000") {
-                return;
-            }
-            setProxyAddress(res);
-        });
-    };
-
     const setupProxy = async () => {
         try {
             setLoading(true);
@@ -215,7 +206,15 @@ const PoolCreate = () => {
             const tx = await contract.build();
             await tx.wait().then((res: any) => {
                 // setProxyAddress(res);
-                getProxyAddress();
+                if (active && account) {
+                    getProxyAddress(library, account)
+                        .then((res) => {
+                            setProxyAddress(res);
+                        })
+                        .catch((err) => {
+                            console.log("manage proxy address error", err);
+                        });
+                }
                 setLoading(false);
                 console.log("set up proxy:", res);
                 toast.success("Setup proxy success");
