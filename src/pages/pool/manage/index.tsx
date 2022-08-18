@@ -394,20 +394,35 @@ const PoolManage = () => {
                 console.log("get swaps:", data);
                 const swaps = data.swaps;
 
-                const chartPrice = swaps.map((item: any) => {
-                    const date = new Date(
+                const chartPrice: any[] = [];
+                swaps.forEach((item: any, index: number) => {
+                    // if (index > 0) {
+                    const currentDate = new Date(
                         item.timestamp * 1000
-                    ).toLocaleDateString();
+                    ).toLocaleString();
+
+                    // const previousDate = new Date(swaps[index - 1].timestamp * 1000).toLocaleDateString();
+                    // if (currentDate !== previousDate) {
                     const price = swapPrice(pool, item);
-                    return {
-                        date: date,
+                    chartPrice.push({
+                        date: currentDate,
                         price: Number(price.toFixed(3)),
-                    };
+                    });
+                    // }
+                    // }
                 });
                 console.log("chartPrice:", chartPrice);
                 setChartPrice(chartPrice);
             })
             .catch((err) => {});
+    };
+
+    const scale = {
+        date: {
+            type: "timeCat",
+            nice: true,
+            mask: "YYYY-MM-DD HH:mm",
+        },
     };
 
     // @ts-ignore
@@ -607,30 +622,20 @@ const PoolManage = () => {
                                         line={null}
                                         label={{ style: { fill: "#ebebeb" } }}
                                     />
-                                    {chartType !== "Price" && (
-                                        <Geom
-                                            type="interval"
-                                            position="date*value"
-                                            color="#31d399"
-                                            active={[
-                                                true,
-                                                {
-                                                    highlight: true,
-                                                    style: {
-                                                        color: "#fff",
-                                                    },
+                                    <Geom
+                                        type="interval"
+                                        position="date*value"
+                                        color="#31d399"
+                                        active={[
+                                            true,
+                                            {
+                                                highlight: true,
+                                                style: {
+                                                    color: "#fff",
                                                 },
-                                            ]}
-                                        />
-                                    )}
-                                    {chartType === "Price" && (
-                                        <Geom
-                                            type="line"
-                                            position="date*price"
-                                            color="#31d399"
-                                            shape={"smooth"}
-                                        />
-                                    )}
+                                            },
+                                        ]}
+                                    />
                                 </Chart>
                             </div>
                             <Chart
@@ -639,6 +644,7 @@ const PoolManage = () => {
                                 autoFit
                                 visible={chartType === "Price"}
                                 data={chartPrice}
+                                scale={scale}
                             >
                                 <Tooltip />
                                 <Axis

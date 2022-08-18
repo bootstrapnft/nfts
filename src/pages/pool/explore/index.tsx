@@ -8,7 +8,7 @@ import config from "@/config";
 import Pie from "@/components/pie";
 import { tokenListInfo } from "@/util/tokens";
 import { getPoolLiquidity, unknownColors } from "@/util/utils";
-import { truncateAddress } from "@/util/address";
+import { getProxyAddress, truncateAddress } from "@/util/address";
 import SelectToken from "@/pages/pool/component/select-token";
 
 import closeIcon from "@/assets/icon/close.svg";
@@ -18,9 +18,13 @@ import { useWeb3React } from "@web3-react/core";
 const PoolExplore = () => {
     const navigate = useNavigate();
     const [, setLoading] = useLoading();
-    const { account } = useWeb3React();
+    const { active, account, library } = useWeb3React();
     const [pools, setPools] = useState<any[]>([]);
     const [allPools, setAllPools] = useState<any[]>([]);
+    const [proxyAddress, setProxyAddress] = useState("");
+    const [activeType, setActiveType] = useState<"all" | "my" | "liquidity">(
+        "all"
+    );
     const [tokensInfo, setTokensInfo] = useState<any[]>([]);
     const [userShares, setUserShares] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState<any[]>([]);
@@ -36,6 +40,15 @@ const PoolExplore = () => {
 
     useEffect(() => {
         getUserShares();
+        if (active && account) {
+            getProxyAddress(library, account)
+                .then((res) => {
+                    setProxyAddress(res);
+                })
+                .catch((err) => {
+                    console.log("explore proxy address error", err);
+                });
+        }
     }, [account]);
 
     useEffect(() => {
@@ -63,6 +76,93 @@ const PoolExplore = () => {
                         tokensCount_gt: 1
                         crp: true
                         tokensList_not: []
+                    }
+                    first: 20
+                    skip: 0
+                    orderBy: "liquidity"
+                    orderDirection: "desc"
+                ) {
+                    id
+                    publicSwap
+                    finalized
+                    crp
+                    cap
+                    rights
+                    swapFee
+                    totalWeight
+                    totalShares
+                    totalSwapVolume
+                    liquidity
+                    tokensList
+                    swapsCount
+                    tokens(orderBy: "denormWeight", orderDirection: "desc") {
+                        id
+                        address
+                        balance
+                        decimals
+                        symbol
+                        denormWeight
+                    }
+                    swaps(
+                        first: 1
+                        orderBy: "timestamp"
+                        orderDirection: "desc"
+                        where: { timestamp_lt: 1655010000 }
+                    ) {
+                        poolTotalSwapVolume
+                    }
+                }
+            }
+        `;
+
+        setLoading(true);
+        request(config.subgraphUrl, query).then((data) => {
+            if (data.pools) {
+                const tokenInfo = config.tokens as unknown as {
+                    [key: string]: any;
+                };
+                data.pools.map((pool: any) => {
+                    pool.tokens.map((token: any, index: number) => {
+                        const address = ethers.utils.getAddress(token.address);
+                        token.color = tokenInfo[address]
+                            ? tokenInfo[address]["color"]
+                            : unknownColors[index];
+                        return token;
+                    });
+                    return pool;
+                });
+            }
+            console.log("data", data);
+            Promise.all(
+                data.pools.map(async (pool: any) => {
+                    pool.tokens.map((token: any) => {
+                        token.weightPercent = (
+                            (100 / pool.totalWeight) *
+                            token.denormWeight
+                        ).toFixed(1);
+                    });
+                    pool.poolLiquidity = await getPoolLiquidity(pool);
+                    return pool;
+                })
+            ).then((res) => {
+                setPools(res);
+                setAllPools(res);
+                setLoading(false);
+                setCurrentPage(res.slice(0, 10));
+            });
+        });
+    };
+
+    const getMyPoolList = async () => {
+        const query = gql`
+            {
+                pools(
+                    where: {
+                        active: true
+                        tokensCount_gt: 1
+                        crp: true
+                        tokensList_not: []
+                        crpController: "${proxyAddress}"
                     }
                     first: 20
                     skip: 0
@@ -192,6 +292,17 @@ const PoolExplore = () => {
         return myLiquidity;
     };
 
+    const changePoolType = (type: "all" | "my" | "liquidity") => {
+        setActiveType(type);
+        if (type === "all") {
+            getPoolList();
+        } else if (type === "my") {
+            getMyPoolList();
+        } else {
+            getPoolList();
+        }
+    };
+
     return (
         <Fragment>
             <main className="flex-1 flex flex-col px-4 xl:px-8 2xl:p-12 2xl:pb-28 py-12 pb-36 text-purple-second">
@@ -239,7 +350,39 @@ const PoolExplore = () => {
                             />
                         </div>
                     </header>
-                    <div className="bg-gradient-to-r from-transparent to-purple-primary h-px mb-4"></div>
+                    <div className="bg-gradient-to-r from-transparent to-purple-primary h-px mb-4" />
+                    <div className="space-x-3">
+                        <button
+                            className={`btn-primary ${
+                                activeType === "all"
+                                    ? "cursor-not-allowed opacity-60"
+                                    : ""
+                            }`}
+                            onClick={() => changePoolType("all")}
+                        >
+                            All Pools
+                        </button>
+                        <button
+                            className={`btn-primary ${
+                                activeType === "my"
+                                    ? "cursor-not-allowed opacity-60"
+                                    : ""
+                            }`}
+                            onClick={() => changePoolType("my")}
+                        >
+                            My Pools
+                        </button>
+                        <button
+                            className={`btn-primary ${
+                                activeType === "liquidity"
+                                    ? "cursor-not-allowed opacity-60"
+                                    : ""
+                            }`}
+                            onClick={() => changePoolType("liquidity")}
+                        >
+                            My Liquidity
+                        </button>
+                    </div>
                 </section>
                 <section>
                     <div className="rounded mt-4 bg-blue-primary px-3 pt-10 pb-20 rounded-lg md:px-8">
