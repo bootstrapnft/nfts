@@ -82,7 +82,7 @@ export const changeNetwork = async (network: Network, provider: any) => {
                 });
             } catch (switchError: any) {
                 console.log("aaa", switchError);
-                if (switchError.code === 4902) {
+                if (switchError.code === 4902 || switchError.code === -32603) {
                     try {
                         await provider.request({
                             method: "wallet_addEthereumChain",
@@ -95,5 +95,5 @@ export const changeNetwork = async (network: Network, provider: any) => {
             }
         }
     }
-    window.location.href = "/";
+    // window.location.href = "/";
 };
