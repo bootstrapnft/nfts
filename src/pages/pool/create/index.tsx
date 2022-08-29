@@ -5,7 +5,7 @@ import caution from "@/assets/icon/caution.svg";
 import SelectToken from "@/pages/pool/component/select-token";
 import config from "@/config";
 import { useWeb3React } from "@web3-react/core";
-import { BigNumber, Contract, ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import ERC20ABI from "@/contract/ERC20.json";
 import DSProxyRegistryABI from "@/contract/pool/DSProxyRegistry.json";
 import BActionABI from "@/contract/pool/BAction.json";
@@ -22,6 +22,7 @@ import {
     tokenListInfo,
 } from "@/util/tokens";
 import { getProxyAddress } from "@/util/address";
+import BigNumber from "bignumber.js";
 
 const PoolCreate = () => {
     const [, setLoading] = useLoading();
@@ -303,7 +304,7 @@ const PoolCreate = () => {
     };
 
     const createPool = async () => {
-        const NUMERIC_PRECISION = BigNumber.from(1e12);
+        const NUMERIC_PRECISION = new BigNumber(1e12);
         console.log("createPool", NUMERIC_PRECISION.toString(), selectTokens);
 
         const weights = selectTokens.map((token: any) => {
@@ -311,7 +312,7 @@ const PoolCreate = () => {
                 Math.round(
                     Number(tokenPercent[token.id]) *
                         NUMERIC_PRECISION.toNumber()
-                ) / NUMERIC_PRECISION.mul(2).toNumber();
+                ) / NUMERIC_PRECISION.times(2).toNumber();
             return ethers.utils.parseEther(weight.toString()).toString();
         });
 
@@ -463,9 +464,16 @@ const PoolCreate = () => {
     const tranAmount = (key: string) => {
         const amount = tokenAmount[key];
         const decimals = selectTokens.find((t: any) => t.id === key).decimals;
-        const res = amount * Math.pow(10, decimals);
-        console.log("tranAmount", key, amount, decimals, res, selectTokens);
-        return BigNumber.from(res + "").toString();
+        const result = new BigNumber(amount).times(Math.pow(10, decimals));
+        console.log(
+            "tranAmount",
+            key,
+            amount,
+            decimals,
+            result.toString(),
+            selectTokens
+        );
+        return result.toString();
     };
 
     const changePrice = (val: string, changeToken: any) => {

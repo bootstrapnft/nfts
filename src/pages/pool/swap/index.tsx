@@ -278,7 +278,7 @@ const PoolSwap = () => {
         );
         setSwaps(tradeSwaps);
         const assetOutAmountRaw = scale(tradeAmount, -assetOutDecimals);
-        const assetOutPrecision = config.defaultPrecision;
+        const assetOutPrecision = config.swapPrecision;
         console.log(
             "assetOutAmountRaw===",
             assetOutAmountRaw.toFixed(assetOutPrecision, BN.ROUND_DOWN)
@@ -351,7 +351,7 @@ const PoolSwap = () => {
         );
         setSwaps(tradeSwaps);
         const assetInAmountRaw = scale(tradeAmount, -assetInDecimals);
-        const assetInPrecision = config.defaultPrecision;
+        const assetInPrecision = config.swapPrecision;
         setSwapFromAmount(
             assetInAmountRaw.toFixed(assetInPrecision, BN.ROUND_UP)
         );

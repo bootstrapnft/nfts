@@ -95,5 +95,5 @@ export const changeNetwork = async (network: Network, provider: any) => {
             }
         }
     }
-    // window.location.href = "/";
+    window.location.href = "/";
 };

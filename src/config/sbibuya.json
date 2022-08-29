@@ -2,6 +2,7 @@
     "network": "sbibuya",
     "chainId": 81,
     "defaultPrecision": 2,
+    "swapPrecision": 5,
     "rpcUrl": "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
     "wsUrl": "wss://rinkeby.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161",
     "subgraphUrl": "http://124.222.87.17:8000/subgraphs/name/balancer-labs/balancer-subgraph",

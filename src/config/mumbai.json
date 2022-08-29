@@ -2,6 +2,7 @@
     "network": "mumbai",
     "chainId": 80001,
     "defaultPrecision": 2,
+    "swapPrecision": 5,
     "rpcUrl": "https://rpc-mumbai.maticvigil.com/v1/c1947560c824b65dcc8774279fe1225b3c835d35",
     "wsUrl": "wss://rinkeby.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161",
     "subgraphUrl": "/mumbai-bal",
