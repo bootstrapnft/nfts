@@ -61,9 +61,11 @@ const Liquidity = ({
 
     useEffect(() => {
         (async () => {
+            // @ts-ignore
             if (tokens === [] || proxyAddress === "") {
                 return;
             }
+            // @ts-ignore
             if (tokensAllowance !== []) {
                 setTokensAllowance({ ...tokensAllowance });
             }

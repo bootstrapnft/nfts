@@ -4,11 +4,10 @@ module.exports = function (app) {
     app.use(
         "/mumbai-bal",
         createProxyMiddleware({
-            target: "http://158.247.224.97:28000",
+            target: "http://158.247.224.97:18000",
             changeOrigin: true,
             pathRewrite: {
-                "^/mumbai-bal":
-                    "/subgraphs/name/balancer-labs/balancer-subgraph",
+                "^/mumbai-bal": "/subgraphs/name/bootstrapnft",
             },
         })
     );
@@ -18,7 +17,7 @@ module.exports = function (app) {
             target: "http://158.247.224.97:18000",
             changeOrigin: true,
             pathRewrite: {
-                "^/mumbai-nft": "/subgraphs/name/nft-fractional",
+                "^/mumbai-nft": "/subgraphs/name/bootstrapnft",
             },
         })
     );
@@ -26,11 +25,10 @@ module.exports = function (app) {
     app.use(
         "/rinkeby-bal",
         createProxyMiddleware({
-            target: "http://124.222.87.17:8000",
+            target: "http://45.77.30.9:7000",
             changeOrigin: true,
             pathRewrite: {
-                "^/rinkeby-bal":
-                    "/subgraphs/name/balancer-labs/balancer-subgraph",
+                "^/rinkeby-bal": "/subgraphs/name/bootstrapnft",
             },
         })
     );
@@ -40,7 +38,7 @@ module.exports = function (app) {
             target: "http://45.77.30.9:7000",
             changeOrigin: true,
             pathRewrite: {
-                "^/rinkeby-nft": "/subgraphs/name/nft-fractional",
+                "^/rinkeby-nft": "/subgraphs/name/bootstrapnft",
             },
         })
     );

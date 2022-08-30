@@ -139,9 +139,11 @@ const PoolCreate = () => {
 
     useEffect(() => {
         (async () => {
+            // @ts-ignore
             if (tokensInfo === [] || proxyAddress === "") {
                 return;
             }
+            // @ts-ignore
             if (tokensAllowance !== []) {
                 setTokensAllowance({ ...tokensAllowance });
             }
