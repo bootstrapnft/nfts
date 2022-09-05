@@ -44,6 +44,7 @@ export default class Swapper {
                 overrides
             );
         } catch (e) {
+            console.log("swap in error", e);
             return e;
         }
     }
