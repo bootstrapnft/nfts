@@ -11,20 +11,20 @@
     "explorer": "https://testnet.aurorascan.dev/",
     "exchangeUrl": "https://rinkeby.balancer.exchange",
     "addresses": {
-        "VaultFactoryAddress": "0x4ba6da6F6e375017c36fB0b00799834bF1469De6",
-        "bFactory": "0x4Fc494FB4223331a5C6B5729955426A83A13C3F7",
-        "crpFactory": "0x95777013b9f77adf2c3887CA4D5c6b04c0A471E4",
-        "bActions": "0x5B983fc7ae45b6867C27d6f5446b3360aDC10Dcf",
-        "dsProxyRegistry": "0x4Cc5893939218dCde9Ca533ad4E35000d5bb9f7c",
-        "proxy": "0x3dC7c33227f9becC4f35172301A6539bDfD22A62",
-        "weth": "0xA95aA7229Aaf354CA18FB8f9A5aA3e78B88a2806",
-        "multicall": "0x13B62b4084d7eba0B59D933FcAfB25C0ff88E275",
+        "VaultFactoryAddress": "0x943E2F2Ac714Ee8dcFCd15E18F7F7369b3FC6710",
+        "bFactory": "0x40eE0FEe44B2B42f157123aE46fb9bAfeA02F986",
+        "crpFactory": "0xf365f2dA5DF4583015782E4A64F80ad6cce0A7Bd",
+        "bActions": "0x6Db6a05FE299FB93642f9DeDBd9CCDEd999b4Dfa",
+        "dsProxyRegistry": "0x6ce014F681AD929144e387A3647016998E269966",
+        "proxy": "0xb79d39F5Dd90e48F7A9F0cc2e35885929B173eAd",
+        "weth": "0xd23BBE4386e2a738085990Bad5773CC16561b910",
+        "multicall": "0x7571d6d2816bFce459624C22EC9093E9FD99B256",
         "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-        "sorMulticall": "0xAFdbA29203159a16b38Be3e42Bb6bbB0C39a73Ba",
-        "exchangeProxy": "0x3dC7c33227f9becC4f35172301A6539bDfD22A62"
+        "sorMulticall": "0xcC96Cde54AEE84BB3ECe04De147b3f3C5B7c39A8",
+        "exchangeProxy": "0x28D5277Cc372410C63bC6dc3a3E456dE5d313410"
     },
     "swapDefaultAddress": {
-        "assetInDefaultAddress": "0x0457Ad7b48d98E3CD463B9F9d14EfED56332268D",
-        "assetOutDefaultAddress": "0xde4539989309d3c59C10A4cF8CE307BC1bacD287"
+        "assetInDefaultAddress": "0x3C666c26Baf19DE73F9BACD1453894602D55a162",
+        "assetOutDefaultAddress": "0x948B2f671242Cc12dDA4aBC7E9Fd348f6CFaF3dB"
     }
 }

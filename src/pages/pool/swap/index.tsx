@@ -178,7 +178,8 @@ const PoolSwap = () => {
             new BN(GAS_PRICE),
             MAX_POOLS,
             config.chainId,
-            poolsUrl
+            poolsUrl,
+            config.addresses.weth
         );
 
         sor.pools.getAllPublicSwapPools = function (url: any): any {
@@ -261,7 +262,8 @@ const PoolSwap = () => {
         console.time(
             `[SOR] getSwaps ${assetInAddress} ${assetOutAddress} exactIn`
         );
-        const [tradeSwaps, tradeAmount, spotPrice] = await sor.getSwaps(
+        console.log("pool list:", sor.onChainCache.pools);
+        let [tradeSwaps, tradeAmount, spotPrice] = await sor.getSwaps(
             assetInAddress,
             assetOutAddress,
             "swapExactIn",
@@ -273,6 +275,7 @@ const PoolSwap = () => {
             tradeAmount.toString(),
             spotPrice.toString()
         );
+
         console.timeEnd(
             `[SOR] getSwaps ${assetInAddress} ${assetOutAddress} exactIn`
         );
